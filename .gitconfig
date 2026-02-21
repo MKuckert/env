@@ -1,0 +1,16 @@
+[user]
+	name = Martin Kuckert
+	email = mkuckert@slashwhy.de
+[merge]
+	tool = opendiff
+[difftool]
+	prompt = false
+[mergetool]
+	prompt = false
+	keepbackup = false
+[pull]
+	rebase = false
+[core]
+	autocrlf = input
+[init]
+	defaultBranch = main

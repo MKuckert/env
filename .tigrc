@@ -1,0 +1,18 @@
+# see https://github.com/jonas/tig/blob/master/tigrc
+
+bind status + !git commit --amend
+bind status p !git push -u origin "%(branch)"
+bind status P !git push -f -u origin "%(branch)"
+bind main p !git push -u origin "%(branch)"
+bind main P !git push -f -u origin "%(branch)"
+bind refs n !@git branch "%(prompt branch name: )"
+bind main i !git rebase -i --autosquash "%(commit)^1"
+
+set main-view = line-number:no,interval=5 id:yes date:relative author:full commit-title:yes,graph=v2,refs=yes,overflow=no
+
+set tab-size = 4
+set line-graphics = utf-8
+set refresh-mode = auto
+set refresh-interval = 10
+set mailmap = yes
+
