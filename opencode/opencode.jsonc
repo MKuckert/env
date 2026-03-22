@@ -1,0 +1,151 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "google/pro",
+  "small_model": "ollama/tiny",
+  "server": {
+    "hostname": "0.0.0.0",
+    "port": 4444,
+  },
+  "plugin": ["@tarquinen/opencode-dcp@latest", "@mohak34/opencode-notifier@latest"],
+
+  // See https://opencode.ai/docs/permissions/
+  "permission": {
+    // Permissive by default
+    "*": "ask",
+
+    // reading a file (matches the file path)
+    "read": {
+      "*": "ask",
+      "*.env": "deny",
+      "*.env.*": "deny",
+      "*.env.example": "allow",
+    },
+
+    // all file modifications (covers edit, write, patch, multiedit)
+    "edit": "ask",
+
+    // file globbing (matches the glob pattern)
+    "glob": "ask",
+
+    // content search (matches the regex pattern)
+    "grep": "ask",
+
+    // listing files in a directory (matches the directory path)
+    "list": "ask",
+
+    // running shell commands (matches parsed commands like git status --porcelain)
+    "bash": {
+      "*": "ask",
+      "rm *": "deny",
+    },
+
+    // launching subagents (matches the subagent type)
+    "task": "allow",
+
+    // loading a skill (matches the skill name)
+    "skill": "ask",
+
+    // running LSP queries (currently non-granular)
+    "lsp": "ask",
+
+    // reading/updating the todo list
+    "todoread": "allow",
+    "todowrite": "ask",
+
+    // fetching a URL (matches the URL)
+    "webfetch": "ask",
+
+    // web/code search (matches the query)
+    "websearch": "ask",
+    "codesearch": "ask",
+
+    // triggered when a tool touches paths outside the project working directory
+    "external_directory": {
+      "*": "ask",
+    },
+
+    // triggered when the same tool call repeats 3 times with identical input
+    "doom_loop": "ask",
+  },
+  "agent": {
+    "build": {
+      "mode": "primary",
+      "model": "google/pro",
+    },
+    "plan": {
+      "mode": "primary",
+      "model": "google/pro",
+    },
+    "general": {
+      "mode": "subagent",
+      "model": "google/fast-cheap",
+    },
+    "explore": {
+      "mode": "subagent",
+      "model": "google/fast-cheap",
+    },
+    "title": {
+      "mode": "primary",
+      "hidden": true,
+      "model": "ollama/tiny",
+    },
+    "summary": {
+      "mode": "primary",
+      "hidden": true,
+      "model": "ollama/tiny",
+    },
+  },
+  "disabled_providers": ["opencode"],
+  "provider": {
+    "google": {
+      "blacklist": [
+        "gemini-1.5-flash",
+        "gemini-1.5-flash-8b",
+        "gemini-1.5-pro",
+        "gemini-2.0-flash",
+        "gemini-2.0-flash-lite",
+        "gemini-2.5-flash-image",
+        "gemini-2.5-flash-image-preview",
+        "gemini-2.5-flash-lite-preview-06-17",
+        "gemini-2.5-flash-lite-preview-09-2025",
+        "gemini-2.5-flash-preview-04-17",
+        "gemini-2.5-flash-preview-05-20",
+        "gemini-2.5-flash-preview-09-2025",
+        "gemini-2.5-flash-preview-tts",
+        "gemini-2.5-pro-preview-05-06",
+        "gemini-2.5-pro-preview-06-05",
+        "gemini-2.5-pro-preview-tts",
+        "gemini-3-flash-preview",
+        "gemini-3-pro-preview",
+        "gemini-3.1-flash-image-preview",
+        "gemini-embedding-001",
+        "gemini-flash-latest",
+        "gemini-flash-lite-latest",
+        "gemini-live-2.5-flash",
+        "gemini-live-2.5-flash-preview-native-audio",
+      ],
+      "models": {
+        "fast-cheap": {
+          "name": "Gemini Fast & Cheap (3.1 flash lite)",
+          "id": "gemini-3.1-flash-lite-preview",
+        },
+        "pro": {
+          "name": "Gemini Pro (3.1)",
+          "id": "gemini-3.1-pro-preview",
+        },
+      },
+    },
+    "ollama": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Ollama (local)",
+      "options": {
+        "baseURL": "http://127.0.0.1:11434/v1",
+      },
+      "models": {
+        "tiny": {
+          "name": "Tiny (qwen2.5:0.5b)",
+        },
+      },
+    },
+  },
+}
