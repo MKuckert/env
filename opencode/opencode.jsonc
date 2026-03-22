@@ -84,6 +84,13 @@
       "mode": "subagent",
       "model": "google/fast-cheap",
     },
+
+    // System agents
+    "compaction": {
+      "mode": "primary",
+      "hidden": true,
+      "model": "google/fast-cheap",
+    },
     "title": {
       "mode": "primary",
       "hidden": true,
