@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<!--
+Runs `opencode serve` to keep the opencode server running as a proper macos service.
+
+Copy/symlink into ~/Library/LaunchAgents
+
+Start service
+    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.user.opencode-serve.plist
+
+Stop service
+    launchctl bootout gui/$(id -u)/com.user.opencode-serve
+-->
+<dict>
+    <key>Label</key>
+    <string>com.user.opencode-serve</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/local/bin/opencode</string>
+        <string>serve</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true />
+    <key>KeepAlive</key>
+    <true />
+    <key>EnvironmentVariables</key>
+    <dict>
+        <!-- One would be tempted to set OPENCODE_SERVER_USERNAME too but `opencode attach` doesn't seem to support that (yet) -->
+        <key>OPENCODE_SERVER_PASSWORD</key>
+        <string>e4dmMWaZLU</string>
+    </dict>
+    <key>StandardOutPath</key>
+    <string>/Users/mkuckert/Library/Logs/opencode/serve.stdout.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/mkuckert/Library/Logs/opencode/serve.stderr.log</string>
+</dict>
+</plist>

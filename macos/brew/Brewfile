@@ -1,3 +1,5 @@
+# Use with `brew bundle`
+
 tap 'mas-cli/tap'
 
 brew "bash-completion"
@@ -11,6 +13,7 @@ brew "llvm"
 brew "mas"
 brew "ninja"
 brew "node"
+brew "ollama"
 brew "opencode"
 brew "php"
 brew "python@3.14"
@@ -19,18 +22,18 @@ brew "vim"
 brew "wget"
 
 cask "firefox"
-cask "google-chrome"
-cask "keepassxc"
-cask "steam"
 cask "gimp"
+cask "google-chrome"
 cask "inkscape"
-cask "microsoft-outlook"
-cask "microsoft-office"
+cask "keepassxc"
+#cask "microsoft-office"
 cask "microsoft-teams"
-cask "ollama"
 cask "spotify"
+cask "steam"
 cask "tunnelblick"
+cask "visual-studio-code"
+cask "zed"
 
 mas "AdBlock", id: 1402042596
 mas "Userscripts", id: 1463298887
-mas 'Xcode', id: 497799835
+#mas 'Xcode', id: 497799835

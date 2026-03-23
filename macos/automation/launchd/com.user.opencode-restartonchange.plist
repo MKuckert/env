@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<!--
+Detects changes to the opencode binary (e.g. because of updates) or the global opencode configs or
+agents and restarts the opencode server (see com.user.opencode-serve.plist).
+
+Copy/symlink into ~/Library/LaunchAgents
+
+Start service
+    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.user.opencode-restartonchange.plist
+
+Stop service
+    launchctl bootout gui/$(id -u)/com.user.opencode-restartonchange
+-->
+<dict>
+    <key>Label</key>
+    <string>com.user.opencode-restartonchange</string>
+    <key>WatchPaths</key>
+    <array>
+        <string>/usr/local/bin/opencode</string>
+        <string>/Users/mkuckert/.config/opencode/</string>
+        <string>/Users/mkuckert/.config/opencode/agents/</string>
+    </array>
+    <key>ProgramArguments</key>
+    <array>
+        <string>launchctl</string>
+        <string>kickstart</string>
+        <string>-k</string>
+        <string>gui/422624326/com.user.opencode-serve</string>
+    </array>
+    <key>ThrottleInterval</key>
+    <integer>30</integer>
+    <key>StandardOutPath</key>
+    <string>/Users/mkuckert/Library/Logs/opencode/restartonchange.stdout.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/mkuckert/Library/Logs/opencode/restartonchange.stderr.log</string>
+</dict>
+</plist>

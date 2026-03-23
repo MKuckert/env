@@ -142,6 +142,8 @@
         },
       },
     },
+
+    // Local models
     "ollama": {
       "npm": "@ai-sdk/openai-compatible",
       "name": "Ollama (local)",
