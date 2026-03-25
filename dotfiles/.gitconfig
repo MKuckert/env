@@ -1,0 +1,38 @@
+[user]
+	name = Martin Kuckert
+	email = mkuckert@slashwhy.de
+[core]
+	autocrlf = input
+	# Use custom `.gitignore` and `.gitattributes`.
+	excludesfile = ~/.gitignore
+[init]
+	defaultBranch = main
+[apply]
+	# Detect whitespace errors when applying a patch.
+	whitespace = fix
+[branch]
+	# Show most recently changed branches first.
+	sort = -committerdate
+[commit]
+	# https://help.github.com/articles/signing-commits-using-gpg/
+	#gpgsign = true
+[merge]
+	tool = opendiff
+	# Include summaries of merged commits in newly created merge commit messages
+	log = true
+[mergetool]
+	prompt = false
+	keepbackup = false
+[diff]
+	# Detect copies as well as renames.
+	renames = copies
+[difftool]
+	prompt = false
+[pull]
+	rebase = false
+[push]
+  # Make `git push` push relevant annotated tags when pushing branches out.
+	followTags = true
+[help]
+  # Automatically correct and execute mistyped commands.
+  autocorrect = 1

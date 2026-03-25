@@ -1,4 +1,4 @@
-set history=500
+set history=32768
 filetype plugin on
 filetype indent on
 
@@ -23,7 +23,7 @@ set tm=500
 
 syntax enable
 set background=dark
-set encoding=utf8
+set encoding=utf-8 nobomb
 
 set nobackup
 set nowb
@@ -37,5 +37,3 @@ set wrapmargin=0
 
 set laststatus=2
 set statusline=\ %F%m%r%h\ %w\ \ CWD:\ %r%{getcwd()}%h\ \ \ Line:\ %l\ \ Column:\ %c
-
-

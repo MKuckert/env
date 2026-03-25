@@ -4,14 +4,6 @@
 <!--
 Detects changes to the opencode binary (e.g. because of updates) or the global opencode configs or
 agents and restarts the opencode server (see com.user.opencode-serve.plist).
-
-Copy/symlink into ~/Library/LaunchAgents
-
-Start service
-    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.user.opencode-restartonchange.plist
-
-Stop service
-    launchctl bootout gui/$(id -u)/com.user.opencode-restartonchange
 -->
 <dict>
     <key>Label</key>

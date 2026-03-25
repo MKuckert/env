@@ -1,0 +1,4 @@
+BREW_PREFIX=$(brew --prefix)
+export PATH="${BREW_PREFIX}:$PATH"
+
+Add `$(brew --prefix coreutils)/libexec/gnubin` to your `$PATH`.

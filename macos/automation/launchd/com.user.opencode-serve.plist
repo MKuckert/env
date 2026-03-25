@@ -3,14 +3,6 @@
 <plist version="1.0">
 <!--
 Runs `opencode serve` to keep the opencode server running as a proper macos service.
-
-Copy/symlink into ~/Library/LaunchAgents
-
-Start service
-    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.user.opencode-serve.plist
-
-Stop service
-    launchctl bootout gui/$(id -u)/com.user.opencode-serve
 -->
 <dict>
     <key>Label</key>
