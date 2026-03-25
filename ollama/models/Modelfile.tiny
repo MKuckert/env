@@ -1,2 +1,2 @@
-FROM qwen2.5:0.5b
+FROM qwen2.5:0.5b-instruct-q4_K_M
 SYSTEM "You are a concise assistant. Create short, meaningful responses. Respond directly with a short answer, without any introductory text."
