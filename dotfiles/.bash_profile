@@ -21,7 +21,6 @@ shopt -s globstar
 # Add tab completion for many Bash commands
 if [ -r "$(brew --prefix)/etc/profile.d/bash_completion.sh" ]; then
 	source "$(brew --prefix)/etc/profile.d/bash_completion.sh";
-fi;
-if [ -f /etc/bash_completion ]; then
+elif [ -f /etc/bash_completion ]; then
 	source /etc/bash_completion;
 fi;
