@@ -1,39 +1,62 @@
-# Use with `brew bundle`
-
-tap 'mas-cli/tap'
-
-brew "bash-completion"
-brew "ccache"
-brew "clang-format"
-brew "cmake"
-brew "docker"
-brew "docker-compose"
-brew "git"
-brew "llvm"
-brew "mas"
-brew "ninja"
-brew "node"
-brew "ollama"
-brew "opencode"
+# Update outdated macOS tools
+brew "bash"
+brew "bash-completion2"
+brew "coreutils"
+brew "grep"
+brew "openssh"
 brew "php"
-brew "python@3.14"
-brew "tig"
+brew "screen"
 brew "vim"
 brew "wget"
 
-cask "firefox"
-cask "gimp"
-cask "google-chrome"
-cask "inkscape"
+# Support Mac AppStore in brew
+tap 'mas-cli/tap'
+brew "mas"
+
+# Security tools
+brew "gnupg"
+cask "tunnelblick"
+
+# Foundation
 cask "keepassxc"
-#cask "microsoft-office"
+
+# Necessary office tools
+cask "microsoft-excel"
+cask "microsoft-outlook"
+cask "microsoft-powerpoint"
+cask "microsoft-word"
 cask "microsoft-teams"
 cask "spotify"
-cask "steam"
-cask "tunnelblick"
+
+# Dev tools
+brew "git"
+brew "tig"
+brew "docker"
+brew "docker-compose"
 cask "visual-studio-code"
 cask "zed"
+mas 'Xcode', id: 497799835
 
+## C++
+brew "ccache"
+brew "clang-format"
+brew "cmake"
+brew "llvm"
+brew "ninja"
+
+## Gen AI
+brew "ollama", restart_service: :changed
+brew "opencode"
+
+# Browser
+cask "firefox"
+cask "google-chrome"
 mas "AdBlock", id: 1402042596
 mas "Userscripts", id: 1463298887
-#mas 'Xcode', id: 497799835
+
+# Graphic tools
+cask "gimp"
+cask "inkscape"
+
+# Private
+cask "steam"
