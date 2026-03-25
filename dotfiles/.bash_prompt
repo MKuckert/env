@@ -1,42 +1,6 @@
 # Heavily inspired by @necolas’s prompt: https://github.com/necolas/dotfiles
 export TERM='xterm-256color';
 
-prompt_git() {
-	local s='';
-	local branchName='';
-
-	# Check if the current directory is in a Git repository.
-	git rev-parse --is-inside-work-tree &>/dev/null || return;
-
-	# Check for what branch we’re on.
-	# Get the short symbolic ref. If HEAD isn’t a symbolic ref, get a
-	# tracking remote branch or tag. Otherwise, get the
-	# short SHA for the latest commit, or give up.
-	branchName="$(git symbolic-ref --quiet --short HEAD 2> /dev/null || \
-		git describe --all --exact-match HEAD 2> /dev/null || \
-		git rev-parse --short HEAD 2> /dev/null || \
-		echo '(unknown)')";
-
-	# Check for uncommitted changes in the index.
-	if ! $(git diff --quiet --ignore-submodules --cached); then
-		s+='+';
-	fi;
-	# Check for unstaged changes.
-	if ! $(git diff-files --quiet --ignore-submodules --); then
-		s+='!';
-	fi;
-	# Check for untracked files.
-	if [ -n "$(git ls-files --others --exclude-standard)" ]; then
-		s+='?';
-	fi;
-	# Check for stashed files.
-	if $(git rev-parse --verify refs/stash &>/dev/null); then
-		s+='$';
-	fi;
-
-	echo -e "${1}${branchName}${2}${s}";
-}
-
 # Compare to https://i.sstatic.net/a2S4s.png
 bold=$(tput bold);
 reset=$(tput sgr0);
@@ -51,14 +15,52 @@ violet=$(tput setaf 97);
 white=$(tput setaf 15);
 yellow=$(tput setaf 136);
 
-tput sgr0
+prompt_git() {
+	local color='';
+	local branchName='';
 
-PS1="\[\033]0;\W\007\]"; # working directory base name
-PS1+="\[${bold}\]";
-PS1+="\[${violet}\]\w"; # working directory full path
-PS1+="\$(prompt_git \"\[${white}\]@\[${blue}\]\" \"\[${orange}\]\")"; # Git repository details
+	# Early return if this isn't a git repository
+	git rev-parse --is-inside-work-tree &>/dev/null || return;
+
+	# Uncommitted changes in the index.
+	if ! $(git diff --quiet --ignore-submodules --cached); then
+		color=${red}
+	# Check for unstaged changes.
+	elif ! $(git diff-files --quiet --ignore-submodules --); then
+    color=${orange}
+	# Check for untracked files.
+	elif [ -n "$(git ls-files --others --exclude-standard)" ]; then
+	  color=${green}
+	  # TODO mark untracked
+	else
+	  color=${green}
+	fi
+
+  # Named branch
+	if branchName=$(git symbolic-ref --quiet --short HEAD 2>/dev/null); then
+      :
+  # Detached HEAD on a tag or ref
+  elif branchName=$(git describe --all --exact-match HEAD 2>/dev/null); then
+      :
+  # Commit-Hash only
+  elif branchName=$(git rev-parse --short HEAD 2>/dev/null); then
+      :
+  # 🤷‍♂️
+  else
+      branchName="🤷‍♂️"
+  fi
+
+	echo -e "@${color}${branchName}${reset}";
+}
+
+tput sgr0
+PS1="\[\033]0;\007\]";
+PS1+="\[${bold}\]\[${violet}\]\w\[${reset}\]"; # working directory full path
+PS1+="\$(prompt_git)"; # Git repository details
 PS1+="\[${white}\]\$ \[${reset}\]"; # `$` (and reset color)
 export PS1;
 
-PS2="\[${violet}\]→ \[${reset}\]";
+PS2="\[${bold}\]\[${violet}\]→ \[${reset}\]";
 export PS2;
+
+export PROMPT_DIRTRIM=4
