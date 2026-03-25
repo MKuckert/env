@@ -10,8 +10,11 @@ brew "vim"
 brew "wget"
 
 # Support Mac AppStore in brew
-tap 'mas-cli/tap'
+tap "mas-cli/tap"
 brew "mas"
+
+# Enable autoupdates for brew
+tap "domt4/autoupdate"
 
 # Security tools
 brew "gnupg"
