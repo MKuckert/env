@@ -16,6 +16,9 @@ brew "mas"
 # Enable autoupdates for brew
 tap "domt4/autoupdate"
 
+# Fonts
+cask "font-fira-code-nerd-font"
+
 # Security tools
 brew "gnupg"
 cask "tunnelblick"
@@ -38,7 +41,7 @@ brew "docker"
 brew "docker-compose"
 cask "visual-studio-code"
 cask "zed"
-mas 'Xcode', id: 497799835
+#mas 'Xcode', id: 497799835
 
 ## C++
 brew "ccache"

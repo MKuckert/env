@@ -1,66 +1,88 @@
-# Heavily inspired by @necolas’s prompt: https://github.com/necolas/dotfiles
+# Heavily inspifore_red by @necolas’s prompt: https://github.com/necolas/dotfiles
 export TERM='xterm-256color';
 
-# Compare to https://i.sstatic.net/a2S4s.png
-bold=$(tput bold);
-reset=$(tput sgr0);
-black=$(tput setaf 0);
-blue=$(tput setaf 32);
-cyan=$(tput setaf 37);
-green=$(tput setaf 64);
-orange=$(tput setaf 202);
-purple=$(tput setaf 125);
-red=$(tput setaf 124);
-violet=$(tput setaf 97);
-white=$(tput setaf 15);
-yellow=$(tput setaf 136);
+tput sgr0
 
-prompt_git() {
-	local color='';
-	local branchName='';
+set_prompt() {
+  local EXIT="$?"
 
-	# Early return if this isn't a git repository
-	git rev-parse --is-inside-work-tree &>/dev/null || return;
+  local bold=$(tput bold)
+  local reset=$(tput sgr0)
 
-	# Uncommitted changes in the index.
-	if ! $(git diff --quiet --ignore-submodules --cached); then
-		color=${red}
-	# Check for unstaged changes.
-	elif ! $(git diff-files --quiet --ignore-submodules --); then
-    color=${orange}
-	# Check for untracked files.
-	elif [ -n "$(git ls-files --others --exclude-standard)" ]; then
-	  color=${green}
-	  # TODO mark untracked
-	else
-	  color=${green}
+  # Compare to https://i.sstatic.net/a2S4s.png
+  local fore_black=$(tput setaf 0)
+  local fore_blue=$(tput setaf 32)
+  local fore_cyan=$(tput setaf 37)
+  local fore_green=$(tput setaf 70)
+  local fore_orange=$(tput setaf 202)
+  local fore_purple=$(tput setaf 125)
+  local fore_red=$(tput setaf 160)
+  local fore_violet=$(tput setaf 97)
+  local fore_white=$(tput setaf 253)
+  local fore_yellow=$(tput setaf 136)
+  local back_black=$(tput setab 0)
+  local back_blue=$(tput setab 32)
+  local back_cyan=$(tput setab 37)
+  local back_green=$(tput setab 70)
+  local back_orange=$(tput setab 202)
+  local back_purple=$(tput setab 125)
+  local back_red=$(tput setab 124)
+  local back_violet=$(tput setab 97)
+  local back_white=$(tput setab 15)
+  local back_yellow=$(tput setab 136)
+
+  local branchColor=""
+	local branchName=""
+	local branchIcon=""
+
+	PS1="\[\033]0;\w\007\]"; # working directory base name as window title
+  PS1+="\[${bold}${fore_violet}\]\w\[${reset}\]"; # working directory full path
+
+	if git rev-parse --is-inside-work-tree &>/dev/null; then
+  	# Uncommitted changes in the index.
+  	if ! $(git diff --quiet --ignore-submodules --cached); then
+  		branchColor=${fore_red}
+  		branchIcon="󱓊"
+  	# Check for unstaged changes.
+  	elif ! $(git diff-files --quiet --ignore-submodules --); then
+      branchColor=${fore_orange}
+      branchIcon="󱓍"
+  	# Check for untracked files.
+  	elif [ -n "$(git ls-files --others --exclude-standard)" ]; then
+  	  branchColor=${fore_green}
+  	  branchIcon="󰘬"
+  	else
+  	  branchColor=${fore_green}
+  	  branchIcon="󱓏"
+  	fi
+
+    # Named branch
+  	if branchName=$(git symbolic-ref --quiet --short HEAD 2>/dev/null); then
+  	  :
+    # Detached HEAD on a tag or ref
+    elif branchName=$(git describe --all --exact-match HEAD 2>/dev/null); then
+      :
+    # Commit-Hash only
+    elif branchName=$(git rev-parse --short HEAD 2>/dev/null); then
+      :
+    # 🤷‍♂️
+    else
+        branchName="🤷‍♂️"
+    fi
+
+    PS1+=" \[${fore_white}\]${branchIcon}\[${branchColor}\]${branchName}\[${reset}\]"
 	fi
 
-  # Named branch
-	if branchName=$(git symbolic-ref --quiet --short HEAD 2>/dev/null); then
-      :
-  # Detached HEAD on a tag or ref
-  elif branchName=$(git describe --all --exact-match HEAD 2>/dev/null); then
-      :
-  # Commit-Hash only
-  elif branchName=$(git rev-parse --short HEAD 2>/dev/null); then
-      :
-  # 🤷‍♂️
+  # Use different color for prompt when last exit returned exitcode != 0
+  if [ $EXIT -ne 0 ]; then
+    PS1+="\[${fore_red}\] ❯ \[${reset}\]"
   else
-      branchName="🤷‍♂️"
+    PS1+="\[${fore_white}\] ❯ \[${reset}\]"
   fi
-
-	echo -e "@${color}${branchName}${reset}";
 }
 
-tput sgr0
-PS1="\[\033]0;\007\]";
-PS1+="\[${bold}\]\[${violet}\]\w\[${reset}\]"; # working directory full path
-PS1+="\$(prompt_git)"; # Git repository details
-PS1+="\[${white}\]\$ \[${reset}\]"; # `$` (and reset color)
-export PS1;
-
-PS2="\[${bold}\]\[${violet}\]→ \[${reset}\]";
-export PS2;
-
+export PROMPT_COMMAND=set_prompt
 export PROMPT_DIRTRIM=4
+
+PS2="\[${bold}\]\[${fore_violet}\]→ \[${reset}\]";
+export PS2;

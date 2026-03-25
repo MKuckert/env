@@ -5,6 +5,10 @@
 	autocrlf = input
 	# Use custom `.gitignore` and `.gitattributes`.
 	excludesfile = ~/.gitignore
+	# Use filesystem monitor to speed status commands up
+	fsmonitor = true
+	# Cache untracked changes
+	untrackedCache = true
 [init]
 	defaultBranch = main
 [apply]
