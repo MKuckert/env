@@ -1,7 +1,4 @@
-# Heavily inspifore_red by @necolas’s prompt: https://github.com/necolas/dotfiles
-export TERM='xterm-256color';
-
-tput sgr0
+#!/usr/bin/env bash
 
 set_prompt() {
   local EXIT="$?"
@@ -80,6 +77,9 @@ set_prompt() {
     PS1+="\[${fore_white}\] ❯ \[${reset}\]"
   fi
 }
+
+export TERM='xterm-256color';
+tput sgr0
 
 export PROMPT_COMMAND=set_prompt
 export PROMPT_DIRTRIM=4

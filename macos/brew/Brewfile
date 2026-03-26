@@ -15,6 +15,7 @@ brew "mas"
 
 # Enable autoupdates for brew
 tap "domt4/autoupdate"
+brew "pinentry-mac"
 
 # Fonts
 cask "font-fira-code-nerd-font"
