@@ -26,6 +26,7 @@ cask "tunnelblick"
 
 # Foundation
 cask "keepassxc"
+brew "stats"
 
 # Necessary office tools
 cask "microsoft-excel"
