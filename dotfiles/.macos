@@ -506,6 +506,11 @@ defaults write com.apple.terminal SecureKeyboardEntry -bool true
 # Disable the annoying line marks
 defaults write com.apple.Terminal ShowLineMarks -int 0
 
+# Add my own profile
+defaults write com.apple.Terminal "Window Settings" -dict-add "mk" "$(plutil -convert xml1 -o - macos/terminal/mk.terminal)"
+defaults write com.apple.Terminal "Default Window Settings" -string "mk"
+defaults write com.apple.Terminal "Startup Window Settings" -string "mk"
+
 ###############################################################################
 # Time Machine                                                                #
 ###############################################################################
