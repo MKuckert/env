@@ -75,4 +75,4 @@ ollama create tiny -f ollama/models/Modelfile.tiny
 
 Most is my own work.
 
-Some of the `dotfiles` are derived from [Mathias Bynens](https://github.com/mathiasbynens/dotfiles) but heavily modified to match my preferences.
+Some of the `dotfiles` are inspired from [Mathias Bynens](https://github.com/mathiasbynens/dotfiles) but heavily modified to match my preferences.
