@@ -26,3 +26,19 @@ export HOMEBREW_NO_ENV_HINTS=1
 
 # Enables the websearch tool in opencode. See https://opencode.ai/docs/tools/#websearch
 export OPENCODE_ENABLE_EXA=1
+
+## Configures homebrew
+# Check Homebrew’s API for new formulae or cask data
+export HOMEBREW_API_AUTO_UPDATE_SECS=86400 # 24h
+
+# Cleanup all cached files older than this many days
+export HOMEBREW_CLEANUP_MAX_AGE_DAYS=30
+
+# If set, some brew commands will cleanup all formulae when this number of days has passed
+export HOMEBREW_CLEANUP_PERIODIC_FULL_DAYS=30
+
+# Space-separated list of casks. Homebrew will refuse to install a cask if it or any of its dependencies is on this list
+export HOMEBREW_FORBIDDEN_CASKS=
+
+# Space-separated list of formulae. Homebrew will refuse to install a formula or cask if it or any of its dependencies is on this list
+export HOMEBREW_FORBIDDEN_FORMULAE=node
