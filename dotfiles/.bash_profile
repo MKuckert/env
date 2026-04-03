@@ -25,3 +25,6 @@ if [ -r "$(brew --prefix)/etc/profile.d/bash_completion.sh" ]; then
 elif [ -f /etc/bash_completion ]; then
 	source /etc/bash_completion;
 fi;
+
+# Add fuzzy finder
+eval "$(fzf --bash)"
