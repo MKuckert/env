@@ -1,4 +1,4 @@
-set history=32768
+set history=500
 filetype plugin on
 filetype indent on
 
