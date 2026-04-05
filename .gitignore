@@ -1,2 +1,4 @@
 node_modules
 .DS_Store
+dotfiles/.env
+opencode/package-lock.json
