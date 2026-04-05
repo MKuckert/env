@@ -54,8 +54,10 @@ brew "llvm"
 brew "ninja"
 
 ## Gen AI
-brew "ollama", restart_service: :changed
 brew "opencode"
+brew "ollama", restart_service: :changed
+tap "jundot/omlx", "https://github.com/jundot/omlx"
+brew "omlx"
 
 # Browser
 cask "firefox"
