@@ -55,7 +55,7 @@ brew "llvm"
 brew "ninja"
 
 ## Gen AI
-brew "opencode"
+brew "anomalyco/tap/opencode"
 brew "ollama", restart_service: :changed
 tap "jundot/omlx", "https://github.com/jundot/omlx"
 brew "omlx"
