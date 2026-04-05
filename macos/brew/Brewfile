@@ -28,6 +28,7 @@ cask "tunnelblick"
 cask "keepassxc"
 brew "stats"
 brew "fzf"
+brew "direnv"
 
 # Necessary office tools
 cask "microsoft-excel"

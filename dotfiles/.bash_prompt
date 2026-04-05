@@ -86,3 +86,6 @@ export PROMPT_DIRTRIM=4
 
 PS2="\[${bold}\]\[${fore_violet}\]→ \[${reset}\]";
 export PS2;
+
+# Hook direnv into our bash
+eval "$(direnv hook bash)"

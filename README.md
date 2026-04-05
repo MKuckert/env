@@ -28,6 +28,7 @@ Symlink the dotfiles to your home directory:
 
 ```bash
 find "$(pwd)/dotfiles" -maxdepth 1 -name ".*" -exec ln -sf {} "$HOME" \;
+ln -s $(pwd)/direnv ~/.config/
 ```
 
 ### OpenCode (AI Agent harness)
