@@ -4,23 +4,28 @@ This repository contains the configuration files, automation scripts, and enviro
 
 ## Structure
 
-- **`dotfiles/`**: Standard configuration files for bash (`.bash_profile`, `.profile`), git (`.gitconfig`), vim (`.vimrc`), and tig (`.tigrc`). Symlink those files to the user directory
+- **`dotfiles/`**: Standard configuration files for bash (`.bash_profile`, `.bashrc`, `.bash_prompt`), environment variables (`.exports`, `.path`, `.aliases`), git (`.gitconfig`, `.gitignore`), vim (`.vimrc`), tig (`.tigrc`), and editorconfig (`.editorconfig`). Symlink those files to the user directory.
 - **`macos/`**: macOS-specific setup and automation.
-  - `brew/`: Contains the `Brewfile` to install all necessary packages, casks, and Mac App Store apps (via `mas`). Use it with `brew bundle`
+  - `init.sh`: Initial macOS system configuration script.
+  - `apps/`: Scripts to install specific applications (e.g. OpenAI on-device app, LlamaWatch).
+  - `brew/`: Contains the `Brewfile` to install all necessary packages, casks, and Mac App Store apps (via `mas`). Use it with `brew bundle`.
+  - `terminal/`: Contains macOS Terminal profile configurations (e.g., `mk.terminal`).
   - `automation/`
-  - Scripts for macOS Shortcuts. Create proper Shortcuts through the Shortcuts app and add `Run Shell Script` actions, executing those shell scripts
-  - Symlink Launchd configs to `~/Library/LaunchAgents`.<br />Start a service by calling `launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/$SERVICE.plist`.<br />Stop a service by calling `launchctl bootout gui/$(id -u)/$SERVICE`
+    - `shortcuts/`: Scripts for macOS Shortcuts. Create proper Shortcuts through the Shortcuts app and add `Run Shell Script` actions, executing those shell scripts.
+    - `launchd/`: Symlink Launchd configs to `~/Library/LaunchAgents`.<br />Start a service by calling `launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/$SERVICE.plist`.<br />Stop a service by calling `launchctl bootout gui/$(id -u)/$SERVICE`.
 - **`opencode/`**: Configuration for [OpenCode](https://opencode.ai/).
   - Includes custom providers setup (Google Gemini & local Ollama models).
-  - Configures custom agents and permissions.
-  - Plugin and dependency definitions (`package.json`, `opencode.jsonc`, `dcp.jsonc`).
+  - Configures custom agents and permissions (`agents/`).
+  - Configuration files (`opencode.jsonc`, `dcp.jsonc`, `tui.json`).
 - **`ollama/`**: Local LLM setup and model configurations (e.g., using `qwen2.5:0.5b` for tiny background tasks).
+- **`colima/`**: Configurations for Colima profiles (Docker, Containerd, AI).
+- **`direnv/`**: Configuration for `direnv` (`direnv.toml`).
 
 ## Setup Instructions
 
 ### First setup
 
-Execute `dotfiles/.macos` once to setup your mac.
+Execute `macos/init.sh` once to setup your mac.
 
 ### Dotfiles
 
@@ -81,7 +86,7 @@ Configures the following virtual machines (profiles):
 - `containerd`: Bare containers, accessible through `nerdctl`
 - `ai`: krunkit environment to run LLMs
 
-No VM is started by default. Call
+No VM is started by default. Start a profile with `colima start <profile>`.
 
 Perform the following for installation:
 ```bash
