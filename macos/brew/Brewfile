@@ -72,3 +72,4 @@ cask "inkscape"
 
 # Private
 cask "steam"
+cask "freefilesync"
