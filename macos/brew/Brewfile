@@ -26,6 +26,7 @@ cask "tunnelblick"
 
 # Foundation
 cask "keepassxc"
+cask "rectangle"
 brew "stats"
 brew "fzf"
 brew "direnv"
