@@ -36,7 +36,7 @@ ln -s $(pwd)/direnv ~/.config/
 Symlink the opencode directory to the global configs:
 
 ```bash
-ln -s $(pwd)/opencode ~/.config/
+ln -s $(pwd)/opencode ~/.config/opencode
 ```
 
 Ensure your API keys (e.g., for Google Gemini) are securely configured in your local environment, as they are excluded from this repository.
@@ -70,6 +70,25 @@ Brew starts the local Ollama service. You can pull required models, e.g. those c
 Or build the models from a Modelfile:
 ```bash
 ollama create tiny -f ollama/models/Modelfile.tiny
+```
+
+### Colima
+
+Provides container environment for docker and nerdctl.
+
+Configures the following virtual machines (profiles):
+- `docker`: Machine for docker environment, accessible through `docker`
+- `containerd`: Bare containers, accessible through `nerdctl`
+- `ai`: krunkit environment to run LLMs
+
+No VM is started by default. Call
+
+Perform the following for installation:
+```bash
+ln -s $(pwd)/colima ~/.colima
+
+colima completion bash > /usr/local/etc/bash_completion.d/colima
+colima -p containerd nerdctl install
 ```
 
 ## Source

@@ -42,11 +42,16 @@ cask "spotify"
 # Dev tools
 brew "git"
 brew "tig"
-brew "docker"
-brew "docker-compose"
 cask "visual-studio-code"
 cask "zed"
 #mas 'Xcode', id: 497799835
+
+## Containerization
+brew "docker"
+brew "docker-compose"
+brew "colima"
+tap "slp/krunkit"
+brew "krunkit"
 
 ## C++
 brew "ccache"

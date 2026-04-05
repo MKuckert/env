@@ -1,0 +1,32 @@
+# Number of CPUs
+cpu: 2
+
+# Memory in GiB
+memory: 4
+
+# Disk size in GiB (can only be increased after creation)
+disk: 50
+
+# Root filesystem disk size in GiB
+rootDisk: 2
+
+# Options: x86_64, aarch64, host
+arch: host
+
+# Options: qemu, vz, krunkit
+vmType: vz
+rosetta: true
+
+# Options: docker, containerd, incus
+runtime: docker
+
+# sshfs (default): Works everywhere, good compatibility
+# 9p: Better performance than sshfs
+# virtiofs: Best performance (requires VZ on macOS 13+)
+mountType: virtiofs
+
+forwardAgent: true
+
+docker:
+  features:
+    buildkit: true

@@ -1,0 +1,16 @@
+# Number of CPUs
+cpu: 4
+
+# Memory in GiB
+memory: 24
+
+# Disk size in GiB (can only be increased after creation)
+disk: 50
+
+# Options: qemu, vz, krunkit
+vmType: krunkit
+
+mounts: null
+
+# Model runner backend: docker (default), ramalama
+modelRunner: ramalama
