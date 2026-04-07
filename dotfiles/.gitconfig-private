@@ -1,0 +1,3 @@
+[user]
+	email = martin@curlybracket.de
+  signingkey = ~/private/sec/id_ed25519.pub

@@ -1,0 +1,3 @@
+[user]
+	email = mkuckert@slashwhy.de
+  signingkey = ~/work/sec/id_ed25519.pub

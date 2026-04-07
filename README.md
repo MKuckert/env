@@ -36,6 +36,7 @@ find "$(pwd)/dotfiles" -maxdepth 1 -name ".*" -exec ln -sf {} "$HOME" \;
 ln -s $(pwd)/direnv ~/.config/
 mkdir ~/.ssh
 ln -s $(pwd)/ssh/config ~/.ssh/
+ln -s $(pwd)/ssh/allowed_signers ~/.ssh/
 ```
 
 ### OpenCode (AI Agent harness)
@@ -99,6 +100,17 @@ fi;
 brew autoupdate start 43200 --immediate --upgrade --cleanup --ac-only --sudo
 ```
 
+### Git Configuration
+
+This repository includes custom git configurations (`.gitconfig`):
+- User name and email, separate for work and private projects
+- Git GPG signing enabled, using SSH for signing
+- Autocorrect for mistyped commands
+- File system monitor for faster status checks
+- Default branch set to `main`
+- Merge tool configured for opendiff
+- Automatic pushing of relevant annotated tags
+
 ### Ollama (local LLMs)
 
 Brew starts the local Ollama service. You can pull required models, e.g. those configured in `opencode.jsonc` by calling `ollama run <model>`.
@@ -131,7 +143,8 @@ colima -p containerd nerdctl install
 
 - Full path containing my username `mkuckert`, e.g. in `macos/automation/launchd/com.user.opencode-serve.plist`
 - My user id `422624326` as used in launchd services, e.g. in `macos/automation/launchd/com.user.opencode-restartonchange.plist`
-- The `ssh/config`
+- The `dotfiles/.gitconfig*` files
+- The `ssh/*` config files
 
 ## Source
 
