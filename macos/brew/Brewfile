@@ -30,6 +30,7 @@ cask "rectangle"
 brew "stats"
 brew "fzf"
 brew "direnv"
+brew "safe-rm"
 
 # Necessary office tools
 cask "microsoft-excel"

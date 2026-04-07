@@ -53,7 +53,7 @@ Ensure your API keys (e.g., for Google Gemini) are securely configured in your l
 The `macos/automation/launchd/` directory contains background services (agents) that can be managed via macOS `launchd`.
 
 Available Agents:
-- `com.user.opencode-serve`: Runs `opencode serve` to keep the OpenCode server running in the background as a proper macOS service.
+- `com.user.opencode-serve`: Runs `opencode serve` to keep the OpenCode server running in the background as a proper macOS service. **⚠️ Doesn't work properly with current opencode version!**
 - `com.user.opencode-restartonchange`: Watches for changes to the `opencode` binary or configuration files and automatically restarts the OpenCode server when an update occurs.
 
 Link the configuration files to your user's LaunchAgents directory:
