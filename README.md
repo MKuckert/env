@@ -46,6 +46,35 @@ ln -s $(pwd)/opencode ~/.config/opencode
 
 Ensure your API keys (e.g., for Google Gemini) are securely configured in your local environment, as they are excluded from this repository.
 
+### Launchd Services
+
+The `macos/automation/launchd/` directory contains background services (agents) that can be managed via macOS `launchd`.
+
+Available Agents:
+- `com.user.opencode-serve`: Runs `opencode serve` to keep the OpenCode server running in the background as a proper macOS service.
+- `com.user.opencode-restartonchange`: Watches for changes to the `opencode` binary or configuration files and automatically restarts the OpenCode server when an update occurs.
+
+Link the configuration files to your user's LaunchAgents directory:
+
+```bash
+ln -s $(pwd)/macos/automation/launchd/com.user.opencode-serve.plist ~/Library/LaunchAgents/
+ln -s $(pwd)/macos/automation/launchd/com.user.opencode-restartonchange.plist ~/Library/LaunchAgents/
+```
+
+Start a service by bootstrapping its configuration file:
+
+```bash
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.user.opencode-serve.plist
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.user.opencode-restartonchange.plist
+```
+
+Stop a service by using bootout with the service label:
+
+```bash
+launchctl bootout gui/$(id -u)/com.user.opencode-serve
+launchctl bootout gui/$(id -u)/com.user.opencode-restartonchange
+```
+
 ### Homebrew
 
 To install all required system packages, CLI tools, and applications:
@@ -95,6 +124,11 @@ ln -s $(pwd)/colima ~/.colima
 colima completion bash > /usr/local/etc/bash_completion.d/colima
 colima -p containerd nerdctl install
 ```
+
+## Things others would have to adjust
+
+- Full path containing my username `mkuckert`, e.g. in `macos/automation/launchd/com.user.opencode-serve.plist`
+- My user id `422624326` as used in launchd services, e.g. in `macos/automation/launchd/com.user.opencode-restartonchange.plist`
 
 ## Source
 
