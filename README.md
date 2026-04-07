@@ -34,6 +34,8 @@ Symlink the dotfiles to your home directory:
 ```bash
 find "$(pwd)/dotfiles" -maxdepth 1 -name ".*" -exec ln -sf {} "$HOME" \;
 ln -s $(pwd)/direnv ~/.config/
+mkdir ~/.ssh
+ln -s $(pwd)/ssh/config ~/.ssh/
 ```
 
 ### OpenCode (AI Agent harness)
@@ -129,6 +131,7 @@ colima -p containerd nerdctl install
 
 - Full path containing my username `mkuckert`, e.g. in `macos/automation/launchd/com.user.opencode-serve.plist`
 - My user id `422624326` as used in launchd services, e.g. in `macos/automation/launchd/com.user.opencode-restartonchange.plist`
+- The `ssh/config`
 
 ## Source
 

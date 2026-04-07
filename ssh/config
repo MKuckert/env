@@ -1,0 +1,12 @@
+Host git.slashwhy.de
+  IdentityFile ~/.ssh/id_ed25519_slashwhy
+  IdentitiesOnly yes
+
+Host github.com blueberry mkuckert.uber.space
+  IdentityFile ~/private/sec/id_ed25519
+  IdentitiesOnly yes
+
+Host *
+  AddKeysToAgent yes
+  UseKeychain yes
+  PermitLocalCommand yes
