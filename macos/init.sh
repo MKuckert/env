@@ -2,6 +2,11 @@
 
 # ~/.macos — https://mths.be/macos
 
+# Prepare initial directory structure
+mkdir -p ~/work/{projects,edu,tools,sec}
+mkdir -p ~/private/{dev,blueberry-sync,blueberry-loversquarrelsync,obsidian,sec}
+mkdir -p ~/ai/models/{ollama,omlx}
+
 # Close any open System Preferences panes, to prevent them from overriding
 # settings we’re about to change
 osascript -e 'tell application "System Preferences" to quit'
