@@ -1,0 +1,13 @@
+#define name translate-spoken-text
+#define glyph microphone
+#define color blue
+
+#include 'actions/translation'
+#include 'actions/intelligence'
+#include 'actions/text'
+
+const voice = listen("On Tap", "de_DE")
+const proofread = generateProofread(voice)
+const rewrite = generateRewrite(proofread)
+const en = translate(rewrite, "en_US", "de_DE")
+output(en)
