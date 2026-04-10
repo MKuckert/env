@@ -1,0 +1,18 @@
+#define name mount-blueberry-sync
+#define glyph syncArrows
+#define color blue
+
+#include './base.cherri'
+#include 'actions/network'
+
+@server = "smb://martin@blueberry/share-martin"
+
+const name = getWifiDetail("Network Name")
+if name == "No Kuckies" {
+  runAppleScript(@server, "tell application \"System Events\" \
+  try \
+    mount volume \"{server}\" \
+  end try \
+end tell")
+  runShellScript("FreeFileSync /path/to/sync.ffs_batch", nothing)
+}
