@@ -1,0 +1,15 @@
+#define name meeting-start
+#define glyph chatBubble
+#define color green
+
+#include 'base.cherri'
+
+pause()
+
+// Doesn't currently emit a correct action as of cherry v2.1.1
+// See https://github.com/electrikmilk/cherri/issues/166
+hideAllApps("com.microsoft.teams2")
+
+openApp("com.microsoft.teams2")
+
+output(nothing)

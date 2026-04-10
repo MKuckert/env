@@ -3,3 +3,4 @@ node_modules
 dotfiles/.env
 opencode/package-lock.json
 colima/_*/
+*.shortcut

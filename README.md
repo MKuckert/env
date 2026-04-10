@@ -11,7 +11,7 @@ This repository contains the configuration files, automation scripts, and enviro
   - `brew/`: Contains the `Brewfile` to install all necessary packages, casks, and Mac App Store apps (via `mas`). Use it with `brew bundle`.
   - `terminal/`: Contains macOS Terminal profile configurations (e.g., `mk.terminal`).
   - `automation/`
-    - `shortcuts/`: Scripts for macOS Shortcuts. Create proper Shortcuts through the Shortcuts app and add `Run Shell Script` actions, executing those shell scripts.
+    - `shortcuts/`: macOS Shortcuts written in Cherri. Contains the source `.cherri` files. Use the `cherri` compiler to create the corresponding `.shortcut`s.
     - `launchd/`: Symlink Launchd configs to `~/Library/LaunchAgents`.<br />Start a service by calling `launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/$SERVICE.plist`.<br />Stop a service by calling `launchctl bootout gui/$(id -u)/$SERVICE`.
 - **`opencode/`**: Configuration for [OpenCode](https://opencode.ai/).
   - Includes custom providers setup (Google Gemini & local Ollama models).
@@ -48,6 +48,24 @@ ln -s $(pwd)/opencode ~/.config/opencode
 ```
 
 Ensure your API keys (e.g., for Google Gemini) are securely configured in your local environment, as they are excluded from this repository.
+
+### macOS Shortcuts
+
+The `macos/automation/shortcuts/` directory contains `.cherri` source code files that can be compiled and then imported into the macOS Shortcuts app. These are useful for context switching and automating your workflow.
+
+Available Shortcuts:
+- `dev-start` / `dev-stop`: Opens/hides the development environment (Zed, Terminal) and manages the local `ollama` service.
+- `mail-start` / `mail-stop`: Opens/hides communication applications (Microsoft Teams and Outlook).
+- `meeting-start` / `meeting-stop`: Prepares the system for a meeting (hides unrelated apps, focuses Microsoft Teams).
+- `private-start` / `private-stop`: Prepares the system for private time (hides work apps, opens Steam).
+
+These shortcuts are written in [Cherri](https://github.com/electrikmilk/cherri) (`*.cherri`). You need to compile them using the Cherri CLI to generate `.shortcut` files, which can than be imported.
+
+Compile and import all shortcuts (opens the Shortcuts app with multiple acknowledgement dialogs):
+
+```bash
+find macos/automation/shortcuts -name '*-*.cherri' -exec echo {} ';' -exec cherri {} --open ';'
+```
 
 ### Launchd Services
 

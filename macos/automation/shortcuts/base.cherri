@@ -1,0 +1,6 @@
+#define mac true
+
+#include 'actions/mac'
+#include 'actions/music'
+
+const nothing = nothing()

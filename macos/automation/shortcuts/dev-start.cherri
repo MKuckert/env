@@ -1,0 +1,14 @@
+#define name dev-start
+#define glyph noteText
+#define color green
+
+#include 'base.cherri'
+
+openApp("dev.zed.Zed")
+openApp("com.apple.Terminal")
+
+runShellScript("brew services start ollama", nothing)
+wait(3)
+runShellScript("ollama run tiny --keepalive 24h \"\"", nothing)
+
+output(nothing)

@@ -1,0 +1,7 @@
+#define name meeting-stop
+#define glyph chatBubble
+#define color red
+
+#include 'base.cherri'
+
+output(nothing)

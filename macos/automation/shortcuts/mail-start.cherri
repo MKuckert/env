@@ -1,0 +1,10 @@
+#define name mail-start
+#define glyph envelopeOpen
+#define color green
+
+#include 'base.cherri'
+
+openApp("com.microsoft.teams2")
+openApp("com.microsoft.Outlook")
+
+output(nothing)

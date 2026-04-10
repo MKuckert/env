@@ -1,0 +1,12 @@
+#define name dev-stop
+#define glyph noteText
+#define color red
+
+#include 'base.cherri'
+
+hideApp("dev.zed.Zed")
+hideApp("com.apple.Terminal")
+
+runShellScript("ollama stop tiny", nothing)
+
+output(nothing)

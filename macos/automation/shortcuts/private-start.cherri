@@ -1,0 +1,13 @@
+#define name private-start
+#define glyph house
+#define color green
+
+#include 'base.cherri'
+
+// Doesn't currently emit a correct action as of cherry v2.1.1
+// See https://github.com/electrikmilk/cherri/issues/166
+hideAllApps("com.valvesoftware.steam")
+
+openApp("com.valvesoftware.steam")
+
+output(nothing)

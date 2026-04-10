@@ -31,6 +31,8 @@ brew "stats"
 brew "fzf"
 brew "direnv"
 brew "safe-rm"
+tap "electrikmilk/cherri"
+brew "cherri"
 
 # Necessary office tools
 cask "microsoft-excel"

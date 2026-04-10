@@ -1,0 +1,9 @@
+#define name private-stop
+#define glyph house
+#define color red
+
+#include 'base.cherri'
+
+quitApp("com.valvesoftware.steam")
+
+output(nothing)

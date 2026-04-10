@@ -1,0 +1,10 @@
+#define name mail-stop
+#define glyph envelope
+#define color red
+
+#include 'base.cherri'
+
+hideApp("com.microsoft.teams2")
+hideApp("com.microsoft.Outlook")
+
+output(nothing)
