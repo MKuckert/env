@@ -21,13 +21,13 @@ export DOTNET_CLI_TELEMETRY_OPTOUT=1
 export NUKE_TELEMETRY_OPTOUT=1
 export VCPKG_DISABLE_METRICS=1
 
-# Make brew less verbose about potential env vars
-export HOMEBREW_NO_ENV_HINTS=1
-
 # Enables the websearch tool in opencode. See https://opencode.ai/docs/tools/#websearch
 export OPENCODE_ENABLE_EXA=1
 
 ## Configures homebrew
+# Make brew less verbose about potential env vars
+export HOMEBREW_NO_ENV_HINTS=1
+
 # Check Homebrew’s API for new formulae or cask data
 export HOMEBREW_API_AUTO_UPDATE_SECS=86400 # 24h
 
@@ -42,3 +42,9 @@ export HOMEBREW_FORBIDDEN_CASKS=
 
 # Space-separated list of formulae. Homebrew will refuse to install a formula or cask if it or any of its dependencies is on this list
 export HOMEBREW_FORBIDDEN_FORMULAE=node
+
+# Ollama and OMLX
+MODELS_BASE=$(realpath ~)/ai/models
+export OLLAMA_MODELS=$MODELS_BASE/ollama
+export OMLX_MODEL_DIR=$MODELS_BASE/omlx
+export OMLX_PORT=11435 # ollama port +1
