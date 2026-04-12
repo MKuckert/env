@@ -4,3 +4,4 @@ dotfiles/.env
 opencode/package-lock.json
 colima/_*/
 *.shortcut
+token-usage-output.txt

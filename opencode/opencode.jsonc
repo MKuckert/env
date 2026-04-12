@@ -6,7 +6,7 @@
     "hostname": "0.0.0.0",
     "port": 4444,
   },
-  "plugin": ["@tarquinen/opencode-dcp@latest", "@mohak34/opencode-notifier@latest"],
+  "plugin": ["@tarquinen/opencode-dcp@latest", "@mohak34/opencode-notifier@latest", "@ramtinj95/opencode-tokenscope@latest"],
 
   // See https://opencode.ai/docs/permissions/
   "permission": {
