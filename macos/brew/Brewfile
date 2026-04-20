@@ -32,7 +32,7 @@ brew "fzf"
 brew "direnv"
 brew "safe-rm"
 tap "electrikmilk/cherri"
-brew "cherri"
+brew "electrikmilk/cherri/cherri"
 
 # Necessary office tools
 cask "microsoft-excel"
@@ -53,8 +53,8 @@ cask "zed"
 brew "docker"
 brew "docker-compose"
 brew "colima"
-tap "slp/krunkit"
-brew "krunkit"
+tap "slp/krun"
+brew "slp/krun/krunkit"
 
 ## C++
 brew "ccache"
@@ -67,7 +67,7 @@ brew "ninja"
 brew "anomalyco/tap/opencode"
 brew "ollama", restart_service: :changed
 tap "jundot/omlx", "https://github.com/jundot/omlx"
-brew "omlx"
+brew "jundot/omlx/omlx"
 
 # Browser
 cask "firefox"
