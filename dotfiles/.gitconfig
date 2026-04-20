@@ -4,6 +4,8 @@
   path = ~/.gitconfig-work
 [includeIf "gitdir:~/private/"]
   path = ~/.gitconfig-private
+[includeIf "gitdir:~/env/"]
+  path = ~/.gitconfig-private
 [core]
 	autocrlf = input
 	# Use custom `.gitignore` and `.gitattributes`.
