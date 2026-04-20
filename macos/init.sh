@@ -5,7 +5,7 @@
 # Prepare initial directory structure
 mkdir -p ~/work/{projects,edu,tools,sec}
 mkdir -p ~/private/{dev,blueberry-sync,blueberry-loversquarrelsync,obsidian,sec}
-mkdir -p ~/ai/models/{ollama,omlx}
+mkdir -p ~/ai/models/{huggingface,llama.cpp,ollama,omlx}
 
 # Close any open System Preferences panes, to prevent them from overriding
 # settings we’re about to change
