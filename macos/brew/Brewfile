@@ -22,6 +22,7 @@ cask "font-fira-code-nerd-font"
 
 # Security tools
 brew "gnupg"
+cask "bitwarden"
 
 # Foundation
 cask "keepassxc"
