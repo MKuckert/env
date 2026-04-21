@@ -42,6 +42,9 @@ cask "microsoft-word"
 cask "microsoft-teams"
 cask "spotify"
 
+# Knowledge
+cask "obsidian"
+
 # Dev tools
 brew "git"
 brew "tig"
