@@ -27,6 +27,28 @@ This repository contains the configuration files, automation scripts, and enviro
 
 Execute `macos/init.sh` once to setup your mac.
 
+### Homebrew
+
+To install all required system packages, CLI tools, and applications:
+
+```bash
+cd macos/brew
+brew bundle
+
+BREW_PREFIX=$(brew --prefix)
+ln -s "${BREW_PREFIX}/bin/gsha256sum" "${BREW_PREFIX}/bin/sha256sum"
+
+# Install brews installed bash as shell for current user
+if ! fgrep -q "${BREW_PREFIX}/bin/bash" /etc/shells; then
+  echo "${BREW_PREFIX}/bin/bash" | sudo tee -a /etc/shells;
+  chsh -s "${BREW_PREFIX}/bin/bash";
+fi;
+
+# Start automatic updates every 12 hours, immediatelly and on system boot if on AC power.
+# Passes --sudo as well to enable upgrading casks. The updater may ask for a password.
+brew autoupdate start 43200 --immediate --upgrade --cleanup --ac-only --sudo
+```
+
 ### Dotfiles
 
 Symlink the dotfiles to your home directory:
@@ -94,28 +116,6 @@ Stop a service by using bootout with the service label:
 ```bash
 launchctl bootout gui/$(id -u)/com.user.opencode-serve
 launchctl bootout gui/$(id -u)/com.user.opencode-restartonchange
-```
-
-### Homebrew
-
-To install all required system packages, CLI tools, and applications:
-
-```bash
-cd macos/brew
-brew bundle
-
-BREW_PREFIX=$(brew --prefix)
-ln -s "${BREW_PREFIX}/bin/gsha256sum" "${BREW_PREFIX}/bin/sha256sum"
-
-# Install brews installed bash as shell for current user
-if ! fgrep -q "${BREW_PREFIX}/bin/bash" /etc/shells; then
-  echo "${BREW_PREFIX}/bin/bash" | sudo tee -a /etc/shells;
-  chsh -s "${BREW_PREFIX}/bin/bash";
-fi;
-
-# Start automatic updates every 12 hours, immediatelly and on system boot if on AC power.
-# Passes --sudo as well to enable upgrading casks. The updater may ask for a password.
-brew autoupdate start 43200 --immediate --upgrade --cleanup --ac-only --sudo
 ```
 
 ### Git Configuration

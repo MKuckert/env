@@ -22,12 +22,11 @@ cask "font-fira-code-nerd-font"
 
 # Security tools
 brew "gnupg"
-cask "tunnelblick"
 
 # Foundation
 cask "keepassxc"
 cask "rectangle"
-brew "stats"
+cask "stats"
 brew "fzf"
 brew "direnv"
 brew "safe-rm"
