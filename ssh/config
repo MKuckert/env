@@ -1,5 +1,5 @@
 Host git.slashwhy.de
-  IdentityFile ~/.ssh/id_ed25519_slashwhy
+  IdentityFile ~/work/sec/id_ed25519
   IdentitiesOnly yes
 
 Host github.com blueberry mkuckert.uber.space
