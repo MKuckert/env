@@ -1,3 +1,5 @@
+Include /Users/mkuckert/.colima/ssh_config
+
 Host git.slashwhy.de
   IdentityFile ~/work/sec/id_ed25519
   IdentitiesOnly yes
