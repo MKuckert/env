@@ -20,11 +20,10 @@ shopt -s autocd
 shopt -s globstar
 
 # Add tab completion for many Bash commands
-if [ -r "$(brew --prefix)/etc/profile.d/bash_completion.sh" ]; then
-	source "$(brew --prefix)/etc/profile.d/bash_completion.sh";
-elif [ -f /etc/bash_completion ]; then
-	source /etc/bash_completion;
-fi;
+[[ -r "$(brew --prefix)/etc/profile.d/bash_completion.sh" ]] && . "$(brew --prefix)/etc/profile.d/bash_completion.sh"
+for file in ~/.config/bash_completion.d; do
+	[ -r "$file" ] && [ -f "$file" ] && source "$file";
+done;
 
 # Add fuzzy finder
 eval "$(fzf --bash)"

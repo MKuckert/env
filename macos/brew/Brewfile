@@ -1,6 +1,6 @@
 # Update outdated macOS tools
 brew "bash"
-brew "bash-completion2"
+brew "bash-completion@2"
 brew "coreutils"
 brew "grep"
 brew "openssh"

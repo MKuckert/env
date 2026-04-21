@@ -44,6 +44,9 @@ if ! fgrep -q "${BREW_PREFIX}/bin/bash" /etc/shells; then
   chsh -s "${BREW_PREFIX}/bin/bash";
 fi;
 
+# Add bash completion directory
+mkdir -p ~/.config/bash_completion.d
+
 # Start automatic updates every 12 hours, immediatelly and on system boot if on AC power.
 # Passes --sudo as well to enable upgrading casks. The updater may ask for a password.
 brew autoupdate start 43200 --immediate --upgrade --cleanup --ac-only --sudo
@@ -153,7 +156,7 @@ Perform the following for installation:
 ```bash
 ln -s $(pwd)/colima ~/.colima
 
-colima completion bash > /usr/local/etc/bash_completion.d/colima
+colima completion bash > ~/.config/bash_completion.d/colima
 colima -p containerd nerdctl install
 ```
 
