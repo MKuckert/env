@@ -2,6 +2,10 @@ node_modules
 .DS_Store
 dotfiles/.env
 opencode/package-lock.json
+
 colima/_*/
+colima/*/daemon/
+colima/ssh_config
+
 *.shortcut
 token-usage-output.txt
