@@ -57,6 +57,7 @@ brew "jq"
 ## Containerization
 brew "docker"
 brew "docker-compose"
+brew "docker-buildx"
 brew "colima"
 tap "slp/krun"
 brew "slp/krun/krunkit"
