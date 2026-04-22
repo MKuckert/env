@@ -72,6 +72,7 @@ brew "anomalyco/tap/opencode"
 brew "ollama", restart_service: :changed
 tap "jundot/omlx", "https://github.com/jundot/omlx"
 brew "jundot/omlx/omlx"
+brew "hf"
 
 # Browser
 cask "firefox"
