@@ -52,6 +52,7 @@ cask "visual-studio-code"
 cask "zed"
 mas 'Xcode', id: 497799835
 brew "gh"
+brew "jq"
 
 ## Containerization
 brew "docker"
