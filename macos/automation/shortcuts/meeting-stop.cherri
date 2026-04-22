@@ -4,4 +4,6 @@
 
 #include 'base.cherri'
 
+quitApp("com.microsoft.teams2")
+
 output(nothing)

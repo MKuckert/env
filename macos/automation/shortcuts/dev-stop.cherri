@@ -4,9 +4,15 @@
 
 #include 'base.cherri'
 
-hideApp("dev.zed.Zed")
+quitApp("dev.zed.Zed")
 hideApp("com.apple.Terminal")
 
+// Unload model but don't stop ai runner
 runShellScript("ollama stop tiny", nothing)
+
+// Stop container environment
+runShellScript("colima stop docker", nothing)
+runShellScript("colima stop containerd", nothing)
+runShellScript("colima stop ai", nothing)
 
 output(nothing)

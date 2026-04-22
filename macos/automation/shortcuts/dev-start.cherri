@@ -7,8 +7,14 @@
 openApp("dev.zed.Zed")
 openApp("com.apple.Terminal")
 
+// Start ai runner
 runShellScript("brew services start ollama", nothing)
 wait(3)
 runShellScript("ollama run tiny --keepalive 24h \"\"", nothing)
+
+// Start container environment
+runShellScript("colima start docker", nothing)
+runShellScript("colima start containerd", nothing)
+runShellScript("colima start ai", nothing)
 
 output(nothing)

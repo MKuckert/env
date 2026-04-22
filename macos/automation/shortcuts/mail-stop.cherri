@@ -4,7 +4,7 @@
 
 #include 'base.cherri'
 
-hideApp("com.microsoft.teams2")
-hideApp("com.microsoft.Outlook")
+quitApp("com.microsoft.teams2")
+quitApp("com.microsoft.Outlook")
 
 output(nothing)

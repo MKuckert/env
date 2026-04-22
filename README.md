@@ -92,6 +92,12 @@ Compile and import all shortcuts (opens the Shortcuts app with multiple acknowle
 find macos/automation/shortcuts -name '*-*.cherri' -exec echo {} ';' -exec cherri {} --open ';'
 ```
 
+#### How to retrieve Bundle ID of an app?
+
+```bash
+osascript -e 'id of app "APPNAME"'
+```
+
 ### Launchd Services
 
 The `macos/automation/launchd/` directory contains background services (agents) that can be managed via macOS `launchd`.
