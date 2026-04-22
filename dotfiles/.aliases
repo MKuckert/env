@@ -27,3 +27,6 @@ alias egrep='egrep --color=auto'
 alias oc_serve="opencode serve"
 alias oc_attach='opencode attach http://localhost:4444 --continue'
 alias oc='unset OPENCODE_SERVER_PASSWORD && opencode --port 4445'
+
+# brew
+alias brew_bundle="brew bundle -v --file ~/env/macos/brew/Brewfile"
