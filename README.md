@@ -52,6 +52,17 @@ mkdir -p ~/.config/bash_completion.d
 brew autoupdate start 43200 --immediate --upgrade --cleanup --ac-only --sudo
 ```
 
+#### docker-buildx
+
+The `docker-buildx` plugin is installed to enable extended build capabilities with BuildKit.
+
+You have to add the following to your `~/.docker/config.json`:
+```json
+  "cliPluginsExtraDirs": [
+      "/opt/homebrew/lib/docker/cli-plugins"
+  ]
+```
+
 ### Dotfiles
 
 Symlink the dotfiles to your home directory:
