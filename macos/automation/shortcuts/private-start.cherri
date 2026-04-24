@@ -10,4 +10,19 @@ hideAllApps("com.valvesoftware.steam")
 
 openApp("com.valvesoftware.steam")
 
+// One can't currently inject a variable into apple script
+// See https://github.com/electrikmilk/cherri/issues/173
+@server = "smb://martin@blueberry/share-martin"
+const name = getWifiDetail("Network Name")
+if name == "No Kuckies" {
+  runAppleScript(nothing, "
+  tell application \"System Events\"
+    try
+      mount volume \"smb://martin@blueberry/share-martin\"
+    end try
+  end tell
+  ")
+  runShellScript("freefilesync ~/private/blueberry-sync/tools/FreeFileSync/blueberry-sync.ffs_batch", nothing)
+}
+
 output(nothing)
