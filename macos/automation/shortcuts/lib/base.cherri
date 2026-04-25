@@ -1,11 +1,14 @@
 #define mac true
 
+#include 'actions/intelligence'
 #include 'actions/mac'
 #include 'actions/music'
 #include 'actions/network'
+#include 'actions/sharing'
 #include 'actions/shortcuts'
 #include 'actions/settings'
 #include 'actions/text'
+#include 'actions/translation'
 
 // base.cherri provides the following constants/variables:
 // - nothing: result of nothing(), usable for inline calls (e.g. runShellScript("…", nothing))

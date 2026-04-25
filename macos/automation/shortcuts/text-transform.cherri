@@ -1,0 +1,27 @@
+#define name text-transform
+#define glyph microphone
+#define color blue
+
+#include 'lib/base.cherri'
+
+menu "Input" {
+  item "Voice (de)":
+    @input = listen("On Tap", "de_DE")
+    @input = generateProofread(@input)
+  item "Voice (en)":
+    @input = listen("On Tap", "en_US")
+    @input = generateProofread(@input)
+  item "Clipboard":
+    @input = getClipboard()
+}
+
+menu "Output" {
+  item "Get":
+    @output = @input
+  item "Translate (de → en)":
+    @output = translate(@input, "en_US", "de_DE")
+  item "Translate (en → de)":
+    @output = translate(@input, "de_DE", "en_US")
+}
+
+outputOrClipboard(@output)
