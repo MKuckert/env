@@ -2,9 +2,9 @@
 #define glyph envelope
 #define color red
 
-#include 'base.cherri'
+#include 'lib/base.cherri'
 
 quitApp("com.microsoft.teams2")
 quitApp("com.microsoft.Outlook")
 
-output(nothing)
+paste gobble

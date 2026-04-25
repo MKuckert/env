@@ -1,0 +1,20 @@
+#define mac true
+
+#include 'actions/mac'
+#include 'actions/music'
+#include 'actions/network'
+#include 'actions/shortcuts'
+#include 'actions/settings'
+#include 'actions/text'
+
+// base.cherri provides the following constants/variables:
+// - nothing: result of nothing(), usable for inline calls (e.g. runShellScript("…", nothing))
+//
+// base.cherri provides the following pastables:
+// - gobble: output(nothing)
+
+const nothing = nothing()
+
+copy gobble {
+  output(nothing)
+}

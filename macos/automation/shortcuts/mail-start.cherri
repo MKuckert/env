@@ -2,9 +2,11 @@
 #define glyph envelopeOpen
 #define color green
 
-#include 'base.cherri'
+#include 'lib/base.cherri'
+#include 'lib/focus.cherri'
 
 openApp("com.microsoft.teams2")
 openApp("com.microsoft.Outlook")
 
-output(nothing)
+paste persist_focus
+paste gobble

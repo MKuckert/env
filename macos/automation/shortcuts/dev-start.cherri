@@ -2,7 +2,8 @@
 #define glyph noteText
 #define color green
 
-#include 'base.cherri'
+#include 'lib/base.cherri'
+#include 'lib/focus.cherri'
 
 openApp("dev.zed.Zed")
 openApp("com.apple.Terminal")
@@ -17,4 +18,5 @@ runShellScript("colima start docker", nothing)
 runShellScript("colima start containerd", nothing)
 runShellScript("colima start ai", nothing)
 
-output(nothing)
+paste persist_focus
+paste gobble

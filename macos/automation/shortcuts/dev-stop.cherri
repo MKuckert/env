@@ -2,7 +2,7 @@
 #define glyph noteText
 #define color red
 
-#include 'base.cherri'
+#include 'lib/base.cherri'
 
 quitApp("dev.zed.Zed")
 hideApp("com.apple.Terminal")
@@ -15,4 +15,4 @@ runShellScript("colima stop docker", nothing)
 runShellScript("colima stop containerd", nothing)
 runShellScript("colima stop ai", nothing)
 
-output(nothing)
+paste gobble

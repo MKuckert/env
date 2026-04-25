@@ -97,6 +97,8 @@ Available Shortcuts:
 
 These shortcuts are written in [Cherri](https://github.com/electrikmilk/cherri) (`*.cherri`). You need to compile them using the Cherri CLI to generate `.shortcut` files, which can than be imported.
 
+On can hook the start scripts to focus change events if you add corresponding focus modes (`dev`, `mail`, `meeting`, `private`).
+
 Compile and import all shortcuts (opens the Shortcuts app with multiple acknowledgement dialogs):
 
 ```bash

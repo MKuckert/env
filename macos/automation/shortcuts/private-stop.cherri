@@ -2,8 +2,8 @@
 #define glyph house
 #define color red
 
-#include 'base.cherri'
+#include 'lib/base.cherri'
 
 quitApp("com.valvesoftware.steam")
 
-output(nothing)
+paste gobble

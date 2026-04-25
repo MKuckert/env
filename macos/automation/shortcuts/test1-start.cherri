@@ -1,0 +1,7 @@
+#include 'lib/base.cherri'
+#include 'lib/focus.cherri'
+
+alert("hello from test")
+
+paste persist_focus
+paste gobble

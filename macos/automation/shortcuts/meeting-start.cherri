@@ -2,7 +2,8 @@
 #define glyph chatBubble
 #define color green
 
-#include 'base.cherri'
+#include 'lib/base.cherri'
+#include 'lib/focus.cherri'
 
 pause()
 
@@ -12,4 +13,5 @@ hideAllApps("com.microsoft.teams2")
 
 openApp("com.microsoft.teams2")
 
-output(nothing)
+paste persist_focus
+paste gobble

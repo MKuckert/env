@@ -2,7 +2,8 @@
 #define glyph house
 #define color green
 
-#include 'base.cherri'
+#include 'lib/base.cherri'
+#include 'lib/focus.cherri'
 
 // Doesn't currently emit a correct action as of cherry v2.1.1
 // See https://github.com/electrikmilk/cherri/issues/166
@@ -25,4 +26,5 @@ if name == "No Kuckies" {
   runShellScript("freefilesync ~/private/blueberry-sync/tools/FreeFileSync/blueberry-sync.ffs_batch", nothing)
 }
 
-output(nothing)
+paste persist_focus
+paste gobble
