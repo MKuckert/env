@@ -75,6 +75,7 @@ brew "ollama", restart_service: :changed
 tap "jundot/omlx", "https://github.com/jundot/omlx"
 brew "jundot/omlx/omlx"
 brew "hf"
+cask "chatbox"
 
 # Browser
 cask "firefox"
