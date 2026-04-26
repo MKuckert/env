@@ -62,6 +62,9 @@ brew "colima"
 tap "slp/krun"
 brew "slp/krun/krunkit"
 
+## Go
+brew "go"
+
 ## C++
 brew "ccache"
 brew "clang-format"
