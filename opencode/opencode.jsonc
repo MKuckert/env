@@ -10,6 +10,7 @@
     "@tarquinen/opencode-dcp@latest",
     "@mohak34/opencode-notifier@latest",
     "@ramtinj95/opencode-tokenscope@latest",
+    "@slkiser/opencode-quota@latest",
     //"@ljw1004/opencode-trace",
   ],
 
@@ -160,6 +161,11 @@
           "name": "Tiny (qwen2.5:0.5b)",
         },
       },
+    },
+  },
+  "experimental": {
+    "quotaToast": {
+      "enableToast": false,
     },
   },
 }
