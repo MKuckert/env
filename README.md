@@ -73,6 +73,7 @@ ln -s $(pwd)/direnv ~/.config/
 mkdir ~/.ssh
 ln -s $(pwd)/ssh/config ~/.ssh/
 ln -s $(pwd)/ssh/allowed_signers ~/.ssh/
+ln -s $(pwd)/omlx/settings.json ~/.omlx/
 ```
 
 ### OpenCode (AI Agent harness)
