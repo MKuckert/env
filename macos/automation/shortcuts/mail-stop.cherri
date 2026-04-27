@@ -3,8 +3,10 @@
 #define color red
 
 #include 'lib/base.cherri'
+#include 'lib/appids.cherri'
 
-quitApp("com.microsoft.teams2")
-quitApp("com.microsoft.Outlook")
+quitApp(APPID_TEAMS)
+quitApp(APPID_OUTLOOK)
+quitApp(APPID_MATTERMOST)
 
 paste gobble

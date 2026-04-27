@@ -5,8 +5,8 @@
 #include 'lib/base.cherri'
 #include 'lib/focus.cherri'
 
-openApp("dev.zed.Zed")
-openApp("com.apple.Terminal")
+openApp(APPID_ZED)
+openApp(APPID_TERMINAL)
 
 // Start ai runner
 runShellScript("brew services start ollama", nothing)

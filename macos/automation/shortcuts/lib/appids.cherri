@@ -1,0 +1,10 @@
+const APPID_TEAMS = "com.microsoft.teams2"
+const APPID_OUTLOOK = "com.microsoft.Outlook"
+
+// Mattermost is a safari dock app
+const APPID_MATTERMOST = "com.apple.Safari.WebApp.459E1526-EFED-4EA0-83C2-9AF7BA036197"
+
+const APPID_ZED = "dev.zed.Zed"
+const APPID_TERMINAL = "com.apple.Terminal"
+
+const APPID_STEAM = "com.valvesoftware.steam"

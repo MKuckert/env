@@ -3,10 +3,12 @@
 #define color green
 
 #include 'lib/base.cherri'
+#include 'lib/appids.cherri'
 #include 'lib/focus.cherri'
 
-openApp("com.microsoft.teams2")
-openApp("com.microsoft.Outlook")
+openApp(APPID_TEAMS)
+openApp(APPID_OUTLOOK)
+openApp(APPID_MATTERMOST)
 
 paste persist_focus
 paste gobble

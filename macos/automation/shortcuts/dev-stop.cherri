@@ -4,8 +4,8 @@
 
 #include 'lib/base.cherri'
 
-quitApp("dev.zed.Zed")
-hideApp("com.apple.Terminal")
+quitApp(APPID_ZED)
+hideApp(APPID_TERMINAL)
 
 // Unload model but don't stop ai runner
 runShellScript("ollama stop tiny", nothing)

@@ -9,9 +9,9 @@ pause()
 
 // Doesn't currently emit a correct action as of cherry v2.1.1
 // See https://github.com/electrikmilk/cherri/issues/166
-hideAllApps("com.microsoft.teams2")
+hideAllApps(APPID_TEAMS)
 
-openApp("com.microsoft.teams2")
+openApp(APPID_TEAMS)
 
 paste persist_focus
 paste gobble

@@ -4,6 +4,6 @@
 
 #include 'lib/base.cherri'
 
-quitApp("com.microsoft.teams2")
+quitApp(APPID_TEAMS)
 
 paste gobble

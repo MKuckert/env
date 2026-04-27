@@ -7,9 +7,9 @@
 
 // Doesn't currently emit a correct action as of cherry v2.1.1
 // See https://github.com/electrikmilk/cherri/issues/166
-hideAllApps("com.valvesoftware.steam")
+hideAllApps(APPID_STEAM)
 
-openApp("com.valvesoftware.steam")
+openApp(APPID_STEAM)
 
 // One can't currently inject a variable into apple script
 // See https://github.com/electrikmilk/cherri/issues/173

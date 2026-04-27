@@ -4,6 +4,6 @@
 
 #include 'lib/base.cherri'
 
-quitApp("com.valvesoftware.steam")
+quitApp(APPID_STEAM)
 
 paste gobble
