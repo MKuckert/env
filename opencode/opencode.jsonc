@@ -160,6 +160,9 @@
         "tiny": {
           "name": "Tiny (qwen2.5:0.5b)",
         },
+        "big": {
+          "name": "Big (qwen3.6:27b)",
+        },
       },
     },
   },
