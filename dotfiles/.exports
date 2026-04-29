@@ -55,6 +55,8 @@ export HF_HOME=~/ai/huggingface
 export HF_HUB_CACHE=$HF_HOME/cache
 export HF_XET_HIGH_PERFORMANCE=1
 
+# Go
+export GOPATH=~/.go
 
 # Disable some analytics
 export DO_NOT_TRACK=1
