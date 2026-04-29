@@ -3,3 +3,6 @@
 # Brew installed binaries
 export PATH="$(brew --prefix):$PATH"
 export PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH"
+
+# llama.cpp
+export PATH="/Users/mkuckert/private/dev/llama.cpp/build/bin:$PATH"

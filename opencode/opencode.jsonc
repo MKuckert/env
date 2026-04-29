@@ -173,10 +173,23 @@
       "name": "oMLX (local)",
       "options": {
         "baseURL": "http://127.0.0.1:11435/v1",
-        "apiKey": "Vva2Y6nkKHWytCEfT1hB",
+        "apiKey": "MISSING",
       },
       "models": {
         "mlx-community-Qwen3.6-27B-4bit": {
+          "name": "Big (qwen3.6:27b)",
+        },
+      },
+    },
+    "llama.cpp": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "llama.cpp (local)",
+      "options": {
+        "baseURL": "http://0.0.0.0:11436/v1",
+        "apiKey": "MISSING",
+      },
+      "models": {
+        "Qwen3.6-27B-Q4_K_M": {
           "name": "Big (qwen3.6:27b)",
         },
       },
