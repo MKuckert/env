@@ -3,9 +3,11 @@
 #define color red
 
 #include 'lib/base.cherri'
+#include 'lib/appids.cherri'
 
 quitApp(APPID_ZED)
 hideApp(APPID_TERMINAL)
+quitApp(APPID_TIMELOGGER)
 
 // Unload model but don't stop ai runner
 runShellScript("ollama stop tiny", nothing)

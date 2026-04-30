@@ -19,6 +19,8 @@ const _empty = ""
 const _out = runShellScript("cat {_focusfile}", nothing)
 const previous_focus = text(_out)
 if previous_focus != _empty {
+  runShellScript("timelog stop", nothing)
+
   const shortcut = "{previous_focus}-stop"
   run(shortcut, nothing)
 }

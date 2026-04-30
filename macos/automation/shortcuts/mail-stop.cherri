@@ -8,5 +8,6 @@
 quitApp(APPID_TEAMS)
 quitApp(APPID_OUTLOOK)
 quitApp(APPID_MATTERMOST)
+quitApp(APPID_TIMELOGGER)
 
 paste gobble

@@ -3,7 +3,10 @@
 #define color green
 
 #include 'lib/base.cherri'
+#include 'lib/appids.cherri'
 #include 'lib/focus.cherri'
+
+runShellScript("timelog start meeting", nothing)
 
 pause()
 

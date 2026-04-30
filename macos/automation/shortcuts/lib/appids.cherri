@@ -4,6 +4,9 @@ const APPID_OUTLOOK = "com.microsoft.Outlook"
 // Mattermost is a safari dock app
 const APPID_MATTERMOST = "com.apple.Safari.WebApp.459E1526-EFED-4EA0-83C2-9AF7BA036197"
 
+// Time logger is a safari dock app
+const APPID_TIMELOGGER = "com.apple.Safari.WebApp.B9A54A4C-E438-4FFF-AE83-BD268C707997"
+
 const APPID_ZED = "dev.zed.Zed"
 const APPID_TERMINAL = "com.apple.Terminal"
 

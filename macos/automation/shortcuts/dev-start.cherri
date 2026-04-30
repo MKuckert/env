@@ -3,10 +3,14 @@
 #define color green
 
 #include 'lib/base.cherri'
+#include 'lib/appids.cherri'
 #include 'lib/focus.cherri'
+
+runShellScript("timelog start dev", nothing)
 
 openApp(APPID_ZED)
 openApp(APPID_TERMINAL)
+openApp(APPID_TIMELOGGER)
 
 // Start ai runner
 runShellScript("brew services start ollama", nothing)
