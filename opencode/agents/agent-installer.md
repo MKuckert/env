@@ -21,6 +21,7 @@ permission:
   external_directory:
     "~/.config/opencode/agents/*.md": allow
     ".opencode/agents/*.md": allow
+steps: 10
 color: "#000000"
 ---
 
