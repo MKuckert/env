@@ -7,7 +7,6 @@
     "port": 4444,
   },
   "plugin": [
-    "@tarquinen/opencode-dcp@latest",
     "@mohak34/opencode-notifier@latest",
     "@ramtinj95/opencode-tokenscope@latest",
     "@slkiser/opencode-quota@latest",
@@ -199,6 +198,10 @@
         },
       },
     },
+  },
+  "compaction": {
+    "auto": true,
+    "prune": true,
   },
   "experimental": {
     "quotaToast": {
