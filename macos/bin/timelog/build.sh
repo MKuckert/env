@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 
-cd ~/private/dev
+BUILDDIR=~/private/dev
+TOOLDIR=timelog
+cd $BUILDDIR
 
-if [ ! -d timelog ]; then
+if [ ! -d $TOOLDIR ]; then
   git clone "git@github.com:qbart/timelog.git"
-  cd timelog
+  cd $TOOLDIR
 else
-  cd timelog
+  cd $TOOLDIR
   git pull
 fi
 
@@ -16,4 +18,4 @@ make build
 
 bin/timelog autocomplete install > ~/.config/bash_completion.d/timelog
 
-echo "Built to ~/private/dev/timelog/bin"
+echo "Built to $BUILDDIR/$TOOLDIR/bin"
