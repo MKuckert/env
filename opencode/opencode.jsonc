@@ -203,6 +203,8 @@
     "auto": true,
     "prune": true,
   },
+  // Disables the snapshot feature to roll back agent changes as I'm not using it anyway
+  "snapshot": false,
   "experimental": {
     "quotaToast": {
       "enableToast": false,
