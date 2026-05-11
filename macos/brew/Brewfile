@@ -31,8 +31,6 @@ cask "stats"
 brew "fzf"
 brew "direnv"
 brew "safe-rm"
-tap "electrikmilk/cherri"
-brew "electrikmilk/cherri/cherri"
 brew "mactop"
 
 # Necessary office tools

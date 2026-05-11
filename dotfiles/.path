@@ -9,3 +9,6 @@ export PATH="/Users/mkuckert/private/dev/llama.cpp/build/bin:$PATH"
 
 # timelog
 export PATH="/Users/mkuckert/private/dev/timelog/bin:$PATH"
+
+# cherri
+export PATH="/Users/mkuckert/private/dev/cherri:$PATH"
