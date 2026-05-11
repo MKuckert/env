@@ -94,3 +94,4 @@ cask "inkscape"
 # Private
 cask "steam"
 cask "freefilesync"
+cask "sweet-home3d"
