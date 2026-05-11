@@ -6,7 +6,10 @@
 #include 'lib/appids.cherri'
 #include 'lib/focus.cherri'
 
-runShellScript("timelog start mail", nothing)
+runShellScript('
+source ~/.bash_profile
+timelog start mail
+')
 
 openApp(APPID_TEAMS)
 openApp(APPID_OUTLOOK)

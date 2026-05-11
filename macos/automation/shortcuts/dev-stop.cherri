@@ -9,12 +9,16 @@ quitApp(APPID_ZED)
 hideApp(APPID_TERMINAL)
 quitApp(APPID_TIMELOGGER)
 
-// Unload model but don't stop ai runner
-runShellScript("ollama stop tiny", nothing)
+runShellScript('
+source ~/.bash_profile
 
-// Stop container environment
-runShellScript("colima stop docker", nothing)
-runShellScript("colima stop containerd", nothing)
-runShellScript("colima stop ai", nothing)
+# Unload model but do not stop ai runner
+ollama stop tiny
+
+# Stop container environment
+colima stop docker
+colima stop containerd
+colima stop ai
+')
 
 paste gobble

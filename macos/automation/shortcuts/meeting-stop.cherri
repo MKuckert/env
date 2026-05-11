@@ -3,6 +3,7 @@
 #define color red
 
 #include 'lib/base.cherri'
+#include 'lib/appids.cherri'
 
 quitApp(APPID_TEAMS)
 

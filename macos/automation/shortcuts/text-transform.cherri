@@ -6,10 +6,10 @@
 
 menu "Input" {
   item "Voice (de)":
-    @input = listen("On Tap", "de_DE")
+    @input = listen("On Tap", "de-DE")
     @input = generateProofread(@input)
   item "Voice (en)":
-    @input = listen("On Tap", "en_US")
+    @input = listen("On Tap", "en-US")
     @input = generateProofread(@input)
   item "Clipboard":
     @input = getClipboard()

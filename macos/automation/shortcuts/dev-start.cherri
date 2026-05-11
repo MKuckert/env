@@ -6,21 +6,24 @@
 #include 'lib/appids.cherri'
 #include 'lib/focus.cherri'
 
-runShellScript("timelog start dev", nothing)
+runShellScript('
+source ~/.bash_profile
+timelog start dev
+
+# Start ai runner
+brew services start ollama
+sleep 3
+ollama run tiny --keepalive 24h ""
+
+# Start container environment
+colima start docker
+colima start containerd
+colima start ai
+')
 
 openApp(APPID_ZED)
 openApp(APPID_TERMINAL)
 openApp(APPID_TIMELOGGER)
-
-// Start ai runner
-runShellScript("brew services start ollama", nothing)
-wait(3)
-runShellScript("ollama run tiny --keepalive 24h \"\"", nothing)
-
-// Start container environment
-runShellScript("colima start docker", nothing)
-runShellScript("colima start containerd", nothing)
-runShellScript("colima start ai", nothing)
 
 paste persist_focus
 paste gobble

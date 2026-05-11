@@ -16,10 +16,10 @@
 const _focusfile = "~/.focus"
 const _empty = ""
 
-const _out = runShellScript("cat {_focusfile}", nothing)
+const _out = runShellScript("cat {_focusfile}")
 const previous_focus = text(_out)
 if previous_focus != _empty {
-  runShellScript("timelog stop", nothing)
+  runShellScript("timelog stop")
 
   const shortcut = "{previous_focus}-stop"
   run(shortcut, nothing)
@@ -28,5 +28,5 @@ if previous_focus != _empty {
 @current_focus = getFocusMode()
 
 copy persist_focus {
-  runShellScript("echo -n {@current_focus} > {_focusfile}", nothing)
+  runShellScript("echo -n {@current_focus} > {_focusfile}")
 }

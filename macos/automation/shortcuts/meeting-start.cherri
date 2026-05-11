@@ -6,7 +6,10 @@
 #include 'lib/appids.cherri'
 #include 'lib/focus.cherri'
 
-runShellScript("timelog start meeting", nothing)
+runShellScript('
+source ~/.bash_profile
+timelog start meeting
+')
 
 pause()
 
