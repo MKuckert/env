@@ -71,6 +71,10 @@ brew "cmake"
 brew "llvm"
 brew "ninja"
 
+## dotnet
+brew "dotnet"
+cask "dotnet-sdk"
+
 ## Gen AI
 brew "anomalyco/tap/opencode"
 brew "ollama"
