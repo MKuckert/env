@@ -73,7 +73,7 @@ brew "ninja"
 
 ## Gen AI
 brew "anomalyco/tap/opencode"
-brew "ollama", restart_service: :changed
+brew "ollama"
 tap "jundot/omlx", "https://github.com/jundot/omlx"
 brew "jundot/omlx/omlx", args: ["with-grammar"]
 brew "hf"

@@ -1,7 +1,7 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "google/pro",
-  "small_model": "ollama/tiny",
+  "model": "github-copilot/gemini-3-flash-preview",
+  "small_model": "apple/apple-on-device",
   "server": {
     "hostname": "0.0.0.0",
     "port": 4444,
@@ -75,36 +75,36 @@
   "agent": {
     "build": {
       "mode": "primary",
-      "model": "google/pro",
+      "model": "google/gemini-3.1-pro-preview",
     },
     "plan": {
       "mode": "primary",
-      "model": "google/pro",
+      "model": "google/gemini-3.1-pro-preview",
     },
     "general": {
       "mode": "subagent",
-      "model": "google/fast-cheap",
+      "model": "google/gemini-3.1-flash-lite-preview",
     },
     "explore": {
       "mode": "subagent",
-      "model": "google/fast-cheap",
+      "model": "google/gemini-3.1-flash-lite-preview",
     },
 
     // System agents
     "compaction": {
       "mode": "primary",
       "hidden": true,
-      "model": "google/fast-cheap",
+      "model": "google/gemini-3.1-flash-lite-preview",
     },
     "title": {
       "mode": "primary",
       "hidden": true,
-      "model": "ollama/tiny",
+      "model": "apple/apple-on-device",
     },
     "summary": {
       "mode": "primary",
       "hidden": true,
-      "model": "ollama/tiny",
+      "model": "apple/apple-on-device",
     },
   },
   "disabled_providers": ["opencode"],
@@ -141,20 +141,9 @@
         "gemma-3n-e2b-it",
         "gemma-3n-e4b-it",
       ],
-      "models": {
-        "fast-cheap": {
-          "name": "Gemini Fast & Cheap (3.1 flash lite)",
-          "id": "gemini-3.1-flash-lite-preview",
-        },
-        "pro": {
-          "name": "Gemini Pro (3.1)",
-          "id": "gemini-3.1-pro-preview",
-        },
-      },
     },
 
-    // Local models
-    "ollama": {
+    /*"ollama": {
       "npm": "@ai-sdk/openai-compatible",
       "name": "Ollama (local)",
       "options": {
@@ -164,38 +153,40 @@
         "tiny": {
           "name": "Tiny (qwen2.5:0.5b)",
         },
-        "big": {
-          "name": "Big (qwen3.6:27b)",
-        },
-        "big-instruct": {
-          "name": "Big Instruct (qwen3.6:27b)",
-        },
       },
-    },
-    "omlx": {
+    },*/
+    /*"omlx": {
       "npm": "@ai-sdk/openai-compatible",
       "name": "oMLX (local)",
       "options": {
         "baseURL": "http://127.0.0.1:11435/v1",
-        "apiKey": "MISSING",
+        "apiKey": "Vva2Y6nkKHWytCEfT1hB",
       },
       "models": {
-        "mlx-community-Qwen3.6-27B-4bit": {
-          "name": "Big (qwen3.6:27b)",
-        },
+        "mlx-community-Qwen3.6-27B-4bit": {},
       },
+    },*/
+    "apple": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Apple (local)",
+      "options": {
+        "baseURL": "http://127.0.0.1:11535/v1",
+      },
+      "models": { "apple-on-device": {} },
     },
     "llama.cpp": {
       "npm": "@ai-sdk/openai-compatible",
       "name": "llama.cpp (local)",
       "options": {
         "baseURL": "http://0.0.0.0:11436/v1",
-        "apiKey": "MISSING",
+        "apiKey": "{env:LLAMA_API_KEY}",
       },
       "models": {
-        "Qwen3.6-27B-Q4_K_M": {
-          "name": "Big (qwen3.6:27b)",
-        },
+        "Qwen3.6-27B-Q4_K_M-PreciseCoding": {},
+        "Qwen3.6-27B-Q4_K_M-Instruct": {},
+        "Qwen3.6-27B-Q4_K_M-MTP-Instruct": {},
+        "Qwen3.6-27B-uncensored-Q4_K_M-Instruct": {},
+        "Qwen3.6-35B-A3B-Q4_K_M-Instruct": {},
       },
     },
   },

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-ctx=102400
+ctx=65536
 parallel=1
 ctx_size=$((ctx * parallel))
 
