@@ -1,7 +1,7 @@
 ---
 description: "Use this agent when the user wants to discover, browse, or install Claude Code agents from the awesome-claude-code-subagents repository."
 mode: primary
-model: google/fast-cheap
+model: google/gemini-3.1-flash-lite-preview
 permission:
   read:
     "~/.config/opencode/agents/*.md": allow
