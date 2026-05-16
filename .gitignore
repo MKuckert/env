@@ -9,3 +9,5 @@ colima/ssh_config
 
 *.shortcut
 token-usage-output.txt
+opencode/opencode-notifier-state.json
+
