@@ -8,7 +8,7 @@ llama-server \
   --models-dir "/Users/mkuckert/ai/models/llama.cpp" \
   --models-preset "/Users/mkuckert/ai/models/llama.cpp/preset.ini" \
   --no-webui \
-  --n-gpu-layers all \
+  --n-gpu-layers 99 \
   --flash-attn on \
   --ctx-size $ctx_size \
   --batch-size 2048 \

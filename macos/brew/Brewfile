@@ -82,6 +82,7 @@ tap "jundot/omlx", "https://github.com/jundot/omlx"
 brew "jundot/omlx/omlx", args: ["with-grammar"]
 brew "hf"
 cask "chatbox"
+brew "youssofal/mtplx/mtplx"
 
 # Browser
 cask "firefox"

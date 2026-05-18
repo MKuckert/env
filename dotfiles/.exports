@@ -36,7 +36,7 @@ export HOMEBREW_FORBIDDEN_CASKS=
 # Space-separated list of formulae. Homebrew will refuse to install a formula or cask if it or any of its dependencies is on this list
 export HOMEBREW_FORBIDDEN_FORMULAE=node
 
-# Ollama, OMLX and llama.cpp
+# Ollama, OMLX, llama.cpp and mtplx
 MODELS_BASE=$(realpath ~)/ai/models
 CURRENTHOST=0.0.0.0
 
@@ -49,6 +49,8 @@ export OMLX_MODEL_DIR=$MODELS_BASE/omlx
 
 export LLAMA_ARG_PORT=$((OLLAMA_PORT + 2))
 export LLAMA_ARG_HOST=$CURRENTHOST
+
+export MTPLX_PORT=$((OLLAMA_PORT + 3))
 
 # Huggingface
 export HF_HOME=~/ai/huggingface
