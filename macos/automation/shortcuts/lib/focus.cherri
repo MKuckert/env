@@ -19,7 +19,10 @@ const _empty = ""
 const _out = runShellScript("cat {_focusfile}")
 const previous_focus = text(_out)
 if previous_focus != _empty {
-  runShellScript("timelog stop")
+  runShellScript('
+source ~/.bash_profile
+timelog stop
+')
 
   const shortcut = "{previous_focus}-stop"
   run(shortcut, nothing)
