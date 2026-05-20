@@ -4,10 +4,15 @@ This repository contains the configuration files, automation scripts, and enviro
 
 ## Structure
 
-- **`dotfiles/`**: Standard configuration files for bash (`.bash_profile`, `.bashrc`, `.bash_prompt`), environment variables (`.exports`, `.path`, `.aliases`), git (`.gitconfig`, `.gitignore`), vim (`.vimrc`), tig (`.tigrc`), and editorconfig (`.editorconfig`). Symlink those files to the user directory.
+- **`dotfiles/`**: Standard configuration files for bash (`.bash_profile`, `.bashrc`, `.bash_prompt`), environment variables (`.exports`, `.path`, `.aliases`), git (`.gitconfig`, `.gitconfig-work`, `.gitconfig-private`, `.gitignore`), vim (`.vimrc`), tig (`.tigrc`), editorconfig (`.editorconfig`), and environment template (`.env.example`). Symlink those files to the user directory.
+- **`ssh/`**: SSH configuration files (`config`, `allowed_signers`). Symlink to `~/.ssh/`.
 - **`macos/`**: macOS-specific setup and automation.
   - `init.sh`: Initial macOS system configuration script.
-  - `apps/`: Scripts to install specific applications (e.g. OpenAI on-device app, LlamaWatch).
+  - `bin/`: Build scripts for various tools.
+    - `llamawatch/`: Builds [LlamaWatch](https://github.com/MKuckert/LlamaWatch) macOS app from source and installs to `/Applications`.
+    - `apple-on-device-openai/`: Clones and opens the [Apple On-Device OpenAI](https://github.com/MKuckert/apple-on-device-openai) Xcode project for building.
+    - `timelog/`: Builds [timelog](https://github.com/qbart/timelog) CLI tool and installs bash completion.
+    - `cherri/`: Builds [Cherri](https://github.com/electrikmilk/cherri) CLI compiler (Go) for macOS Shortcuts.
   - `brew/`: Contains the `Brewfile` to install all necessary packages, casks, and Mac App Store apps (via `mas`). Use it with `brew bundle`.
   - `terminal/`: Contains macOS Terminal profile configurations (e.g., `mk.terminal`).
   - `automation/`
@@ -17,7 +22,18 @@ This repository contains the configuration files, automation scripts, and enviro
   - Includes custom providers setup (Google Gemini & local Ollama models).
   - Configures custom agents and permissions (`agents/`).
   - Configuration files (`opencode.jsonc`, `dcp.jsonc`, `tui.json`).
-- **`ollama/`**: Local LLM setup and model configurations (e.g., using `qwen2.5:0.5b` for tiny background tasks).
+    - Custom commands (`command/` - e.g., `tokenscope.md`).
+  - MCP tools are routed through containerized agents via `docker-mcp-gateway-run.sh` (fsrw, fsro, git, web).
+  - The `opencode/` directory is symlinked to `~/.config/opencode/` for global config, while `.opencode/` serves as the project-local config directory.
+- **`omlx/`**: [OMLX](https://github.com/secondstate/omlx) configuration for running OpenMoE LLM models. Contains `settings.json` with server, model, memory, cache, and sampling parameters. Symlink to `~/.omlx/`.
+- **`mtplx/`**: [MTPLX](https://mtplx.ai/) model serving configuration. Contains `serve.sh` for running MTPLX-optimized models (e.g., Qwen3.6-27B) with custom context and caching settings.
+- **`llama.cpp/`**: Local LLM inference server setup using [llama.cpp](https://github.com/ggml-org/llama.cpp).
+  - `build.sh`: Clones and builds llama.cpp with Metal acceleration, native optimizations, and LTO.
+  - `serve.sh`: Starts the llama-server with GPU offloading, flash attention, and Jinja templating support.
+- **`manifest/`**: [Manifest](https://github.com/mnfst/manifest) tool setup and starter/stopper.
+  - `setup.sh`: Clones the manifest repository to `~/private/dev/manifest`.
+  - `start.sh`: Starts the Manifest docker environment using `nerdctl compose`.
+  - `stop.sh`: Stops the Manifest docker environment.
 - **`colima/`**: Configurations for Colima profiles (Docker, Containerd, AI).
 - **`direnv/`**: Configuration for `direnv` (`direnv.toml`).
 
@@ -161,6 +177,84 @@ Or build the models from a Modelfile:
 ollama create tiny -f ollama/models/Modelfile.tiny
 ```
 
+### OMLX (LLM Inference)
+
+OMLX is an inference server for running LLM models on metal hardware locally.
+
+Symlink the configuration to your home directory:
+```bash
+ln -s $(pwd)/omlx/settings.json ~/.omlx/
+```
+
+The configuration includes server settings, model directories, memory management, SSD caching, and sampling parameters.
+
+### MTPLX (Model Serving)
+
+MTPLX provides optimized model serving for large language models (e.g., Qwen3.6-27B).
+
+To start the MTPLX server:
+```bash
+mtplx/serve.sh
+```
+
+### llama.cpp (Local LLM Inference)
+
+llama.cpp provides local LLM inference with GPU acceleration (Metal on macOS).
+
+To build llama.cpp from source:
+```bash
+bash llama.cpp/build.sh
+```
+
+To start the inference server:
+```bash
+bash llama.cpp/serve.sh
+```
+
+### Manifest
+
+Manifest provides local repo updater and starter/stopper for Docker compose.
+
+To setup Manifest:
+```bash
+bash manifest/setup.sh
+```
+
+To start the Manifest environment:
+```bash
+bash manifest/start.sh
+```
+
+To stop the Manifest environment:
+```bash
+bash manifest/stop.sh
+```
+
+Ensure to create and edit `~/private/dev/manifest/docker/.env` before running.
+
+### macOS Build Tools
+
+The `macos/bin/` directory contains build scripts for various tools:
+
+- **LlamaWatch**: macOS app for monitoring Ollama
+  ```bash
+  bash macos/bin/llamawatch/build.sh
+  ```
+- **Apple On-Device OpenAI**: Xcode project for on-device AI
+  ```bash
+  bash macos/bin/apple-on-device-openai/build.sh
+  ```
+- **Timelog**: CLI time tracking tool
+  ```bash
+  bash macos/bin/timelog/build.sh
+  ```
+- **Cherri**: CLI compiler for macOS Shortcuts
+  ```bash
+  bash macos/bin/cherri/build.sh
+  ```
+
+All tools are built from source and installed to `~/private/dev/`.
+
 ### Colima
 
 Provides container environment for docker and nerdctl.
@@ -182,10 +276,11 @@ colima -p containerd nerdctl install
 
 ## Things others would have to adjust
 
-- Full path containing my username `mkuckert`, e.g. in `macos/automation/launchd/com.user.opencode-serve.plist`
+- Full path containing my username `mkuckert`, e.g. in `macos/automation/launchd/com.user.opencode-serve.plist`, `mtplx/serve.sh`, `llama.cpp/serve.sh`, `omlx/settings.json`
 - My user id `422624326` as used in launchd services, e.g. in `macos/automation/launchd/com.user.opencode-restartonchange.plist`
 - The `dotfiles/.gitconfig*` files
 - The `ssh/*` config files
+- The `opencode.jsonc` MCP gateway paths (`/Users/mkuckert/private/dev/agent-harness/bin/docker-mcp-gateway-run.sh`)
 
 ## Source
 
