@@ -237,6 +237,16 @@
         },
       },
     },
+    "mlxlm,": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "mlx-lm (local)",
+      "options": {
+        "baseURL": "http://127.0.0.1:{env:MLXLM_PORT}/v1",
+      },
+      "models": {
+        "mlx-community/Qwen3.6-27B-4bit": {},
+      },
+    },
   },
   "compaction": {
     "auto": true,

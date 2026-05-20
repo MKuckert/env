@@ -75,6 +75,9 @@ brew "ninja"
 brew "dotnet"
 cask "dotnet-sdk"
 
+## python
+brew "uv"
+
 ## Gen AI
 brew "anomalyco/tap/opencode"
 brew "ollama"
@@ -83,6 +86,7 @@ brew "jundot/omlx/omlx", args: ["with-grammar"]
 brew "hf"
 cask "chatbox"
 brew "youssofal/mtplx/mtplx"
+brew "mlx-lm"
 
 # Browser
 cask "firefox"
