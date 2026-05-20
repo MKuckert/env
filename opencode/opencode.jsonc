@@ -224,6 +224,19 @@
         },
       },
     },
+    "manifest": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Manifest",
+      "options": {
+        "baseURL": "http://localhost:{env:MANIFEST_PORT}/v1",
+        "apiKey": "{env:MANIFEST_API_KEY}",
+      },
+      "models": {
+        "auto": {
+          "name": "Manifest Auto",
+        },
+      },
+    },
   },
   "compaction": {
     "auto": true,

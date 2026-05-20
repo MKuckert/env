@@ -52,6 +52,8 @@ export LLAMA_ARG_HOST=$CURRENTHOST
 
 export MTPLX_PORT=$((OLLAMA_PORT + 3))
 
+export MANIFEST_PORT=$((OLLAMA_PORT + 4))
+
 # Huggingface
 export HF_HOME=~/ai/huggingface
 export HF_HUB_CACHE=$HF_HOME/cache
