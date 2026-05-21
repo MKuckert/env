@@ -33,7 +33,7 @@ bench() {
 	# List of context depths (Default: [0]).
 	args+=(--depth 0 1024 8192)
 
-	#  Enable prefix caching performance measurement. When enabled (and depth > 0),
+	# Enable prefix caching performance measurement. When enabled (and depth > 0),
 	# it performs a two-step benchmark: first loading the context (reported as ctx_pp),
 	# then running the prompt with the cached context.
 	args+=(--enable-prefix-caching)
@@ -71,3 +71,9 @@ instruct_user "Start llama.cpp server and press any key to continue..."
 echo "Benchmarking llama.cpp…"
 bench "http://127.0.0.1:${LLAMA_ARG_PORT}/v1" "Qwen3.6-27B-Q4_K_M-MTP-Instruct" "${LLAMA_API_KEY}"
 instruct_user "Stop llama.cpp server and press any key to continue..."
+
+# omlx
+instruct_user "Start omlx server and press any key to continue..."
+echo "Benchmarking omlx…"
+bench "http://127.0.0.1:${OMLX_PORT}/v1" "mlx-community-Qwen3.6-27B-4bit" "${OMLX_API_KEY}"
+instruct_user "Stop omlx server and press any key to continue..."
