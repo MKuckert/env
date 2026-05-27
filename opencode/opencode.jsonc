@@ -182,11 +182,15 @@
         "apiKey": "{env:LLAMA_API_KEY}",
       },
       "models": {
-        "Qwen3.6-27B-Q4_K_M-PreciseCoding": {},
-        "Qwen3.6-27B-Q4_K_M-Instruct": {},
-        "Qwen3.6-27B-Q4_K_M-MTP-Instruct": {},
-        "Qwen3.6-27B-uncensored-Q4_K_M-Instruct": {},
-        "Qwen3.6-35B-A3B-Q4_K_M-Instruct": {},
+        "Qwen3.6-27B-Q4_K_M-PreciseCoding": {
+          "name": "Qwen3.6-27B-precise-coding",
+        },
+        "Qwen3.6-27B-uncensored-MTP-Q4_K_M-Instruct": {
+          "name": "Qwen3.6-27B-uncensored",
+        },
+        "Qwen3.6-35B-A3B-uncensored-MTP-Q4_K_M-Instruct": {
+          "name": "Qwen3.6-35B-A3B-uncensored",
+        },
       },
     },
     "mtplx": {
