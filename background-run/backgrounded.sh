@@ -86,7 +86,7 @@ usage() {
     echo "                                         (Removes the log file too. Persist before calling stop!)"
     echo "  status <name>                          Show the status of a specific service."
     echo "  logs <name>                            Tail the log file of a running service."
-    echo "  list                                   List all running background services."
+    echo "  list [--clean]                         List all background services."
 }
 
 start() {
@@ -227,7 +227,10 @@ status() {
 }
 
 list() {
-    # TODO add --clean to remove dead services and pidfiles/logs
+    local clean=false
+    if [[ "${1:-}" == "--clean" ]]; then
+        clean=true
+    fi
 
     local files=("$PID_DIR"/*.pid)
     if [[ ! -e "${files[0]}" ]]; then
@@ -244,6 +247,9 @@ list() {
             echo "$name (PID: $pid)"
         else
             echo "$name (PID: $pid) [DEAD]"
+            if $clean; then
+                remove_service "$name"
+            fi
         fi
     done
 }
@@ -267,7 +273,7 @@ case "${1:-}" in
     ;;
   list)
     shift
-    list
+    list "$@"
     ;;
   help|--help|-h|-?)
     usage
