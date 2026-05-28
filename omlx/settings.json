@@ -4,21 +4,34 @@
     "host": "127.0.0.1",
     "port": 11435,
     "log_level": "info",
-    "cors_origins": ["*"],
-    "server_aliases": ["localhost", "127.0.0.1"]
+    "cors_origins": [
+      "*"
+    ],
+    "server_aliases": [
+      "localhost",
+      "127.0.0.1"
+    ],
+    "sse_keepalive_mode": "chunk"
   },
   "model": {
-    "model_dirs": ["/Users/mkuckert/ai/models/omlx"],
+    "model_dirs": [
+      "/Users/mkuckert/ai/models/omlx"
+    ],
     "model_dir": "/Users/mkuckert/ai/models/omlx",
-    "max_model_memory": "36GB",
     "model_fallback": false
   },
   "memory": {
-    "max_process_memory": "75%",
-    "prefill_memory_guard": true
+    "prefill_memory_guard": true,
+    "memory_guard_tier": "balanced",
+    "memory_guard_custom_ceiling_gb": 0.0,
+    "soft_threshold": 0.85,
+    "hard_threshold": 0.95,
+    "prefill_safe_zone_ratio": 0.8,
+    "prefill_min_chunk_tokens": 32
   },
   "scheduler": {
-    "max_concurrent_requests": 1
+    "max_concurrent_requests": 1,
+    "chunked_prefill": false
   },
   "cache": {
     "enabled": true,
@@ -73,13 +86,15 @@
     "codex_model": null,
     "opencode_model": null,
     "openclaw_model": null,
+    "hermes_model": null,
     "pi_model": null,
+    "copilot_model": null,
     "openclaw_tools_profile": "coding"
   },
   "ui": {
     "language": "en"
   },
   "idle_timeout": {
-    "idle_timeout_seconds": null
+    "idle_timeout_seconds": 1800
   }
 }
