@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+BASE_DIR=$(dirname "$SCRIPT_DIR")
 
 # llama-benchy
 # Usage: bench <base-url> <model> [api-key]
@@ -52,32 +53,41 @@ instruct_user() {
   read -n 1 -s -r -p "$*" && echo
 }
 
+start() {
+  $BASE_DIR/background-run/backgrounded.sh start inferenceprovider "$@"
+  sleep 5 # Wait for the server to start
+}
+stop() {
+  $BASE_DIR/background-run/backgrounded.sh stop inferenceprovider
+  sleep 5 # Wait for the server to stop
+}
+
 bench_mtplx() {
-  instruct_user "Start MTPLX server and press any key to continue..."
   echo "Benchmarking MTPLX…"
+  start $BASE_DIR/mtplx/serve.sh
   bench "http://127.0.0.1:${MTPLX_PORT}/v1" "mtplx-qwen36-27b-optimized-speed" "${MTPLX_API_KEY}"
-  instruct_user "Stop MTPLX server and press any key to continue..."
+  stop
 }
 
 bench_mlx_lm() {
-  instruct_user "Start mlx-lm server and press any key to continue..."
   echo "Benchmarking mlx-lm…"
+  start $BASE_DIR/mlx-lm/serve.sh
   bench "http://127.0.0.1:${MLXLM_PORT}/v1" "mlx-community/Qwen3.6-27B-4bit"
-  instruct_user "Stop mlx-lm server and press any key to continue..."
+  stop
 }
 
 bench_llama_cpp() {
-  instruct_user "Start llama.cpp server and press any key to continue..."
   echo "Benchmarking llama.cpp…"
+  start $BASE_DIR/llama.cpp/serve.sh
   bench "http://127.0.0.1:${LLAMA_ARG_PORT}/v1" "Qwen3.6-27B-Q4_K_M-MTP-Instruct" "${LLAMA_API_KEY}"
-  instruct_user "Stop llama.cpp server and press any key to continue..."
+  stop
 }
 
 bench_omlx() {
-  instruct_user "Start omlx server and press any key to continue..."
   echo "Benchmarking omlx…"
+  start omlx serve
   bench "http://127.0.0.1:${OMLX_PORT}/v1" "Jundot--Qwen3.6-27B-oQ4-mtp" "${OMLX_API_KEY}"
-  instruct_user "Stop omlx server and press any key to continue..."
+  stop
 }
 
 usage() {
