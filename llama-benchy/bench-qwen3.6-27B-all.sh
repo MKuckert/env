@@ -52,28 +52,52 @@ instruct_user() {
   read -n 1 -s -r -p "$*" && echo
 }
 
+bench_mtplx() {
+  instruct_user "Start MTPLX server and press any key to continue..."
+  echo "Benchmarking MTPLX…"
+  bench "http://127.0.0.1:${MTPLX_PORT}/v1" "mtplx-qwen36-27b-optimized-speed" "${MTPLX_API_KEY}"
+  instruct_user "Stop MTPLX server and press any key to continue..."
+}
+
+bench_mlx_lm() {
+  instruct_user "Start mlx-lm server and press any key to continue..."
+  echo "Benchmarking mlx-lm…"
+  bench "http://127.0.0.1:${MLXLM_PORT}/v1" "mlx-community/Qwen3.6-27B-4bit"
+  instruct_user "Stop mlx-lm server and press any key to continue..."
+}
+
+bench_llama_cpp() {
+  instruct_user "Start llama.cpp server and press any key to continue..."
+  echo "Benchmarking llama.cpp…"
+  bench "http://127.0.0.1:${LLAMA_ARG_PORT}/v1" "Qwen3.6-27B-Q4_K_M-MTP-Instruct" "${LLAMA_API_KEY}"
+  instruct_user "Stop llama.cpp server and press any key to continue..."
+}
+
+bench_omlx() {
+  instruct_user "Start omlx server and press any key to continue..."
+  echo "Benchmarking omlx…"
+  bench "http://127.0.0.1:${OMLX_PORT}/v1" "Jundot--Qwen3.6-27B-oQ4-mtp" "${OMLX_API_KEY}"
+  instruct_user "Stop omlx server and press any key to continue..."
+}
+
+usage() {
+  echo "Usage: $(basename "$0") <test>" >&2
+  echo "  test: mtplx | mlx_lm | llama.cpp | omlx | all" >&2
+  exit 1
+}
+
 echo "Benchmark for Qwen3.6-27B on different inference providers"
 
-# MTPLX
-instruct_user "Start MTPLX server and press any key to continue..."
-echo "Benchmarking MTPLX…"
-bench "http://127.0.0.1:${MTPLX_PORT}/v1" "mtplx-qwen36-27b-optimized-speed" "${MTPLX_API_KEY}"
-instruct_user "Stop MTPLX server and press any key to continue..."
-
-# mlx-lm
-instruct_user "Start mlx-lm server and press any key to continue..."
-echo "Benchmarking mlx-lm…"
-bench "http://127.0.0.1:${MLXLM_PORT}/v1" "mlx-community/Qwen3.6-27B-4bit"
-instruct_user "Stop mlx-lm server and press any key to continue..."
-
-# llama.cpp
-instruct_user "Start llama.cpp server and press any key to continue..."
-echo "Benchmarking llama.cpp…"
-bench "http://127.0.0.1:${LLAMA_ARG_PORT}/v1" "Qwen3.6-27B-Q4_K_M-MTP-Instruct" "${LLAMA_API_KEY}"
-instruct_user "Stop llama.cpp server and press any key to continue..."
-
-# omlx
-instruct_user "Start omlx server and press any key to continue..."
-echo "Benchmarking omlx…"
-bench "http://127.0.0.1:${OMLX_PORT}/v1" "mlx-community-Qwen3.6-27B-4bit" "${OMLX_API_KEY}"
-instruct_user "Stop omlx server and press any key to continue..."
+case "${1:-}" in
+  mtplx)     bench_mtplx ;;
+  mlx_lm)    bench_mlx_lm ;;
+  llama.cpp) bench_llama_cpp ;;
+  omlx)      bench_omlx ;;
+  all)
+    bench_mtplx
+    bench_mlx_lm
+    bench_llama_cpp
+    bench_omlx
+    ;;
+  *) usage ;;
+esac
