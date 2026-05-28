@@ -1,20 +1,24 @@
 #!/usr/bin/env bash
 # Slim Background Service Manager (backgrounded)
 #
-# A lightweight, zero-dependency POSIX shell solution for macOS (and Linux) to run any arbitrary shell command in the background, keep it running across terminal sessions, and easily stop or monitor it later.
+# A lightweight, zero-dependency bash solution for macOS (and Linux) to run any arbitrary shell command in the
+# background, keep it running across terminal sessions, and easily stop or monitor it later.
 #
-# This project serves as a clean, simple alternative to complex `launchd` XML configurations or rigid Homebrew services when you just need to quickly daemonize a command using PID files.
+# This project serves as a clean, simple alternative to complex `launchd` XML configurations or rigid Homebrew services
+# when you just need to quickly daemonize a command using PID files.
 
 PID_DIR="$HOME/.local/state/backgrounded"
-mkdir -p "$PID_DIR"
+
+# Timeout in seconds to wait for a service to stop gracefully before sending SIGKILL
+# Can be overridden with `backgrounded stop --timeout N <name>`
+STOP_TIMEOUT=10
 
 usage() {
     echo "Usage: backgrounded <command> [args...]"
     echo "Commands:"
     echo "  start <name> <command...>  Start a background service with the given name and command."
-    echo "  stop <name>                Stop the background service with the given name."
+    echo "  stop [--timeout N] <name>  Stop the background service with the given name."
     echo "  list                       List all running background services."
-    exit 1
 }
 
 start() {
@@ -26,6 +30,8 @@ start() {
 
     local name="$1"
     shift
+
+    mkdir -p "$PID_DIR"
     local pidfile="$PID_DIR/${name}.pid"
 
     # Sanity check: Ensure the name only contains alphanumeric characters, dashes, or underscores
@@ -43,10 +49,18 @@ start() {
         fi
     fi
 
-    # Run in background, detach stdin/stdout/stderr properly
-    nohup "$@" > /dev/null 2>&1 &
-    local new_pid=$!
-    echo "$new_pid" > "$pidfile"
+    # Run in background, fully detached from the terminal session
+    # TODO Add logging to a file instead of /dev/null and maybe also support a --no-logs flag to disable logging entirely
+    if command -v setsid > /dev/null 2>&1; then
+        setsid "$@" > /dev/null 2>&1 &
+        local new_pid=$!
+        echo "$new_pid" > "$pidfile"
+    else
+        "$@" > /dev/null 2>&1 &
+        local new_pid=$!
+        echo "$new_pid" > "$pidfile"
+        disown "$new_pid"
+    fi
 
     echo "Service '$name' started (PID $new_pid)."
 }
@@ -58,6 +72,12 @@ stop() {
         return 1
     fi
 
+    local timeout="$STOP_TIMEOUT"
+    if [[ "$1" == "--timeout" ]]; then
+        timeout="$2"
+        shift 2
+    fi
+
     local name="$1"
     local pidfile="$PID_DIR/${name}.pid"
 
@@ -67,13 +87,30 @@ stop() {
     fi
 
     local pid=$(cat "$pidfile")
-    rm -f "$pidfile"
 
     if kill -0 "$pid" 2>/dev/null; then
         kill "$pid"
-        echo "Service '$name' (PID $pid) has been terminated."
+
+        # Wait for graceful shutdown
+        local ticks=$(( timeout * 10 ))
+        for i in $(seq 1 "$ticks"); do
+            echo -n .
+            kill -0 "$pid" 2>/dev/null || break
+            sleep 0.1
+        done
+        echo
+
+        # Still alive? Force kill.
+        if kill -0 "$pid" 2>/dev/null; then
+            kill -9 "$pid"
+            echo "Service '$name' (PID $pid) did not stop gracefully, sent SIGKILL."
+        else
+            echo "Service '$name' (PID $pid) has been terminated."
+        fi
+        rm "$pidfile"
     else
         echo "Service '$name' was already dead. Cleaned up orphaned PID file."
+        rm "$pidfile"
     fi
 }
 
@@ -90,7 +127,7 @@ list() {
         if kill -0 "$pid" 2>/dev/null; then
             echo "$name (PID: $pid)"
         else
-            echo "$name (PID: $pid) [DEAD - orphaned]"
+            echo "$name (PID: $pid) [DEAD]"
         fi
     done
 }
@@ -98,12 +135,13 @@ list() {
 case "${1:-}" in
   start)
     shift
-    start $@
+    start "$@"
     ;;
   stop)
     shift
-    stop $@
+    stop "$@"
     ;;
+  # TODO Add status command to check if a service is running
   list)
     shift
     list
