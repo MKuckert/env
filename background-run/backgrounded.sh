@@ -19,13 +19,21 @@
 # - No manual restarts (you have to call `backgrounded stop <name>` followed by `backgrounded start <name> <command>` to restart)
 # - No security features (services run with the same permissions as the user who started them)
 # - No dependency management
+# - No locking. If you hammer `backgrounded start <name>` in parallel, it will start the process multiple times and
+#   overwrite the PID file, leaving orphaned processes. Simply don't do that.
+# - No log file handling beyond simple stdout/stderr redirection (no log rotation, compression, archiving, etc.)
 # - No user permissions or system-level services (runs entirely in user space)
 # - No configuration files (all settings are via environment variables or command-line flags)
-# - No windows (Unix-like systems only)
+# - No windows
+# - No linux (or at least not tested on linux, but could work in theory)
+# - No progress group handling. If the started process spawns child processes, they will not be tracked or managed by
+#   `backgrounded` e.g. not killed by `stop`.
 # - No support for running multiple instances of the same service name (service names must be unique)
 # - No environment variable management (services inherit the environment of the shell that started them)
 # - No advanced logging features (logs are simple stdout/stderr redirection to a file)
 # - No resource monitoring (CPU, memory, etc.), limiting or alerting
+
+set -euo pipefail
 
 PID_DIR="$HOME/.local/state/backgrounded"
 
@@ -37,38 +45,37 @@ usage() {
     echo "Usage: backgrounded <command> [args...]"
     echo "Commands:"
     echo "  start [--no-log] <name> <command...>   Start a background service with the given name and command."
-    echo "  stop [--timeout N] <name>              Stop the background service with the given name."
+    echo "  stop [--timeout N] <name>              Stop the background service with the given name"
+    echo "                                         (Removes the log file too. Persist before calling stop!)"
     echo "  status <name>                          Show the status of a specific service."
     echo "  logs <name>                            Tail the log file of a running service."
     echo "  list                                   List all running background services."
 }
 
 start() {
-    if [[ $# -lt 2 ]]; then
-        echo "Error: Missing arguments." >&2
-        echo "Usage: backgrounded start <name> <command...>" >&2
-        return 1
-    fi
-
     local log=true
     if [[ "$1" == "--no-log" ]]; then
         log=false
         shift
     fi
 
+    if [[ $# -lt 2 ]]; then
+        echo "Error: Missing arguments." >&2
+        echo "Usage: backgrounded start <name> <command...>" >&2
+        return 1
+    fi
+
     local name="$1"
     shift
-
-    mkdir -p "$PID_DIR"
-    local pidfile="$PID_DIR/${name}.pid"
-    local logfile="$PID_DIR/${name}.log"
-
-    # Sanity check: Ensure the name only contains alphanumeric characters, dashes, or underscores
     if [[ ! "$name" =~ ^[a-zA-Z0-9_-]+$ ]]; then
         echo "Error: Invalid service name '$name'." >&2
         echo "Only alphanumeric characters, dashes (-), and underscores (_) are allowed." >&2
         return 1
     fi
+
+    mkdir -p "$PID_DIR"
+    local pidfile="$PID_DIR/${name}.pid"
+    local logfile="$PID_DIR/${name}.log"
 
     if [[ -f "$pidfile" ]]; then
         local old_pid=$(cat "$pidfile")
@@ -79,40 +86,33 @@ start() {
     fi
 
     # Run in background, fully detached from the terminal session
-    # setsid is preferred for proper daemonization, but if it's not available, we can still background and disown
-    if command -v setsid > /dev/null 2>&1; then
-        if $log; then
-            setsid "$@" >> "$logfile" 2>&1 &
-        else
-            setsid "$@" > /dev/null 2>&1 &
-        fi
-        local new_pid=$!
-        echo "$new_pid" > "$pidfile"
+    if $log; then
+        "$@" >> "$logfile" 2>&1 &
     else
-        if $log; then
-            "$@" >> "$logfile" 2>&1 &
-        else
-            "$@" > /dev/null 2>&1 &
-        fi
-        local new_pid=$!
-        echo "$new_pid" > "$pidfile"
-        disown "$new_pid"
+        "$@" > /dev/null 2>&1 &
     fi
+    local new_pid=$!
+    echo "$new_pid" > "$pidfile"
+    disown "$new_pid"
 
     echo "Service '$name' started (PID $new_pid)."
 }
 
 stop() {
+    local timeout="$STOP_TIMEOUT"
+    if [[ "$1" == "--timeout" ]]; then
+        if [[ -z "${2:-}" || -z "${3:-}" ]]; then
+            echo "Error: --timeout requires a value (and the service name)." >&2
+            return 1
+        fi
+        timeout="$2"
+        shift 2
+    fi
+
     if [[ -z "$1" ]]; then
         echo "Error: No service name provided." >&2
         echo "Usage: backgrounded stop <name>" >&2
         return 1
-    fi
-
-    local timeout="$STOP_TIMEOUT"
-    if [[ "$1" == "--timeout" ]]; then
-        timeout="$2"
-        shift 2
     fi
 
     local name="$1"
@@ -124,16 +124,22 @@ stop() {
     fi
 
     local pid=$(cat "$pidfile")
+    if [[ ! "$pid" =~ ^[0-9]+$ ]]; then
+        echo "Corrupt PID file for '$name': '$pid'. Expected a number." >&2
+        return 1
+    fi
 
     if kill -0 "$pid" 2>/dev/null; then
         kill "$pid"
 
         # Wait for graceful shutdown
         local ticks=$(( timeout * 10 ))
-        for i in $(seq 1 "$ticks"); do
-            echo -n .
+        local i=0
+        while (( i < ticks )); do
+            printf '.'
             kill -0 "$pid" 2>/dev/null || break
             sleep 0.1
+            (( i++ )) || true
         done
         echo
 
@@ -145,11 +151,11 @@ stop() {
             echo "Service '$name' (PID $pid) has been terminated."
         fi
         rm "$pidfile"
-        rm "$PID_DIR/${name}.log"
+        rm -f "$PID_DIR/${name}.log"
     else
         echo "Service '$name' was already dead. Cleaned up orphaned PID file."
         rm "$pidfile"
-        rm "$PID_DIR/${name}.log"
+        rm -f "$PID_DIR/${name}.log"
     fi
 }
 
@@ -188,6 +194,11 @@ status() {
     fi
 
     local pid=$(cat "$pidfile")
+    if [[ ! "$pid" =~ ^[0-9]+$ ]]; then
+        echo "Corrupt PID file for '$name': '$pid'. Expected a number." >&2
+        return 1
+    fi
+
     if kill -0 "$pid" 2>/dev/null; then
         echo "Service '$name' is running (PID: $pid)"
     else
@@ -203,6 +214,8 @@ status() {
 }
 
 list() {
+    # TODO add --clean to remove dead services and pidfiles/logs
+
     local files=("$PID_DIR"/*.pid)
     if [[ ! -e "${files[0]}" ]]; then
         echo "No services running."
@@ -212,6 +225,10 @@ list() {
     for f in "${files[@]}"; do
         local name=$(basename "$f" .pid)
         local pid=$(cat "$f")
+        if [[ ! "$pid" =~ ^[0-9]+$ ]]; then
+            echo "Corrupt PID file for '$name': '$pid'. Expected a number." >&2
+        fi
+
         if kill -0 "$pid" 2>/dev/null; then
             echo "$name (PID: $pid)"
         else
@@ -241,5 +258,12 @@ case "${1:-}" in
     shift
     list
     ;;
-  *) usage ;;
+  help|--help|-h|-?)
+    usage
+    ;;
+  *)
+    usage
+    exit 1
+    ;;
 esac
+exit $?
