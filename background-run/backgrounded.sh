@@ -74,19 +74,22 @@ read_pid() {
 
 remove_service() {
     local name="$1"
+    local keep_log="${2:-false}"
     rm -f "$(pidfile "$name")"
-    rm -f "$(logfile "$name")"
+    if ! $keep_log; then
+        rm -f "$(logfile "$name")"
+    fi
 }
 
 usage() {
     echo "Usage: backgrounded <command> [args...]"
     echo "Commands:"
-    echo "  start [--no-log] <name> <command...>   Start a background service with the given name and command."
-    echo "  stop [--timeout N] <name>              Stop the background service with the given name"
-    echo "                                         (Removes the log file too. Persist before calling stop!)"
-    echo "  status <name>                          Show the status of a specific service."
-    echo "  logs <name>                            Tail the log file of a running service."
-    echo "  list [--clean]                         List all background services."
+    echo "  start [--no-log] <name> <command...>        Start a background service with the given name and command."
+    echo "  stop [--timeout N] [--keep-log] <name>      Stop the background service with the given name"
+    echo "                                              Removes the log file too. Use --keep-log to retain it."
+    echo "  status <name>                               Show the status of a specific service."
+    echo "  logs <name>                                 Tail the log file of a running service."
+    echo "  list [--clean]                              List all background services."
 }
 
 start() {
@@ -133,14 +136,25 @@ start() {
 
 stop() {
     local timeout="$STOP_TIMEOUT"
-    if [[ "${1:-}" == "--timeout" ]]; then
-        if [[ -z "${2:-}" || -z "${3:-}" ]]; then
-            echo "Error: --timeout requires a value (and the service name)." >&2
-            return 1
-        fi
-        timeout="$2"
-        shift 2
-    fi
+    local keep_log=false
+
+    while true; do
+        case "${1:-}" in
+            --timeout)
+                if [[ -z "${2:-}" || -z "${3:-}" ]]; then
+                    echo "Error: --timeout requires a value (and the service name)." >&2
+                    return 1
+                fi
+                timeout="$2"
+                shift 2
+                ;;
+            --keep-log)
+                keep_log=true
+                shift
+                ;;
+            *) break ;;
+        esac
+    done
 
     if [[ -z "${1:-}" ]]; then
         echo "Error: No service name provided." >&2
@@ -177,7 +191,8 @@ stop() {
     else
         echo "Service '$name' was already dead. Cleaned up orphaned PID file."
     fi
-    remove_service "$name"
+
+    remove_service "$name" "$keep_log"
 }
 
 logs() {
