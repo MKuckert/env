@@ -6,6 +6,26 @@
 #
 # This project serves as a clean, simple alternative to complex `launchd` XML configurations or rigid Homebrew services
 # when you just need to quickly daemonize a command using PID files.
+#
+# Features:
+# - Start any command as a background service with a unique name
+# - Automatically manage PID files and logs in a user-specific directory
+# - Stop services gracefully with a configurable timeout before force-killing
+# - Check the status of services and tail their logs
+# - List all running services with their PIDs
+#
+# Non-Features:
+# - No automatic restarts e.g. on failure or system reboot
+# - No manual restarts (you have to call `backgrounded stop <name>` followed by `backgrounded start <name> <command>` to restart)
+# - No security features (services run with the same permissions as the user who started them)
+# - No dependency management
+# - No user permissions or system-level services (runs entirely in user space)
+# - No configuration files (all settings are via environment variables or command-line flags)
+# - No windows (Unix-like systems only)
+# - No support for running multiple instances of the same service name (service names must be unique)
+# - No environment variable management (services inherit the environment of the shell that started them)
+# - No advanced logging features (logs are simple stdout/stderr redirection to a file)
+# - No resource monitoring (CPU, memory, etc.), limiting or alerting
 
 PID_DIR="$HOME/.local/state/backgrounded"
 
