@@ -12,9 +12,9 @@ Ein Python-Skript soll alle CSV-Benchmarkdateien unter einem angegebenen Wurzelv
 
 ## 🏗 Implementation Steps
 
-> Status Markers: [ ] Open, [/] In Progress, [x] Completed (By the Reviewer only!)
+> Status Markers: [ ] Open, [/] In Progress, [x] Completed (after review by the Reviewer only!)
 
-- [ ] **Task 1: Analyse-Skript und CLI-Struktur anlegen**
+- [x] **Task 1: Analyse-Skript und CLI-Struktur anlegen**
   - **Description:** Ein Python-Skript im `llama-benchy`-Verzeichnis anlegen, das ein Wurzelverzeichnis als Eingabe akzeptiert, dieses rekursiv nach `.csv`-Dateien durchsucht und eine reproduzierbare Ausführung für zukünftige Läufe ermöglicht.
   - **Review Criteria:** Das Skript lässt sich lokal mit Python starten, akzeptiert mindestens einen Verzeichnispfad als Eingabe, scannt das referenzierte Verzeichnis rekursiv und berücksichtigt alle darin gefundenen CSV-Dateien.
 - [ ] **Task 2: CSV-Validierung und Normalisierung implementieren**
