@@ -18,6 +18,7 @@ usage() {
     echo "Commands:"
     echo "  start [--no-log] <name> <command...>   Start a background service with the given name and command."
     echo "  stop [--timeout N] <name>              Stop the background service with the given name."
+    echo "  status <name>                          Show the status of a specific service."
     echo "  logs <name>                            Tail the log file of a running service."
     echo "  list                                   List all running background services."
 }
@@ -150,6 +151,37 @@ logs() {
     tail -f "$logfile"
 }
 
+status() {
+    if [[ -z "$1" ]]; then
+        echo "Error: No service name provided." >&2
+        echo "Usage: backgrounded status <name>" >&2
+        return 1
+    fi
+
+    local name="$1"
+    local pidfile="$PID_DIR/${name}.pid"
+    local logfile="$PID_DIR/${name}.log"
+
+    if [[ ! -f "$pidfile" ]]; then
+        echo "Service '$name' is unknown." >&2
+        return 1
+    fi
+
+    local pid=$(cat "$pidfile")
+    if kill -0 "$pid" 2>/dev/null; then
+        echo "Service '$name' is running (PID: $pid)"
+    else
+        echo "Service '$name' is dead (PID: $pid)"
+    fi
+
+    if [[ -f "$logfile" ]]; then
+        echo "Log: $logfile"
+        echo "or call 'backgrounded logs $name'"
+    else
+        echo "No logfile"
+    fi
+}
+
 list() {
     local files=("$PID_DIR"/*.pid)
     if [[ ! -e "${files[0]}" ]]; then
@@ -181,7 +213,10 @@ case "${1:-}" in
     shift
     logs "$@"
     ;;
-  # TODO Add status command to check if a service is running
+  status)
+    shift
+    status "$@"
+    ;;
   list)
     shift
     list
