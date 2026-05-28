@@ -16,9 +16,10 @@ STOP_TIMEOUT=10
 usage() {
     echo "Usage: backgrounded <command> [args...]"
     echo "Commands:"
-    echo "  start <name> <command...>  Start a background service with the given name and command."
-    echo "  stop [--timeout N] <name>  Stop the background service with the given name."
-    echo "  list                       List all running background services."
+    echo "  start [--no-log] <name> <command...>   Start a background service with the given name and command."
+    echo "  stop [--timeout N] <name>              Stop the background service with the given name."
+    echo "  logs <name>                            Tail the log file of a running service."
+    echo "  list                                   List all running background services."
 }
 
 start() {
@@ -28,11 +29,18 @@ start() {
         return 1
     fi
 
+    local log=true
+    if [[ "$1" == "--no-log" ]]; then
+        log=false
+        shift
+    fi
+
     local name="$1"
     shift
 
     mkdir -p "$PID_DIR"
     local pidfile="$PID_DIR/${name}.pid"
+    local logfile="$PID_DIR/${name}.log"
 
     # Sanity check: Ensure the name only contains alphanumeric characters, dashes, or underscores
     if [[ ! "$name" =~ ^[a-zA-Z0-9_-]+$ ]]; then
@@ -50,13 +58,21 @@ start() {
     fi
 
     # Run in background, fully detached from the terminal session
-    # TODO Add logging to a file instead of /dev/null and maybe also support a --no-logs flag to disable logging entirely
+    # setsid is preferred for proper daemonization, but if it's not available, we can still background and disown
     if command -v setsid > /dev/null 2>&1; then
-        setsid "$@" > /dev/null 2>&1 &
+        if $log; then
+            setsid "$@" >> "$logfile" 2>&1 &
+        else
+            setsid "$@" > /dev/null 2>&1 &
+        fi
         local new_pid=$!
         echo "$new_pid" > "$pidfile"
     else
-        "$@" > /dev/null 2>&1 &
+        if $log; then
+            "$@" >> "$logfile" 2>&1 &
+        else
+            "$@" > /dev/null 2>&1 &
+        fi
         local new_pid=$!
         echo "$new_pid" > "$pidfile"
         disown "$new_pid"
@@ -108,10 +124,30 @@ stop() {
             echo "Service '$name' (PID $pid) has been terminated."
         fi
         rm "$pidfile"
+        rm "$PID_DIR/${name}.log"
     else
         echo "Service '$name' was already dead. Cleaned up orphaned PID file."
         rm "$pidfile"
+        rm "$PID_DIR/${name}.log"
     fi
+}
+
+logs() {
+    if [[ -z "$1" ]]; then
+        echo "Error: No service name provided." >&2
+        echo "Usage: backgrounded logs <name>" >&2
+        return 1
+    fi
+
+    local name="$1"
+    local logfile="$PID_DIR/${name}.log"
+
+    if [[ ! -f "$logfile" ]]; then
+        echo "No log file for service '$name'." >&2
+        return 1
+    fi
+
+    tail -f "$logfile"
 }
 
 list() {
@@ -140,6 +176,10 @@ case "${1:-}" in
   stop)
     shift
     stop "$@"
+    ;;
+  logs)
+    shift
+    logs "$@"
     ;;
   # TODO Add status command to check if a service is running
   list)
