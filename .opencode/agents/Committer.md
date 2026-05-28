@@ -5,6 +5,7 @@ model: github-copilot/gpt-5.4-mini
 permission:
   fsro_*: allow
   git_*: allow
+  task: deny
 steps: 20
 ---
 

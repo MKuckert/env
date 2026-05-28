@@ -4,6 +4,7 @@ mode: subagent
 model: github-copilot/gpt-5.4
 permission:
   fsrw_*: allow
+  task: deny
 steps: 50
 ---
 
