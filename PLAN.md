@@ -17,7 +17,7 @@ Ein Python-Skript soll alle CSV-Benchmarkdateien unter einem angegebenen Wurzelv
 - [x] **Task 1: Analyse-Skript und CLI-Struktur anlegen**
   - **Description:** Ein Python-Skript im `llama-benchy`-Verzeichnis anlegen, das ein Wurzelverzeichnis als Eingabe akzeptiert, dieses rekursiv nach `.csv`-Dateien durchsucht und eine reproduzierbare Ausführung für zukünftige Läufe ermöglicht.
   - **Review Criteria:** Das Skript lässt sich lokal mit Python starten, akzeptiert mindestens einen Verzeichnispfad als Eingabe, scannt das referenzierte Verzeichnis rekursiv und berücksichtigt alle darin gefundenen CSV-Dateien.
-- [ ] **Task 2: CSV-Validierung und Normalisierung implementieren**
+- [x] **Task 2: CSV-Validierung und Normalisierung implementieren**
   - **Description:** Pflichtspalten für die TPS-Auswertung (`model`, `test_name`, `t_s_mean`, `t_s_std`, `t_s_req_mean`, `t_s_req_std`, `peak_ts_mean`, `peak_ts_std`, `peak_ts_req_mean`, `peak_ts_req_std`) prüfen, kaputte CSV-Dateien sauber melden, optionale Zusatzspalten wie Latenzwerte tolerieren, Metadaten wie Quelle/Dateiname/Engine/Modell/Test extrahieren und Datensätze in ein einheitliches Tabellenformat überführen.
   - **Review Criteria:** Fehlende Pflichtspalten und nicht lesbare CSV-Dateien werden eindeutig gemeldet; zusätzliche Spalten bleiben erlaubt, ohne die Verarbeitung zu brechen.
 - [ ] **Task 3: Erwartete Tests und Vollständigkeitsprüfung ergänzen**
