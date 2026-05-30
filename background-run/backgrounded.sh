@@ -55,7 +55,8 @@ validate_name() {
 
 read_pid() {
     local name="$1"
-    local pf=$(pidfile "$name")
+    local pf
+    pf=$(pidfile "$name")
 
     if [[ ! -f "$pf" ]]; then
         echo "No PID file found for service '$name'." >&2
@@ -76,7 +77,7 @@ remove_service() {
     local name="$1"
     local keep_log="${2:-false}"
     rm -f "$(pidfile "$name")"
-    if ! $keep_log; then
+    if [[ "$keep_log" != "true" ]]; then
         rm -f "$(logfile "$name")"
     fi
 }
@@ -93,9 +94,9 @@ usage() {
 }
 
 start() {
-    local log=true
+    local log="true"
     if [[ "${1:-}" == "--no-log" ]]; then
-        log=false
+        log="false"
         shift
     fi
 
@@ -110,11 +111,14 @@ start() {
     validate_name "$name" || return 1
 
     mkdir -p "$PID_DIR"
-    local pf=$(pidfile "$name")
-    local lf=$(logfile "$name")
+    local pf
+    pf=$(pidfile "$name")
+    local lf
+    lf=$(logfile "$name")
 
     if [[ -f "$pf" ]]; then
-        local old_pid=$(cat "$pf")
+        local old_pid
+        old_pid=$(cat "$pf")
         if kill -0 "$old_pid" 2>/dev/null; then
             echo "Service '$name' is already running with PID $old_pid." >&2
             return 1
@@ -122,7 +126,7 @@ start() {
     fi
 
     # Run in background, fully detached from the terminal session
-    if $log; then
+    if [[ "$log" == "true" ]]; then
         "$@" >> "$lf" 2>&1 &
     else
         "$@" > /dev/null 2>&1 &
@@ -141,8 +145,12 @@ stop() {
     while true; do
         case "${1:-}" in
             --timeout)
-                if [[ -z "${2:-}" || -z "${3:-}" ]]; then
-                    echo "Error: --timeout requires a value (and the service name)." >&2
+                if [[ -z "${2:-}" ]]; then
+                    echo "Error: --timeout requires a value." >&2
+                    return 1
+                fi
+                if [[ ! "${2:-}" =~ ^[0-9]+$ ]]; then
+                    echo "Error: --timeout value must be a positive integer." >&2
                     return 1
                 fi
                 timeout="$2"
@@ -204,7 +212,8 @@ logs() {
 
     local name="$1"
     validate_name "$name" || return 1
-    local lf=$(logfile "$name")
+    local lf
+    lf=$(logfile "$name")
 
     if [[ ! -f "$lf" ]]; then
         echo "No log file for service '$name'." >&2
@@ -223,7 +232,8 @@ status() {
 
     local name="$1"
     validate_name "$name" || return 1
-    local lf=$(logfile "$name")
+    local lf
+    lf=$(logfile "$name")
     local pid
     pid=$(read_pid "$name") || return 1
 
@@ -237,7 +247,7 @@ status() {
         echo "Log: $lf"
         echo " or call 'backgrounded logs $name'"
     else
-        echo "No logfile"
+        echo "No log file"
     fi
 }
 
@@ -254,7 +264,8 @@ list() {
     fi
 
     for f in "${files[@]}"; do
-        local name=$(basename "$f" .pid)
+        local name
+        name=$(basename "$f" .pid)
         local pid
         pid=$(read_pid "$name") || continue
 
@@ -262,7 +273,7 @@ list() {
             echo "$name (PID: $pid)"
         else
             echo "$name (PID: $pid) [DEAD]"
-            if $clean; then
+            if [[ "$clean" == "true" ]]; then
                 remove_service "$name"
             fi
         fi

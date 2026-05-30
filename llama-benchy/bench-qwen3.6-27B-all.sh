@@ -52,45 +52,49 @@ bench() {
 	uvx llama-benchy "${args[@]}"
 }
 
-instruct_user() {
-  read -n 1 -s -r -p "$*" && echo
-}
-
 start() {
-  $BASE_DIR/background-run/backgrounded.sh start inferenceprovider "$@"
+  local name=$1
+  shift
+  "$BASE_DIR/background-run/backgrounded.sh" start $name "$@" || {
+    echo "Failed to start inference provider. Aborting." >&2
+    exit 1
+  }
   sleep 20 # Wait for the server to start
 }
 stop() {
-  $BASE_DIR/background-run/backgrounded.sh stop --keep-log inferenceprovider
+  "$BASE_DIR/background-run/backgrounded.sh" stop --keep-log $1 || {
+    echo "Failed to stop inference provider. Aborting." >&2
+    exit 1
+  }
   sleep 5 # Wait for the server to stop
 }
 
 bench_mtplx() {
   echo "Benchmarking MTPLX…"
-  start $BASE_DIR/mtplx/serve.sh
+  start mtplx "$BASE_DIR/mtplx/serve.sh"
   bench "http://127.0.0.1:${MTPLX_PORT}/v1" mtplx "mtplx-qwen36-27b-optimized-speed" "${MTPLX_API_KEY}"
-  stop
+  stop mtplx
 }
 
 bench_mlx_lm() {
   echo "Benchmarking mlx-lm…"
-  start $BASE_DIR/mlx-lm/serve.sh
+  start mlxlm "$BASE_DIR/mlx-lm/serve.sh"
   bench "http://127.0.0.1:${MLXLM_PORT}/v1" mlx-lm "mlx-community/Qwen3.6-27B-4bit"
-  stop
+  stop mlxlm
 }
 
 bench_llama_cpp() {
   echo "Benchmarking llama.cpp…"
-  start $BASE_DIR/llama.cpp/serve.sh
+  start llama_cpp "$BASE_DIR/llama.cpp/serve.sh"
   bench "http://127.0.0.1:${LLAMA_ARG_PORT}/v1" llama.cpp "Qwen3.6-27B-Q4_K_M-MTP-Instruct" "${LLAMA_API_KEY}"
-  stop
+  stop llama_cpp
 }
 
 bench_omlx() {
   echo "Benchmarking omlx…"
-  start omlx serve
+  start omlx omlx serve
   bench "http://127.0.0.1:${OMLX_PORT}/v1" omlx "Jundot--Qwen3.6-27B-oQ4-mtp" "${OMLX_API_KEY}"
-  stop
+  stop omlx
 }
 
 usage() {
