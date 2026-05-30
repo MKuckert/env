@@ -1,7 +1,7 @@
 ---
 description: "Provides read access to the local code"
 mode: subagent
-model: github-copilot/gpt-5.4-mini
+model: github-copilot/claude-haiku-4.5
 permission:
   fsro_*: allow
   task: deny

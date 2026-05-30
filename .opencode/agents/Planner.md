@@ -1,7 +1,7 @@
 ---
 description: "Strategic software architect creating a PLAN.md"
 mode: primary
-model: github-copilot/gpt-5.4
+model: github-copilot/claude-sonnet-4.6
 permission:
   fsrw_*: allow
 color: "#DD0000"

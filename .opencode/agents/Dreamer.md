@@ -1,7 +1,7 @@
 ---
 description: "Reworks the agent harness"
 mode: primary
-model: github-copilot/gpt-5.4
+model: github-copilot/claude-sonnet-4.6
 permission:
   fsrw_*: allow
   git_*: allow

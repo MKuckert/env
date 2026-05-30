@@ -1,7 +1,7 @@
 ---
 description: "Retrieves required information from external resources"
 mode: subagent
-model: github-copilot/gpt-5.4-mini
+model: github-copilot/claude-haiku-4.5
 permission:
   web_*: allow
   task: deny
