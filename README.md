@@ -73,6 +73,7 @@ brew autoupdate start 43200 --immediate --upgrade --cleanup --ac-only --sudo
 The `docker-buildx` plugin is installed to enable extended build capabilities with BuildKit.
 
 You have to add the following to your `~/.docker/config.json`:
+
 ```json
   "cliPluginsExtraDirs": [
       "/opt/homebrew/lib/docker/cli-plugins"
@@ -107,6 +108,7 @@ Ensure your API keys (e.g., for Google Gemini) are securely configured in your l
 The `macos/automation/shortcuts/` directory contains `.cherri` source code files that can be compiled and then imported into the macOS Shortcuts app. These are useful for context switching and automating your workflow.
 
 Available Shortcuts:
+
 - `dev-start` / `dev-stop`: Opens/hides the development environment (Zed, Terminal) and manages the local `ollama` service.
 - `mail-start` / `mail-stop`: Opens/hides communication applications (Microsoft Teams and Outlook).
 - `meeting-start` / `meeting-stop`: Prepares the system for a meeting (hides unrelated apps, focuses Microsoft Teams).
@@ -133,6 +135,7 @@ osascript -e 'id of app "APPNAME"'
 The `macos/automation/launchd/` directory contains background services (agents) that can be managed via macOS `launchd`.
 
 Available Agents:
+
 - `com.user.opencode-serve`: Runs `opencode serve` to keep the OpenCode server running in the background as a proper macOS service. **⚠️ Doesn't work properly with current opencode version!**
 - `com.user.opencode-restartonchange`: Watches for changes to the `opencode` binary or configuration files and automatically restarts the OpenCode server when an update occurs.
 
@@ -160,6 +163,7 @@ launchctl bootout gui/$(id -u)/com.user.opencode-restartonchange
 ### Git Configuration
 
 This repository includes custom git configurations (`.gitconfig`):
+
 - User name and email, separate for work and private projects
 - Git GPG signing enabled, using SSH for signing
 - Autocorrect for mistyped commands
@@ -173,6 +177,7 @@ This repository includes custom git configurations (`.gitconfig`):
 Brew starts the local Ollama service. You can pull required models, e.g. those configured in `opencode.jsonc` by calling `ollama run <model>`.
 
 Or build the models from a Modelfile:
+
 ```bash
 ollama create tiny -f ollama/models/Modelfile.tiny
 ```
@@ -182,6 +187,7 @@ ollama create tiny -f ollama/models/Modelfile.tiny
 OMLX is an inference server for running LLM models on metal hardware locally.
 
 Symlink the configuration to your home directory:
+
 ```bash
 ln -s $(pwd)/omlx/settings.json ~/.omlx/
 ```
@@ -193,6 +199,7 @@ The configuration includes server settings, model directories, memory management
 MTPLX provides optimized model serving for large language models (e.g., Qwen3.6-27B).
 
 To start the MTPLX server:
+
 ```bash
 mtplx/serve.sh
 ```
@@ -202,11 +209,13 @@ mtplx/serve.sh
 llama.cpp provides local LLM inference with GPU acceleration (Metal on macOS).
 
 To build llama.cpp from source:
+
 ```bash
 bash llama.cpp/build.sh
 ```
 
 To start the inference server:
+
 ```bash
 bash llama.cpp/serve.sh
 ```
@@ -216,16 +225,19 @@ bash llama.cpp/serve.sh
 Manifest provides local repo updater and starter/stopper for Docker compose.
 
 To setup Manifest:
+
 ```bash
 bash manifest/setup.sh
 ```
 
 To start the Manifest environment:
+
 ```bash
 bash manifest/start.sh
 ```
 
 To stop the Manifest environment:
+
 ```bash
 bash manifest/stop.sh
 ```
@@ -260,18 +272,34 @@ All tools are built from source and installed to `~/private/dev/`.
 Provides container environment for docker and nerdctl.
 
 Configures the following virtual machines (profiles):
-- `docker`: Machine for docker environment, accessible through `docker`
+
+- `docker`: Machine for docker environment, accessible through `docker`, runs with apples vz virtualization framework for best performance, in theory, but file system failures in practice.
+- `docker-qemu`: Machine for docker environment, accessible through `docker`, runs with qemu virtualization framework and sshfs for better stability, but worse performance.
 - `containerd`: Bare containers, accessible through `nerdctl`
 - `ai`: krunkit environment to run LLMs
 
 No VM is started by default. Start a profile with `colima start <profile>`.
 
 Perform the following for installation:
+
 ```bash
 ln -s $(pwd)/colima ~/.colima
 
 colima completion bash > ~/.config/bash_completion.d/colima
 colima -p containerd nerdctl install
+```
+
+#### lazydocker
+
+For monitoring the docker environment, one can use [lazydocker](https://github.com/jesseduffield/lazydocker), which is running via docker in docker. Execute the `lazydocker` alias.
+
+If you're on an ARM device (which you probably are with Apple silicon), you need to build the image yourself. See the [full instructions here](https://github.com/jesseduffield/lazydocker#docker):
+
+```bash
+docker build -t lazyteam/lazydocker \
+  --build-arg BASE_IMAGE_BUILDER=arm64v8/golang \
+  --build-arg GOARCH=arm64 \
+  https://github.com/jesseduffield/lazydocker.git
 ```
 
 ## Things others would have to adjust
