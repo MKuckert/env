@@ -32,6 +32,8 @@
 	tool = opendiff
 	# Include summaries of merged commits in newly created merge commit messages
 	log = true
+	# Don't fast-forward merges, always create a merge commit to preserve history
+	ff = no
 [mergetool]
 	prompt = false
 	keepbackup = false
