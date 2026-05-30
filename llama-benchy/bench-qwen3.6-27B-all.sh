@@ -32,10 +32,10 @@ bench() {
   args+=(--pp 2048)
 
 	# List of token generation counts (Default: [32]).
-	args+=(--tg 32 1024)
+	args+=(--tg 1024)
 
 	# List of context depths (Default: [0]).
-	args+=(--depth 0 1024 2048) #8192
+	args+=(--depth 2048)
 
 	# Enable prefix caching performance measurement. When enabled (and depth > 0),
 	# it performs a two-step benchmark: first loading the context (reported as ctx_pp),
