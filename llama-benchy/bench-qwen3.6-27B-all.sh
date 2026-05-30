@@ -97,9 +97,16 @@ bench_omlx() {
   stop omlx
 }
 
+bench_ollama() {
+  echo "Benchmarking ollama…"
+  start ollama ollama serve
+  bench "http://127.0.0.1:${OLLAMA_PORT}/v1" ollama "qwen3.6:27b-mlx"
+  stop ollama
+}
+
 usage() {
   echo "Usage: $(basename "$0") <test...>" >&2
-  echo "  test: mtplx | mlx_lm | llama.cpp | omlx | all" >&2
+  echo "  test: mtplx | mlx_lm | llama.cpp | omlx | ollama | all" >&2
   exit 1
 }
 
@@ -113,11 +120,13 @@ for arg in "$@"; do
     mlx_lm)    bench_mlx_lm ;;
     llama.cpp) bench_llama_cpp ;;
     omlx)      bench_omlx ;;
+    ollama)    bench_ollama ;;
     all)
       bench_mtplx
       bench_mlx_lm
       bench_llama_cpp
       bench_omlx
+      bench_ollama
       ;;
     help|-h|--help)
       usage
