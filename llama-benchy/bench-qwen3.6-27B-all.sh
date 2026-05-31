@@ -18,6 +18,8 @@ bench() {
 		return 1
 	fi
 
+	local RESULTS_FILE="$RESULTS_DIR/$(gdate +%Y-%m-%d-%H-%M)-$name.json"
+
   # url, model, api-key
 	local args=(--base-url "$url" --model "$model")
 	[[ -n "$api_key" ]] && args+=(--api-key "$api_key")
@@ -43,13 +45,19 @@ bench() {
 	args+=(--enable-prefix-caching)
 
 	# File to save results to and output format
-	args+=(--save-result "$RESULTS_DIR/$(gdate +%Y-%m-%d-%H-%M)-$name.csv")
-	args+=(--format csv)
+	args+=(--save-result "$RESULTS_FILE")
+	args+=(--format json)
 
 	# Number of runs per test (Default: 3).
 	args+=(--runs 3)
 
-	uvx llama-benchy "${args[@]}"
+	uvx llama-benchy "${args[@]}" >&2
+
+  echo -n "$name: "
+	jq -r '.benchmarks[]
+	  | select(.is_context_prefill_phase==false)
+		| ( "pp \(.pp_throughput.mean|tostring), tg \(.tg_throughput.mean|tostring))' \
+		"$RESULTS_FILE"
 }
 
 start() {
@@ -70,35 +78,30 @@ stop() {
 }
 
 bench_mtplx() {
-  echo "Benchmarking MTPLX…"
   start mtplx "$BASE_DIR/mtplx/serve.sh"
   bench "http://127.0.0.1:${MTPLX_PORT}/v1" mtplx "mtplx-qwen36-27b-optimized-speed" "${MTPLX_API_KEY}"
   stop mtplx
 }
 
 bench_mlx_lm() {
-  echo "Benchmarking mlx-lm…"
   start mlxlm "$BASE_DIR/mlx-lm/serve.sh"
   bench "http://127.0.0.1:${MLXLM_PORT}/v1" mlx-lm "mlx-community/Qwen3.6-27B-4bit"
   stop mlxlm
 }
 
 bench_llama_cpp() {
-  echo "Benchmarking llama.cpp…"
   start llama_cpp "$BASE_DIR/llama.cpp/serve.sh"
   bench "http://127.0.0.1:${LLAMA_ARG_PORT}/v1" llama.cpp "Qwen3.6-27B-Q4_K_M-MTP-Instruct" "${LLAMA_API_KEY}"
   stop llama_cpp
 }
 
 bench_omlx() {
-  echo "Benchmarking omlx…"
   start omlx omlx serve
   bench "http://127.0.0.1:${OMLX_PORT}/v1" omlx "Jundot--Qwen3.6-27B-oQ4-mtp" "${OMLX_API_KEY}"
   stop omlx
 }
 
 bench_ollama() {
-  echo "Benchmarking ollama…"
   start ollama ollama serve
   bench "http://127.0.0.1:${OLLAMA_PORT}/v1" ollama "qwen3.6:27b-mlx"
   stop ollama
@@ -109,8 +112,6 @@ usage() {
   echo "  test: mtplx | mlx_lm | llama.cpp | omlx | ollama | all" >&2
   exit 1
 }
-
-echo "Benchmark for Qwen3.6-27B on different inference providers"
 
 [[ $# -eq 0 ]] && usage
 
