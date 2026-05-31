@@ -56,7 +56,7 @@ bench() {
   echo -n "$name: "
 	jq -r '.benchmarks[]
 	  | select(.is_context_prefill_phase==false)
-		| ( "pp \(.pp_throughput.mean|tostring), tg \(.tg_throughput.mean|tostring))' \
+		| ( "pp \(.pp_throughput.mean|tostring), tg \(.tg_throughput.mean|tostring)" )' \
 		"$RESULTS_FILE"
 }
 
@@ -107,9 +107,15 @@ bench_ollama() {
   stop ollama
 }
 
+bench_krunkit() {
+  start krunkit $HOME/env/colima/ai/serve.sh
+  bench "http://127.0.0.1:${COLIMA_AI_PORT}/v1" krunkit "unsloth/Qwen3.6-27B-GGUF"
+  stop krunkit
+}
+
 usage() {
   echo "Usage: $(basename "$0") <test...>" >&2
-  echo "  test: mtplx | mlx_lm | llama.cpp | omlx | ollama | all" >&2
+  echo "  test: mtplx | mlx_lm | llama.cpp | omlx | ollama | krunkit | all" >&2
   exit 1
 }
 
@@ -122,12 +128,14 @@ for arg in "$@"; do
     llama.cpp) bench_llama_cpp ;;
     omlx)      bench_omlx ;;
     ollama)    bench_ollama ;;
+    krunkit)   bench_krunkit ;;
     all)
       bench_mtplx
       bench_mlx_lm
       bench_llama_cpp
       bench_omlx
       bench_ollama
+      bench_krunkit
       ;;
     help|-h|--help)
       usage
