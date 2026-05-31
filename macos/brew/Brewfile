@@ -40,6 +40,8 @@ cask "microsoft-powerpoint"
 cask "microsoft-word"
 cask "microsoft-teams"
 cask "spotify"
+tap "human37/open-wispr"
+brew "human37/open-wispr/open-wispr"
 
 # Knowledge
 cask "obsidian"

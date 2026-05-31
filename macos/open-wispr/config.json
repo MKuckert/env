@@ -1,0 +1,16 @@
+{
+  "toggleMode": false,
+  "hotkey": {
+    "modifiers": [],
+    "keyCode": 63
+  },
+  "modelSize": "base",
+  "language": "de",
+  "spokenPunctuation": false,
+  "hotkeys": [
+    {
+      "modifiers": [],
+      "keyCode": 63
+    }
+  ]
+}
