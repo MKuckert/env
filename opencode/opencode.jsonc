@@ -51,11 +51,11 @@
     "skill": "ask",
 
     // running LSP queries (currently non-granular)
-    "lsp": "ask",
+    "lsp": "deny",
 
     // reading/updating the todo list
-    "todoread": "allow",
-    "todowrite": "ask",
+    "todoread": "deny",
+    "todowrite": "deny",
 
     // fetching a URL (matches the URL)
     "webfetch": "ask",
@@ -75,26 +75,21 @@
   "agent": {
     "build": {
       "mode": "primary",
-      "model": "google/gemini-3.1-pro-preview",
     },
     "plan": {
       "mode": "primary",
-      "model": "google/gemini-3.1-pro-preview",
     },
     "general": {
       "mode": "subagent",
-      "model": "google/gemini-3.1-flash-lite-preview",
     },
     "explore": {
       "mode": "subagent",
-      "model": "google/gemini-3.1-flash-lite-preview",
     },
 
     // System agents
     "compaction": {
       "mode": "primary",
       "hidden": true,
-      "model": "google/gemini-3.1-flash-lite-preview",
     },
     "title": {
       "mode": "primary",
@@ -155,7 +150,7 @@
         },
       },
     },*/
-    /*"omlx": {
+    "omlx": {
       "npm": "@ai-sdk/openai-compatible",
       "name": "oMLX (local)",
       "options": {
@@ -163,9 +158,14 @@
         "apiKey": "{env:OMLX_API_KEY}",
       },
       "models": {
-        "mlx-community-Qwen3.6-27B-4bit": {},
+        "Jundot--Qwen3.6-27B-oQ4-mtp": {
+          "name": "Qwen3.6-27B",
+        },
+        "dawncr0w--Qwen3.6-27B-uncensored-heretic-v2-Native-MTP-Preserved-oQ4-MLX": {
+          "name": "Qwen3.6-27B-uncensored",
+        },
       },
-    },*/
+    },
     "apple": {
       "npm": "@ai-sdk/openai-compatible",
       "name": "Apple (local)",
