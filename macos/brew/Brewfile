@@ -90,6 +90,8 @@ brew "hf"
 cask "chatbox"
 brew "youssofal/mtplx/mtplx"
 brew "mlx-lm"
+cask "copilot-cli"
+cask "claude-code"
 
 # Browser
 cask "firefox"
