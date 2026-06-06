@@ -9,7 +9,7 @@ if [ ! -d $TOOLDIR ]; then
   cd $TOOLDIR
 else
   cd $TOOLDIR
-  git pull
+  git pull --ff
 fi
 
 echo "Building timelog $(git log --pretty=tformat:"%H" -1)"

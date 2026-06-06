@@ -7,7 +7,7 @@ if [ ! -d manifest ]; then
   cd manifest
 else
   cd manifest
-  git pull
+  git pull --ff
 fi
 
 echo "ℹ️ Ensure to create and edit ~/private/dev/manifest/docker/.env before running"

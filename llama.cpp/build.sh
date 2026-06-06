@@ -7,7 +7,7 @@ if [ ! -d llama.cpp ]; then
   cd llama.cpp
 else
   cd llama.cpp
-  git pull
+  git pull --ff
 fi
 
 echo "Building llama.cpp $(git tag --points-at HEAD)"

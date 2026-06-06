@@ -9,7 +9,7 @@ if [ ! -d $TOOLDIR ]; then
   cd $TOOLDIR
 else
   cd $TOOLDIR
-  git pull
+  git pull --ff
 fi
 
 echo "Opening project in xcode so you can build it from there"
