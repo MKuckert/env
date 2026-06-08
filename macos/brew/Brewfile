@@ -94,6 +94,8 @@ brew "youssofal/mtplx/mtplx"
 brew "mlx-lm"
 cask "copilot-cli"
 cask "claude-code"
+tap "steipete/tap"
+cask "steipete/tap/codexbar"
 
 # Browser
 cask "firefox"
