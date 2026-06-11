@@ -34,7 +34,7 @@ export HOMEBREW_CLEANUP_PERIODIC_FULL_DAYS=30
 export HOMEBREW_FORBIDDEN_CASKS=
 
 # Space-separated list of formulae. Homebrew will refuse to install a formula or cask if it or any of its dependencies is on this list
-export HOMEBREW_FORBIDDEN_FORMULAE=node
+export HOMEBREW_FORBIDDEN_FORMULAE=
 
 # Ollama, OMLX, llama.cpp and mtplx
 MODELS_BASE=$(realpath ~)/ai/models
