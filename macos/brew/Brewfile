@@ -42,6 +42,7 @@ cask "microsoft-teams"
 cask "spotify"
 tap "human37/open-wispr"
 brew "human37/open-wispr/open-wispr"
+brew "whisper-cpp"
 
 # Knowledge
 cask "obsidian"
