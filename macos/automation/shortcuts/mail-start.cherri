@@ -4,17 +4,10 @@
 
 #include 'lib/base.cherri'
 #include 'lib/appids.cherri'
-#include 'lib/focus.cherri'
-
-runShellScript('
-source ~/.bash_profile
-timelog start mail
-')
 
 openApp(APPID_TEAMS)
 openApp(APPID_OUTLOOK)
 openApp(APPID_MATTERMOST)
 openApp(APPID_TIMELOGGER)
 
-paste persist_focus
 paste gobble

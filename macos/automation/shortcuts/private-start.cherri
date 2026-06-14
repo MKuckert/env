@@ -4,11 +4,6 @@
 
 #include 'lib/base.cherri'
 #include 'lib/appids.cherri'
-#include 'lib/focus.cherri'
-
-// Doesn't currently emit a correct action as of cherry v2.1.1
-// See https://github.com/electrikmilk/cherri/issues/166
-hideAllApps(APPID_STEAM)
 
 openApp(APPID_STEAM)
 
@@ -31,5 +26,4 @@ if ssid == "No Kuckies" {
   ")
 }
 
-paste persist_focus
 paste gobble

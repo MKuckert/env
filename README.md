@@ -108,14 +108,11 @@ The `macos/automation/shortcuts/` directory contains `.cherri` source code files
 
 Available Shortcuts:
 
-- `dev-start` / `dev-stop`: Opens/hides the development environment (Zed, Terminal) and manages the local `ollama` service.
 - `mail-start` / `mail-stop`: Opens/hides communication applications (Microsoft Teams and Outlook).
 - `meeting-start` / `meeting-stop`: Prepares the system for a meeting (hides unrelated apps, focuses Microsoft Teams).
 - `private-start` / `private-stop`: Prepares the system for private time (hides work apps, opens Steam).
 
 These shortcuts are written in [Cherri](https://github.com/electrikmilk/cherri) (`*.cherri`). You need to compile them using the Cherri CLI to generate `.shortcut` files, which can than be imported.
-
-On can hook the start scripts to focus change events if you add corresponding focus modes (`dev`, `mail`, `meeting`, `private`).
 
 Compile and import all shortcuts (opens the Shortcuts app with multiple acknowledgement dialogs):
 

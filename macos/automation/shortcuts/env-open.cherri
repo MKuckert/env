@@ -1,0 +1,19 @@
+#define name env-open
+#define glyph noteText
+#define color green
+
+#include 'lib/base.cherri'
+#include 'lib/appids.cherri'
+
+const workspace = '/Users/mkuckert/env'
+
+runShellScript("
+source ~/.bash_profile
+(colima restart docker-qemu && colima restart containerd) &
+
+zed {workspace}
+~/env/background-run/backgrounded.sh start omlx omlx serve
+open -b {APPID_TERMINAL} -n --args {workspace}
+")
+
+paste gobble

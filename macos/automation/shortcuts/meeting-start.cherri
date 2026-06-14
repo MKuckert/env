@@ -4,20 +4,9 @@
 
 #include 'lib/base.cherri'
 #include 'lib/appids.cherri'
-#include 'lib/focus.cherri'
-
-runShellScript('
-source ~/.bash_profile
-timelog start meeting
-')
 
 pause()
 
-// Doesn't currently emit a correct action as of cherry v2.1.1
-// See https://github.com/electrikmilk/cherri/issues/166
-hideAllApps(APPID_TEAMS)
-
 openApp(APPID_TEAMS)
 
-paste persist_focus
 paste gobble

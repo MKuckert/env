@@ -1,0 +1,20 @@
+#define name env-close
+#define glyph noteText
+#define color red
+
+#include 'lib/base.cherri'
+#include 'lib/appids.cherri'
+
+const workspace = '/Users/mkuckert/env'
+
+runShellScript("
+source ~/.bash_profile
+(colima restart docker-qemu && colima restart containerd) &
+
+~/env/background-run/backgrounded.sh stop omlx
+")
+
+quitApp(APPID_ZED)
+quitApp(APPID_TERMINAL)
+
+paste gobble
