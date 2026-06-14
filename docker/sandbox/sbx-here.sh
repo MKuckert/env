@@ -8,6 +8,7 @@ AGENT=""
 WORKSPACE=""
 CREATE=false
 REMOVE=false
+CLEANUP_ONLY=false
 
 usage() {
     cat << EOF
@@ -17,8 +18,9 @@ Manage a Docker sandbox for the current workspace.
 
 OPTIONS:
   --help, -h, -?         Show this help message
-  --recreate             Remove and recreate the sandbox
   --version              Show version information
+  --remove               Remove the sandbox and clean up configurations
+  --recreate             Remove and recreate the sandbox
 
 DESCRIPTION:
   Initializes or connects to a Docker sandbox. On first run, prompts for
@@ -27,6 +29,7 @@ DESCRIPTION:
 
 EXAMPLES:
   $(basename "$0")                # Start or attach to sandbox
+  $(basename "$0") --remove       # Remove sandbox and configurations
   $(basename "$0") --recreate     # Destroy and recreate sandbox
   $(basename "$0") --help         # Show this message
 
@@ -43,6 +46,11 @@ while [[ $# -gt 0 ]]; do
         --version)
             echo "sbx-here v$VERSION"
             exit 0
+            ;;
+        --remove)
+            REMOVE=true
+            CLEANUP_ONLY=true
+            shift
             ;;
         --recreate)
             CREATE=true
@@ -85,33 +93,16 @@ select_harness() {
     PS3=""
 }
 
-# Interactive initialization block (Only triggers if state is empty)
-if [[ -z "$SBX_NAME" ]]; then
-    CREATE=true
-
-    # Derive a Docker-safe default name from the current directory
-    CLEAN_DIR=$(basename "$WORKSPACE" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9_.-]/-/g')
-
-    echo "No docker sandbox name found."
-    echo "Select the target harness:"
-
-    AGENT=$(select_harness)
-
-    DEFAULT_NAME="${AGENT}-${CLEAN_DIR}"
-
-    read -r -p "Enter sandbox name [$DEFAULT_NAME]: " USER_INPUT
-    SBX_NAME="${USER_INPUT:-$DEFAULT_NAME}"
-
-    # Persist tracking token based on context
+# Clean up sbx configurations (git config or .sbx file)
+cleanup_config() {
     if [[ "$IN_GIT" == true ]]; then
-        git config --local sbx.name "$SBX_NAME"
-        git config --local sbx.agent "$AGENT"
-        echo "Context bound to local git config."
+        git config --local --remove-section sbx 2>/dev/null || true
     else
-        echo "$SBX_NAME" > "$SBX_FILE"
-        echo "Context bound to standalone file ($SBX_FILE)."
+        if [[ -f "$SBX_FILE" ]]; then
+            rm -f "$SBX_FILE"
+        fi
     fi
-fi
+}
 
 # Copy config files from ~/.config/sbx-here/$AGENT to workspace root
 copy_config_files() {
@@ -144,9 +135,46 @@ copy_config_files() {
     done
 }
 
-# REMOVE sandbox
+# Interactive initialization block (Only triggers if state is empty)
+if [[ -z "$SBX_NAME" ]]; then
+    CREATE=true
+
+    # Derive a Docker-safe default name from the current directory
+    CLEAN_DIR=$(basename "$WORKSPACE" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9_.-]/-/g')
+
+    echo "No docker sandbox name found."
+    echo "Select the target harness:"
+
+    AGENT=$(select_harness)
+
+    DEFAULT_NAME="${AGENT}-${CLEAN_DIR}"
+
+    read -r -p "Enter sandbox name [$DEFAULT_NAME]: " USER_INPUT
+    SBX_NAME="${USER_INPUT:-$DEFAULT_NAME}"
+
+    # Persist tracking token based on context
+    if [[ "$IN_GIT" == true ]]; then
+        git config --local sbx.name "$SBX_NAME"
+        git config --local sbx.agent "$AGENT"
+        echo "Context bound to local git config."
+    else
+        echo "$SBX_NAME" > "$SBX_FILE"
+        echo "Context bound to standalone file ($SBX_FILE)."
+    fi
+fi
+
+# REMOVE sandbox and optionally clean up configuration
 if [[ "$REMOVE" == true ]]; then
-    sbx rm "$SBX_NAME" || echo "Sandbox not found or already removed."
+    if [[ -n "$SBX_NAME" ]]; then
+        echo "Removing sandbox: $SBX_NAME"
+        sbx rm "$SBX_NAME" || echo "Sandbox not found or already removed."
+    fi
+
+    if [[ "$CLEANUP_ONLY" == true ]]; then
+        cleanup_config
+        echo "Sandbox and configuration removal complete."
+        exit 0
+    fi
 fi
 
 # Create sandbox and copy config files if new
