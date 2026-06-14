@@ -79,6 +79,37 @@ if [[ -z "$SBX_NAME" ]]; then
     fi
 fi
 
+# Copy config files from ~/.config/sbx-here/$AGENT to workspace root
+copy_config_files() {
+    if [[ -z "$AGENT" ]]; then
+        return
+    fi
+
+    local config_dir="$HOME/.config/sbx-here/$AGENT"
+    if [[ ! -d "$config_dir" ]]; then
+        return
+    fi
+
+    echo "Copying config files from $config_dir to $WORKSPACE"
+    for file in "$config_dir"/*; do
+        if [[ -f "$file" ]]; then
+            local filename=$(basename "$file")
+            local target="$WORKSPACE/$filename"
+            if [[ ! -e "$target" ]]; then
+                cp "$file" "$target"
+                echo "  Copied: $filename"
+            fi
+        elif [[ -d "$file" ]]; then
+            local dirname=$(basename "$file")
+            local target="$WORKSPACE/$dirname"
+            if [[ ! -e "$target" ]]; then
+                cp -r "$file" "$target"
+                echo "  Copied: $dirname/"
+            fi
+        fi
+    done
+}
+
 # REMOVE sandbox
 if [[ "$REMOVE" == true ]]; then
     echo "Removing existing sandbox: $SBX_NAME"
@@ -95,6 +126,7 @@ if [[ "$CREATE" == true ]]; then
 
     echo "Creating docker sandbox $SBX_NAME"
     sbx create --cpus 4 --memory 4g --name "$SBX_NAME" "$AGENT" "$WORKSPACE"
+    copy_config_files
 fi
 
 exec sbx run "$SBX_NAME"
