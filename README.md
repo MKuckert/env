@@ -17,7 +17,6 @@ This repository contains the configuration files, automation scripts, and enviro
   - `terminal/`: Contains macOS Terminal profile configurations (e.g., `mk.terminal`).
   - `automation/`
     - `shortcuts/`: macOS Shortcuts written in Cherri. Contains the source `.cherri` files. Use the `cherri` compiler to create the corresponding `.shortcut`s.
-    - `launchd/`: Symlink Launchd configs to `~/Library/LaunchAgents`.<br />Start a service by calling `launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/$SERVICE.plist`.<br />Stop a service by calling `launchctl bootout gui/$(id -u)/$SERVICE`.
 - **`opencode/`**: Configuration for [OpenCode](https://opencode.ai/).
   - Includes custom providers setup (Google Gemini & local Ollama models).
   - Configures custom agents and permissions (`agents/`).
@@ -128,36 +127,6 @@ find macos/automation/shortcuts -name '*-*.cherri' -exec echo {} ';' -exec cherr
 
 ```bash
 osascript -e 'id of app "APPNAME"'
-```
-
-### Launchd Services
-
-The `macos/automation/launchd/` directory contains background services (agents) that can be managed via macOS `launchd`.
-
-Available Agents:
-
-- `com.user.opencode-serve`: Runs `opencode serve` to keep the OpenCode server running in the background as a proper macOS service. **⚠️ Doesn't work properly with current opencode version!**
-- `com.user.opencode-restartonchange`: Watches for changes to the `opencode` binary or configuration files and automatically restarts the OpenCode server when an update occurs.
-
-Link the configuration files to your user's LaunchAgents directory:
-
-```bash
-ln -s $(pwd)/macos/automation/launchd/com.user.opencode-serve.plist ~/Library/LaunchAgents/
-ln -s $(pwd)/macos/automation/launchd/com.user.opencode-restartonchange.plist ~/Library/LaunchAgents/
-```
-
-Start a service by bootstrapping its configuration file:
-
-```bash
-launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.user.opencode-serve.plist
-launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.user.opencode-restartonchange.plist
-```
-
-Stop a service by using bootout with the service label:
-
-```bash
-launchctl bootout gui/$(id -u)/com.user.opencode-serve
-launchctl bootout gui/$(id -u)/com.user.opencode-restartonchange
 ```
 
 ### Git Configuration
@@ -304,8 +273,7 @@ docker build -t lazyteam/lazydocker \
 
 ## Things others would have to adjust
 
-- Full path containing my username `mkuckert`, e.g. in `macos/automation/launchd/com.user.opencode-serve.plist`, `mtplx/serve.sh`, `llama.cpp/serve.sh`, `omlx/settings.json`
-- My user id `422624326` as used in launchd services, e.g. in `macos/automation/launchd/com.user.opencode-restartonchange.plist`
+- Full path containing my username `mkuckert`, e.g. in `mtplx/serve.sh`, `llama.cpp/serve.sh`, `omlx/settings.json`
 - The `dotfiles/.gitconfig*` files
 - The `ssh/*` config files
 - The `opencode.jsonc` MCP gateway paths (`/Users/mkuckert/private/dev/agent-harness/bin/docker-mcp-gateway-run.sh`)
