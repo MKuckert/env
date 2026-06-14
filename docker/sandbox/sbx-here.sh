@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+VERSION="0.1"
 SBX_FILE=".sbx"
 SBX_NAME=""
 AGENT=""
@@ -8,16 +9,49 @@ WORKSPACE=""
 CREATE=false
 REMOVE=false
 
+usage() {
+    cat << EOF
+Usage: $(basename "$0") [OPTIONS]
+
+Manage a Docker sandbox for the current workspace.
+
+OPTIONS:
+  --help, -h, -?         Show this help message
+  --recreate             Remove and recreate the sandbox
+  --version              Show version information
+
+DESCRIPTION:
+  Initializes or connects to a Docker sandbox. On first run, prompts for
+  sandbox name and harness selection. Subsequent runs attach to the existing
+  sandbox.
+
+EXAMPLES:
+  $(basename "$0")                # Start or attach to sandbox
+  $(basename "$0") --recreate     # Destroy and recreate sandbox
+  $(basename "$0") --help         # Show this message
+
+EOF
+}
+
 # Parse CLI flags
 while [[ $# -gt 0 ]]; do
     case "$1" in
+        --help | -h | -?)
+            usage
+            exit 0
+            ;;
+        --version)
+            echo "sbx-here v$VERSION"
+            exit 0
+            ;;
         --recreate)
             CREATE=true
             REMOVE=true
             shift
             ;;
         *)
-            echo "Unknown flag: $1"
+            echo "Unknown flag: $1" >&2
+            echo "Use --help for usage information."
             exit 1
             ;;
     esac
@@ -56,7 +90,7 @@ if [[ -z "$SBX_NAME" ]]; then
     CREATE=true
 
     # Derive a Docker-safe default name from the current directory
-    CLEAN_DIR=$(basename "$PWD" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9_.-]/-/g')
+    CLEAN_DIR=$(basename "$WORKSPACE" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9_.-]/-/g')
 
     echo "No docker sandbox name found."
     echo "Select the target harness:"
@@ -112,7 +146,6 @@ copy_config_files() {
 
 # REMOVE sandbox
 if [[ "$REMOVE" == true ]]; then
-    echo "Removing existing sandbox: $SBX_NAME"
     sbx rm "$SBX_NAME" || echo "Sandbox not found or already removed."
 fi
 
