@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "server": {
-    "host": "127.0.0.1",
+    "host": "0.0.0.0",
     "port": 11435,
     "log_level": "info",
     "cors_origins": [
@@ -11,7 +11,9 @@
       "localhost",
       "127.0.0.1"
     ],
-    "sse_keepalive_mode": "chunk"
+    "sse_keepalive_mode": "chunk",
+    "auto_start_on_launch": true,
+    "burst_decode_mode": "balanced"
   },
   "model": {
     "model_dirs": [
@@ -31,6 +33,7 @@
   },
   "scheduler": {
     "max_concurrent_requests": 1,
+    "embedding_batch_size": 32,
     "chunked_prefill": false
   },
   "cache": {
@@ -51,7 +54,8 @@
     "config_path": null
   },
   "huggingface": {
-    "endpoint": ""
+    "endpoint": "",
+    "hf_cache_enabled": true
   },
   "modelscope": {
     "endpoint": ""
@@ -64,6 +68,7 @@
   },
   "sampling": {
     "max_context_window": 102400,
+    "max_context_window_policy": null,
     "max_tokens": 102400,
     "temperature": 0.6,
     "top_p": 0.95,
@@ -89,7 +94,12 @@
     "hermes_model": null,
     "pi_model": null,
     "copilot_model": null,
-    "openclaw_tools_profile": "coding"
+    "openclaw_tools_profile": "coding",
+    "markitdown_enabled": false,
+    "markitdown_expose_model": true,
+    "markitdown_max_file_size_mb": 25,
+    "markitdown_max_files_per_request": 5,
+    "markitdown_pdf_processing_engine": "markitdown"
   },
   "ui": {
     "language": "en"
