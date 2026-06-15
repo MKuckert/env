@@ -31,8 +31,5 @@ alias oc='unset OPENCODE_SERVER_PASSWORD && opencode --port 4445'
 # brew
 alias brew_bundle="brew bundle -v --file ~/env/macos/brew/Brewfile"
 
-# backgrounded processes
-alias backgrounded="~/env/background-run/backgrounded.sh"
-
 # lazydocker
 alias lazydocker="docker run --rm -it --cpus 1 --memory 300Mb -v /var/run/docker.sock:/var/run/docker.sock -v $HOME.config/lazydocker/:/.config/jesseduffield/lazydocker lazyteam/lazydocker"
