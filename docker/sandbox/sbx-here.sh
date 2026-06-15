@@ -1,5 +1,27 @@
 #!/usr/bin/env bash
 set -euo pipefail
+# Ensures existence of a Docker sandbox for the current workspace, handling initialization, attachment, and removal.
+# On first run, prompts for sandbox name and agent harness selection, persisting context in git config or .sbx file.
+# Subsequent runs attach to the existing sandbox. Supports --remove and --recreate flags for cleanup.
+# Designed for seamless integration with sbx CLI and flexible configuration management.
+#
+# Features:
+# - Context detection: Git repository vs standalone directory
+# - Persistent tracking via git config or .sbx file
+# - Interactive prompts for sandbox name and agent harness
+# - Config file management: Copies from ~/.config/sbx-here/$AGENT to workspace root
+# Non-Features:
+# - No multiple sandboxes per workspace
+# - No advanced configuration
+# - No error handling for sbx CLI failures (assumes sbx commands succeed)
+# - No validation of sandbox name uniqueness (relies on sbx CLI for errors)
+# - No support for non-interactive environments (requires user input on first run)
+# - No logging or debug output (only essential messages)
+# - No support for custom sbx CLI options (uses fixed options for create and run)
+# - No cleanup of copied config files on sandbox removal (assumes user manages workspace files)
+# - No support for multiple agents or dynamic agent selection after initial setup (agent is fixed on first run)
+# - No support for updating sandbox resources (cpus, memory) after creation (fixed on create)
+# - No support for sandbox status checks or conditional logic based on sandbox state (assumes user manages state)
 
 VERSION="0.1"
 SBX_FILE=".sbx"
@@ -104,6 +126,11 @@ cleanup_config() {
     fi
 }
 
+# Create the docker sandbox
+create_sandbox() {
+    sbx create --cpus 4 --memory 4g --name "$@"
+}
+
 # Copy config files from ~/.config/sbx-here/$AGENT to workspace root
 copy_config_files() {
     if [[ -z "$AGENT" ]]; then
@@ -186,7 +213,7 @@ if [[ "$CREATE" == true ]]; then
     fi
 
     echo "Creating docker sandbox $SBX_NAME"
-    sbx create --cpus 4 --memory 4g --name "$SBX_NAME" "$AGENT" "$WORKSPACE"
+    create_sandbox "$SBX_NAME" "$AGENT" "$WORKSPACE"
     copy_config_files
 fi
 
