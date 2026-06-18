@@ -10,6 +10,10 @@ set -euo pipefail
 # - Persistent tracking via git config or .sbx file
 # - Interactive prompts for sandbox name and agent harness
 # - Config file management: Copies from ~/.config/sbx-here/$AGENT to workspace root
+# - Hooks:
+#   - pre-run: Executes `.sbx-here/hooks/pre-run` before starting the sandbox
+#   - post-run: Executes `.sbx-here/hooks/post-run` after the sandbox exits
+#
 # Non-Features:
 # - No multiple sandboxes per workspace
 # - No advanced configuration
@@ -162,6 +166,16 @@ copy_config_files() {
     done
 }
 
+run_hook() {
+    local hook_name="$1"
+    local hook_script="$WORKSPACE/.sbx-here/hooks/$hook_name"
+
+    if [[ -x "$hook_script" ]]; then
+        # Run in a subshell to prevent hook failures/exits from killing this wrapper prematurely
+        ( "$hook_script" ) || echo "Warning: Hook $hook_name exited with a non-zero status." >&2
+    fi
+}
+
 # Interactive initialization block (Only triggers if state is empty)
 if [[ -z "$SBX_NAME" ]]; then
     CREATE=true
@@ -217,4 +231,7 @@ if [[ "$CREATE" == true ]]; then
     copy_config_files
 fi
 
-exec sbx run --name "$SBX_NAME"
+run_hook "pre-run"
+trap 'run_hook "post-run"' EXIT
+
+sbx run --name "$SBX_NAME"
