@@ -217,4 +217,4 @@ if [[ "$CREATE" == true ]]; then
     copy_config_files
 fi
 
-exec sbx run "$SBX_NAME"
+exec sbx run --name "$SBX_NAME"
