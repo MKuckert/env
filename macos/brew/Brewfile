@@ -84,6 +84,9 @@ cask "dotnet-sdk"
 ## python
 brew "uv"
 
+## Android
+cask "android-studio"
+
 ## Gen AI
 brew "anomalyco/tap/opencode"
 brew "ollama"
