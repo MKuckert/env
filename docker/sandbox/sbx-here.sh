@@ -13,6 +13,8 @@ set -euo pipefail
 # - Hooks:
 #   - pre-run: Executes `.sbx-here/hooks/pre-run` before starting the sandbox
 #   - post-run: Executes `.sbx-here/hooks/post-run` after the sandbox exits
+# - Pass-through arguments to the underlying agent via '--'
+# - Inspection mode via '--name-only' to read state safely
 #
 # Non-Features:
 # - No multiple sandboxes per workspace
@@ -27,7 +29,7 @@ set -euo pipefail
 # - No support for updating sandbox resources (cpus, memory) after creation (fixed on create)
 # - No support for sandbox status checks or conditional logic based on sandbox state (assumes user manages state)
 
-VERSION="0.1"
+VERSION="0.2"
 SBX_FILE=".sbx"
 SBX_NAME=""
 AGENT=""
@@ -35,10 +37,12 @@ WORKSPACE=""
 CREATE=false
 REMOVE=false
 CLEANUP_ONLY=false
+NAME_ONLY=false
+AGENT_ARGS=()
 
 usage() {
     cat << EOF
-Usage: $(basename "$0") [OPTIONS]
+Usage: $(basename "$0") [OPTIONS] [-- AGENT_ARGS...]
 
 Manage a Docker sandbox for the current workspace.
 
@@ -47,17 +51,20 @@ OPTIONS:
   --version              Show version information
   --remove               Remove the sandbox and clean up configurations
   --recreate             Remove and recreate the sandbox
+  --name-only            Print the configured sandbox name and exit immediately
 
 DESCRIPTION:
   Initializes or connects to a Docker sandbox. On first run, prompts for
   sandbox name and harness selection. Subsequent runs attach to the existing
-  sandbox.
+  sandbox. Any arguments past '--' are passed cleanly into the sandbox agent runtime.
 
 EXAMPLES:
   $(basename "$0")                # Start or attach to sandbox
+  $(basename "$0") --name-only    # Get the name without triggering side-effects
   $(basename "$0") --remove       # Remove sandbox and configurations
   $(basename "$0") --recreate     # Destroy and recreate sandbox
   $(basename "$0") --help         # Show this message
+  $(basename "$0") -- --verbose   # Pass '--verbose' directly to your agent
 
 EOF
 }
@@ -82,6 +89,15 @@ while [[ $# -gt 0 ]]; do
             CREATE=true
             REMOVE=true
             shift
+            ;;
+        --name-only)
+            NAME_ONLY=true
+            shift
+            ;;
+        --)
+            shift
+            AGENT_ARGS=("$@")
+            break
             ;;
         *)
             echo "Unknown flag: $1" >&2
@@ -176,6 +192,17 @@ run_hook() {
     fi
 }
 
+# Short-circuit execution if the user only wanted to read the metadata state
+if [[ "$NAME_ONLY" == true ]]; then
+    if [[ -n "$SBX_NAME" ]]; then
+        echo "$SBX_NAME"
+        exit 0
+    else
+        # Silent exit status signaling unconfigured state to scripts
+        exit 1
+    fi
+fi
+
 # Interactive initialization block (Only triggers if state is empty)
 if [[ -z "$SBX_NAME" ]]; then
     CREATE=true
@@ -234,4 +261,8 @@ fi
 run_hook "pre-run"
 trap 'run_hook "post-run"' EXIT
 
-sbx run --name "$SBX_NAME"
+if [[ ${#AGENT_ARGS[@]} -gt 0 ]]; then
+    sbx run --name "$SBX_NAME" -- "${AGENT_ARGS[@]}"
+else
+    sbx run --name "$SBX_NAME"
+fi
