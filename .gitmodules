@@ -1,3 +1,6 @@
 [submodule "docker/sandbox"]
 	path = docker/sandbox
 	url = git@github.com:MKuckert/sbx-here.git
+[submodule "background-run"]
+	path = background-run
+	url = git@github.com:MKuckert/backgrounded.git
