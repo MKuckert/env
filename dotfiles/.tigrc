@@ -8,7 +8,7 @@ bind main P !git push -f -u origin "%(branch)"
 bind refs n !@git branch "%(prompt branch name: )"
 bind main i !git rebase -i --autosquash "%(commit)^1"
 
-set main-view = line-number:no,interval=5 id:yes date:relative author:full commit-title:yes,graph=v2,refs=yes,overflow=no
+set main-view = line-number:no,interval=5 id:yes date:relative author:abbreviated commit-title:yes,graph=v2,refs=yes,overflow=no
 
 set tab-size = 4
 set line-graphics = utf-8
