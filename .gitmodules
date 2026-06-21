@@ -4,3 +4,6 @@
 [submodule "background-run"]
 	path = background-run
 	url = git@github.com:MKuckert/backgrounded.git
+[submodule "models"]
+	path = models
+	url = git@github.com:MKuckert/models.git
