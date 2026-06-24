@@ -64,8 +64,6 @@ tap "docker/tap"
 cask "docker/tap/sbx"
 brew "colima"
 brew "qemu"
-tap "slp/krun"
-brew "slp/krun/krunkit"
 
 ## Go
 brew "go"
