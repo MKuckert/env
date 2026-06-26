@@ -7,3 +7,6 @@
 [submodule "models"]
 	path = models
 	url = git@github.com:MKuckert/models.git
+[submodule "agent-harness"]
+	path = agent-harness
+	url = git@github.com:MKuckert/agent-harness.git
