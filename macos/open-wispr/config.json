@@ -10,7 +10,7 @@
     }
   ],
   "language": "de",
-  "toggleMode": true,
+  "toggleMode": false,
   "modelSize": "base",
   "spokenPunctuation": false
 }
