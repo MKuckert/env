@@ -50,3 +50,10 @@
 [help]
   # Automatically correct and execute mistyped commands.
   autocorrect = 1
+[alias]
+	fixup = commit --fixup
+	resquash = rebase -i --autosquash
+	amend = commit --amend
+	fetchall = fetch --all --prune
+	unstage = reset HEAD --
+	last = log -1 --show-signature HEAD
