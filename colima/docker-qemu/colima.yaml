@@ -95,7 +95,9 @@ network:
   # dns: [8.8.8.8, 1.1.1.1]
   #
   # Default: []
-  dns: null
+  dns:
+    - 8.8.8.8
+    - 8.8.4.4
   
   # DNS hostnames to resolve to custom targets using the internal resolver.
   # This setting has no effect if a custom DNS resolver list is supplied above.
