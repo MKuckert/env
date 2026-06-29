@@ -1,0 +1,26 @@
+# slim global git configuration I use for AI agents.
+# No fsmonitor, no untracked cache, no gpg signing, no convenience settings, different user.name.
+# You can use this global configs as an alternate to .gitconfig by setting this environment variable
+#  > GIT_CONFIG_GLOBAL=~/.gitconfig-agents
+[user]
+	name = Martin Kuckert (via Agent Harness)
+[includeIf "gitdir:~/work/"]
+  path = ~/.gitconfig-work
+[includeIf "gitdir:~/private/"]
+  path = ~/.gitconfig-private
+[includeIf "gitdir:~/env/"]
+  path = ~/.gitconfig-private
+[user]
+  signingkey = none
+[core]
+	autocrlf = input
+	# Use custom `.gitignore` and `.gitattributes`.
+	excludesfile = ~/.gitignore
+[init]
+	defaultBranch = main
+[apply]
+	# Detect whitespace errors when applying a patch.
+	whitespace = fix
+[diff]
+	# Detect copies as well as renames.
+	renames = copies

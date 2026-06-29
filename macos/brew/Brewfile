@@ -98,6 +98,7 @@ cask "copilot-cli"
 cask "claude-code"
 tap "steipete/tap"
 cask "steipete/tap/codexbar"
+brew "nono"
 
 # Browser
 cask "firefox"
