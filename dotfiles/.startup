@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+echo "🔑 Loading ssh keys..."
+ssh-add ~/private/sec/id_ed25519
+ssh-add ~/work/sec/id_ed25519
+
+echo
+echo "🖥️ Starting colima..."
+colima start containerd
+colima start docker-qemu
+
+echo
+echo "🤖 Starting AI services..."
+~/env/manifest/start.sh
+backgrounded.sh start omlx omlx serve

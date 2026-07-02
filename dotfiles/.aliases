@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Run os startup
+alias STARTUP="~/.startup"
+
 # Easier navigation: .., ..., ...., ....., ~ and -
 alias ..="cd .."
 alias ...="cd ../.."
