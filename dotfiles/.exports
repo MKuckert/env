@@ -66,7 +66,10 @@ export HF_XET_HIGH_PERFORMANCE=1
 # Go
 export GOPATH=~/.go
 
-# Disable some analytics
+# Docker
+export DOCKER_MCP_IN_CONTAINER=1
+
+# Disable some analytics and annoying prompts
 export DO_NOT_TRACK=1
 export HOMEBREW_NO_ANALYTICS=1
 export FASTLANE_OPT_OUT_USAGE=1
@@ -75,3 +78,4 @@ export NUKE_TELEMETRY_OPTOUT=1
 export VCPKG_DISABLE_METRICS=1
 export HF_HUB_DISABLE_TELEMETRY=1
 export SBX_NO_TELEMETRY=1
+export DDEV_TIP_OF_THE_DAY=0

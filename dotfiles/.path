@@ -7,9 +7,6 @@ export PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH"
 # llama.cpp
 export PATH="$HOME/private/dev/llama.cpp/build/bin:$PATH"
 
-# timelog
-export PATH="$HOME/private/dev/timelog/bin:$PATH"
-
 # cherri
 export PATH="$HOME/private/dev/cherri:$PATH"
 
@@ -18,3 +15,7 @@ export PATH="$HOME/private/dev/cherri:$PATH"
 export PATH="$HOME/env/background-run:$PATH"
 ## docker sandboxes
 export PATH="$HOME/env/docker/sandbox:$PATH"
+
+
+# dotnet
+export DOTNET_ROOT="$(brew --prefix dotnet)/libexec"
