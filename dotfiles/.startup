@@ -13,3 +13,7 @@ echo
 echo "🤖 Starting AI services..."
 ~/env/manifest/start.sh
 backgrounded.sh start omlx omlx serve
+
+echo
+echo "📦 Upgrading outdated brew casks..."
+brew upgrade --cask --greedy --no-ask --verbose
