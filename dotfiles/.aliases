@@ -26,11 +26,6 @@ alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
 
-# opencode
-alias oc_serve="opencode serve"
-alias oc_attach='opencode attach http://localhost:4444 --continue'
-alias oc='unset OPENCODE_SERVER_PASSWORD && opencode --port 4445'
-
 # brew
 alias brew_bundle="brew bundle -v --file ~/env/macos/brew/Brewfile"
 
