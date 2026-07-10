@@ -11,6 +11,6 @@
   ],
   "language": "de",
   "toggleMode": false,
-  "modelSize": "base",
+  "modelSize": "large-v3-turbo-q8_0",
   "spokenPunctuation": false
 }
