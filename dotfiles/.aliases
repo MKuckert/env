@@ -31,3 +31,6 @@ alias brew_bundle="brew bundle -v --file ~/env/macos/brew/Brewfile"
 
 # lazydocker
 alias lazydocker="docker run --rm -it --cpus 1 --memory 300Mb -v /var/run/docker.sock:/var/run/docker.sock -v $HOME.config/lazydocker/:/.config/jesseduffield/lazydocker lazyteam/lazydocker"
+
+# enforce emoji toolbar restart on macos
+alias killemojipalette="killall -9 CharacterPaletteIM com.apple.CharacterPicker.FileService TextInputMenuAgent"
