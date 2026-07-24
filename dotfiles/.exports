@@ -58,6 +58,9 @@ export MLXLM_PORT=$((OLLAMA_PORT + 5))
 
 export COLIMA_AI_PORT=$((OLLAMA_PORT + 6))
 
+export APFEL_PORT=$((OLLAMA_PORT + 7))
+export APFEL_HOST=$CURRENTHOST
+
 # Huggingface
 export HF_HOME=~/ai/huggingface
 export HF_HUB_CACHE=$HF_HOME/cache

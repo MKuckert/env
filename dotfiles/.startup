@@ -13,6 +13,7 @@ echo
 echo "🤖 Starting AI services..."
 ~/env/manifest/start.sh
 backgrounded.sh start omlx omlx serve
+backgrounded.sh start apfel apfel --serve
 
 echo
 echo "📦 Upgrading outdated brew casks..."
