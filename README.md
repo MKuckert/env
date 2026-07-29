@@ -30,10 +30,10 @@ This repository contains the configuration files, automation scripts, and enviro
   - `build.sh`: Clones and builds llama.cpp with Metal acceleration, native optimizations, and LTO.
   - `serve.sh`: Starts the llama-server with GPU offloading, flash attention, and Jinja templating support.
 - **`manifest/`**: [Manifest](https://github.com/mnfst/manifest) tool setup and starter/stopper.
-  - `setup.sh`: Clones the manifest repository to `~/private/dev/manifest`.
+  - `setup.sh`: Clones the manifest repository to `~/repos/manifest`.
   - `start.sh`: Starts the Manifest docker environment using `nerdctl compose`.
   - `stop.sh`: Stops the Manifest docker environment.
-- **`colima/`**: Configurations for Colima profiles (Docker, Containerd, AI).
+- **`colima/`**: Configurations for Colima profiles (Docker, Containerd).
 - **`direnv/`**: Configuration for `direnv` (`direnv.toml`).
 
 ## Setup Instructions
@@ -208,7 +208,7 @@ To stop the Manifest environment:
 bash manifest/stop.sh
 ```
 
-Ensure to create and edit `~/private/dev/manifest/docker/.env` before running.
+Ensure to create and edit `~/repos/manifest/docker/.env` before running.
 
 ### macOS Build Tools
 
@@ -231,7 +231,7 @@ The `macos/bin/` directory contains build scripts for various tools:
   bash macos/bin/cherri/build.sh
   ```
 
-All tools are built from source and installed to `~/private/dev/`.
+All tools are built from source and installed to `~/repos/`.
 
 ### Colima
 
@@ -242,7 +242,6 @@ Configures the following virtual machines (profiles):
 - `docker`: Machine for docker environment, accessible through `docker`, runs with apples vz virtualization framework for best performance, in theory, but file system failures in practice.
 - `docker-qemu`: Machine for docker environment, accessible through `docker`, runs with qemu virtualization framework and sshfs for better stability, but worse performance.
 - `containerd`: Bare containers, accessible through `nerdctl`
-- `ai`: krunkit environment to run LLMs
 
 No VM is started by default. Start a profile with `colima start <profile>`.
 
@@ -273,7 +272,7 @@ docker build -t lazyteam/lazydocker \
 - Full path containing my username `mkuckert`, e.g. in `mtplx/serve.sh`, `llama.cpp/serve.sh`, `omlx/settings.json`
 - The `dotfiles/.gitconfig*` files
 - The `ssh/*` config files
-- The `opencode.jsonc` MCP gateway paths (`/Users/mkuckert/private/dev/agent-harness/bin/docker-mcp-gateway-run.sh`)
+- The `opencode.jsonc` MCP gateway paths (`/Users/mkuckert/repos/agent-harness/bin/docker-mcp-gateway-run.sh`)
 
 ## Source
 

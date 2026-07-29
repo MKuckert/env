@@ -22,4 +22,4 @@ cmake --build build --config Release -j 8
 
 build/bin/llama-cli --completion-bash > ~/.config/bash_completion.d/llama
 
-echo "Built to ~/private/dev/llama.cpp/build/bin"
+echo "Built to ~/repos/llama.cpp/build/bin"

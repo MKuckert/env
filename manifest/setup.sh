@@ -10,5 +10,5 @@ else
   git pull --ff
 fi
 
-echo "ℹ️ Ensure to create and edit ~/private/dev/manifest/docker/.env before running"
-echo "Setup to ~/private/dev/manifest"
+echo "ℹ️ Ensure to create and edit ~/repos/manifest/docker/.env before running"
+echo "Setup to ~/repos/manifest"

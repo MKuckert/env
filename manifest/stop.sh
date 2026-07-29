@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-cd ~/private/dev/manifest/docker
+cd ~/repos/manifest/docker
 nerdctl compose stop
