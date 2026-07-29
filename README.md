@@ -9,9 +9,6 @@ This repository contains the configuration files, automation scripts, and enviro
 - **`macos/`**: macOS-specific setup and automation.
   - `init.sh`: Initial macOS system configuration script.
   - `bin/`: Build scripts for various tools.
-    - `llamawatch/`: Builds [LlamaWatch](https://github.com/MKuckert/LlamaWatch) macOS app from source and installs to `/Applications`.
-    - `apple-on-device-openai/`: Clones and opens the [Apple On-Device OpenAI](https://github.com/MKuckert/apple-on-device-openai) Xcode project for building.
-    - `timelog/`: Builds [timelog](https://github.com/qbart/timelog) CLI tool and installs bash completion.
     - `cherri/`: Builds [Cherri](https://github.com/electrikmilk/cherri) CLI compiler (Go) for macOS Shortcuts.
   - `brew/`: Contains the `Brewfile` to install all necessary packages, casks, and Mac App Store apps (via `mas`). Use it with `brew bundle`.
   - `terminal/`: Contains macOS Terminal profile configurations (e.g., `mk.terminal`).
@@ -214,18 +211,6 @@ Ensure to create and edit `~/repos/manifest/docker/.env` before running.
 
 The `macos/bin/` directory contains build scripts for various tools:
 
-- **LlamaWatch**: macOS app for monitoring Ollama
-  ```bash
-  bash macos/bin/llamawatch/build.sh
-  ```
-- **Apple On-Device OpenAI**: Xcode project for on-device AI
-  ```bash
-  bash macos/bin/apple-on-device-openai/build.sh
-  ```
-- **Timelog**: CLI time tracking tool
-  ```bash
-  bash macos/bin/timelog/build.sh
-  ```
 - **Cherri**: CLI compiler for macOS Shortcuts
   ```bash
   bash macos/bin/cherri/build.sh
