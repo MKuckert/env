@@ -2,6 +2,9 @@
 # Run os startup
 alias STARTUP="~/.startup"
 
+# env infos
+alias PORTS="echo OLLAMA=$OLLAMA_PORT; echo OMLX=$OMLX_PORT; echo LLAMA_ARG=$LLAMA_ARG_PORT; echo MTPLX=$MTPLX_PORT; echo MANIFEST=$MANIFEST_PORT; echo MLXLM=$MLXLM_PORT; echo APFEL=$APFEL_PORT"
+
 # Easier navigation: .., ..., ...., ....., ~ and -
 alias ..="cd .."
 alias ...="cd ../.."
