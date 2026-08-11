@@ -1,10 +1,14 @@
 [user]
 	name = Martin Kuckert
-[includeIf "gitdir:~/work/"]
-  path = ~/.gitconfig-work
-[includeIf "gitdir:~/private/"]
+[includeIf "gitdir:~/repos/"]
   path = ~/.gitconfig-private
+[includeIf "gitdir:~/repos/bcc/"]
+  path = ~/.gitconfig-work
+[includeIf "gitdir:~/repos/ai-coe/"]
+  path = ~/.gitconfig-work
 [includeIf "gitdir:~/env/"]
+  path = ~/.gitconfig-private
+[includeIf "gitdir:~/private/"]
   path = ~/.gitconfig-private
 [core]
 	autocrlf = input
