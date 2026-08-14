@@ -18,7 +18,8 @@ bench() {
 		return 1
 	fi
 
-	local RESULTS_FILE="$RESULTS_DIR/$(gdate +%Y-%m-%d-%H-%M)-$name.json"
+	local FORMAT=csv
+	local RESULTS_FILE="$RESULTS_DIR/$(gdate +%Y-%m-%d-%H-%M)-$name-$model.$FORMAT"
 
   # url, model, api-key
 	local args=(--base-url "$url" --model "$model")
@@ -34,7 +35,7 @@ bench() {
   args+=(--pp 2048)
 
 	# List of token generation counts (Default: [32]).
-	args+=(--tg 1024)
+	args+=(--tg 32 1024)
 
 	# List of context depths (Default: [0]).
 	args+=(--depth 2048)
@@ -46,7 +47,7 @@ bench() {
 
 	# File to save results to and output format
 	args+=(--save-result "$RESULTS_FILE")
-	args+=(--format json)
+	args+=(--format "$FORMAT")
 
 	# Number of runs per test (Default: 3).
 	args+=(--runs 3)
@@ -77,45 +78,15 @@ stop() {
   sleep 5 # Wait for the server to stop
 }
 
-bench_mtplx() {
-  start mtplx "$BASE_DIR/mtplx/serve.sh"
-  bench "http://127.0.0.1:${MTPLX_PORT}/v1" mtplx "mtplx-qwen36-27b-optimized-speed" "${MTPLX_API_KEY}"
-  stop mtplx
-}
-
-bench_mlx_lm() {
-  start mlxlm "$BASE_DIR/mlx-lm/serve.sh"
-  bench "http://127.0.0.1:${MLXLM_PORT}/v1" mlx-lm "mlx-community/Qwen3.6-27B-4bit"
-  stop mlxlm
-}
-
-bench_llama_cpp() {
-  start llama_cpp "$BASE_DIR/llama.cpp/serve.sh"
-  bench "http://127.0.0.1:${LLAMA_ARG_PORT}/v1" llama.cpp "Qwen3.6-27B-Q4_K_M-MTP-Instruct" "${LLAMA_API_KEY}"
-  stop llama_cpp
-}
-
 bench_omlx() {
   start omlx omlx serve
-  bench "http://127.0.0.1:${OMLX_PORT}/v1" omlx "Jundot--Qwen3.6-27B-oQ4-mtp" "${OMLX_API_KEY}"
+  bench "http://127.0.0.1:${OMLX_PORT}/v1" omlx $1 "${OMLX_API_KEY}"
   stop omlx
-}
-
-bench_ollama() {
-  start ollama ollama serve
-  bench "http://127.0.0.1:${OLLAMA_PORT}/v1" ollama "qwen3.6:27b-mlx"
-  stop ollama
-}
-
-bench_krunkit() {
-  start krunkit $HOME/env/colima/ai/serve.sh
-  bench "http://127.0.0.1:${COLIMA_AI_PORT}/v1" krunkit "unsloth/Qwen3.6-27B-GGUF"
-  stop krunkit
 }
 
 usage() {
   echo "Usage: $(basename "$0") <test...>" >&2
-  echo "  test: mtplx | mlx_lm | llama.cpp | omlx | ollama | krunkit | all" >&2
+  echo "  test: all" >&2
   exit 1
 }
 
@@ -123,19 +94,13 @@ usage() {
 
 for arg in "$@"; do
   case "$arg" in
-    mtplx)     bench_mtplx ;;
-    mlx_lm)    bench_mlx_lm ;;
-    llama.cpp) bench_llama_cpp ;;
-    omlx)      bench_omlx ;;
-    ollama)    bench_ollama ;;
-    krunkit)   bench_krunkit ;;
     all)
-      bench_mtplx
-      bench_mlx_lm
-      bench_llama_cpp
-      bench_omlx
-      bench_ollama
-      bench_krunkit
+      #bench_omlx qwen3.6-27B
+      #bench_omlx qwen3.6-27B-5bit
+      #bench_omlx grug-27b
+      bench_omlx qwen3.6-35B-A3B
+      #bench_omlx Muse-Glimmer-30B
+      #bench_omlx gemma-4-31B
       ;;
     help|-h|--help)
       usage
