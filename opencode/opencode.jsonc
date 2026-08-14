@@ -1,18 +1,12 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "github-copilot/gemini-3-flash-preview",
-  "small_model": "apple/apple-on-device",
+  "model": "github-copilot/gpt-5.6-terra",
+  "small_model": "apfel/apple-foundationmodel",
+  "plugin": ["spotme"],
   "server": {
     "hostname": "0.0.0.0",
     "port": 4444,
   },
-  "plugin": [
-    //"@mohak34/opencode-notifier@latest",
-    //"@ramtinj95/opencode-tokenscope@latest",
-    "@slkiser/opencode-quota@latest",
-    //"@ljw1004/opencode-trace",
-  ],
-
   // See https://opencode.ai/docs/permissions/
   "permission": {
     // Permissive by default
@@ -20,27 +14,35 @@
 
     // reading a file (matches the file path)
     "read": {
-      "*": "ask",
+      "*": "allow",
       "*.env": "deny",
       "*.env.*": "deny",
       "*.env.example": "allow",
     },
 
     // all file modifications (covers edit, write, patch, multiedit)
-    "edit": "ask",
+    "edit": "allow",
 
     // file globbing (matches the glob pattern)
-    "glob": "ask",
+    "glob": "allow",
 
     // content search (matches the regex pattern)
-    "grep": "ask",
+    "grep": "allow",
 
     // listing files in a directory (matches the directory path)
-    "list": "ask",
+    "list": "allow",
 
     // running shell commands (matches parsed commands like git status --porcelain)
     "bash": {
       "*": "ask",
+      "find *": "allow",
+      "ls *": "allow",
+      "grep *": "allow",
+      "cat *": "allow",
+      "head *": "allow",
+      "tail *": "allow",
+      "echo *": "allow",
+      "sed *": "allow",
       "rm *": "deny",
     },
 
@@ -48,21 +50,21 @@
     "task": "allow",
 
     // loading a skill (matches the skill name)
-    "skill": "ask",
+    "skill": "allow",
 
     // running LSP queries (currently non-granular)
-    "lsp": "deny",
+    "lsp": "allow",
 
     // reading/updating the todo list
     "todoread": "deny",
     "todowrite": "deny",
 
     // fetching a URL (matches the URL)
-    "webfetch": "ask",
+    "webfetch": "allow",
 
     // web/code search (matches the query)
-    "websearch": "ask",
-    "codesearch": "ask",
+    "websearch": "allow",
+    "codesearch": "allow",
 
     // triggered when a tool touches paths outside the project working directory
     "external_directory": {
@@ -70,7 +72,7 @@
     },
 
     // triggered when the same tool call repeats 3 times with identical input
-    "doom_loop": "ask",
+    "doom_loop": "allow",
   },
   "agent": {
     "build": {
@@ -94,62 +96,16 @@
     "title": {
       "mode": "primary",
       "hidden": true,
-      "model": "apple/apple-on-device",
+      "model": "apfel/apple-foundationmodel",
     },
     "summary": {
       "mode": "primary",
       "hidden": true,
-      "model": "apple/apple-on-device",
+      "model": "apfel/apple-foundationmodel",
     },
   },
   "disabled_providers": ["opencode"],
   "provider": {
-    "google": {
-      "blacklist": [
-        "gemini-1.5-flash",
-        "gemini-1.5-flash-8b",
-        "gemini-1.5-pro",
-        "gemini-2.0-flash",
-        "gemini-2.0-flash-lite",
-        "gemini-2.5-flash-image",
-        "gemini-2.5-flash-image-preview",
-        "gemini-2.5-flash-lite-preview-06-17",
-        "gemini-2.5-flash-lite-preview-09-2025",
-        "gemini-2.5-flash-preview-04-17",
-        "gemini-2.5-flash-preview-05-20",
-        "gemini-2.5-flash-preview-09-2025",
-        "gemini-2.5-flash-preview-tts",
-        "gemini-2.5-pro-preview-05-06",
-        "gemini-2.5-pro-preview-06-05",
-        "gemini-2.5-pro-preview-tts",
-        "gemini-3-flash-preview",
-        "gemini-3-pro-preview",
-        "gemini-3.1-flash-image-preview",
-        "gemini-embedding-001",
-        "gemini-flash-latest",
-        "gemini-flash-lite-latest",
-        "gemini-live-2.5-flash",
-        "gemini-live-2.5-flash-preview-native-audio",
-        "gemma-3-12b-it",
-        "gemma-3-27b-it",
-        "gemma-3-4b-it",
-        "gemma-3n-e2b-it",
-        "gemma-3n-e4b-it",
-      ],
-    },
-
-    /*"ollama": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "Ollama (local)",
-      "options": {
-        "baseURL": "http://127.0.0.1:{env:OLLAMA_PORT}/v1",
-      },
-      "models": {
-        "tiny": {
-          "name": "Tiny (qwen2.5:0.5b)",
-        },
-      },
-    },*/
     "omlx": {
       "npm": "@ai-sdk/openai-compatible",
       "name": "oMLX (local)",
@@ -158,100 +114,28 @@
         "apiKey": "{env:OMLX_API_KEY}",
       },
       "models": {
-        "Jundot--Qwen3.6-27B-oQ4-mtp": {
-          "name": "Qwen3.6-27B",
-        },
-        "dawncr0w--Qwen3.6-27B-uncensored-heretic-v2-Native-MTP-Preserved-oQ4-MLX": {
-          "name": "Qwen3.6-27B-uncensored",
-        },
+        "Muse-Glimmer-30B": {},
+        "qwen3.6-27B-4bit": {},
+        "qwen3.6-27B-5bit": {},
+        "qwen3.6-27B": {},
+        "qwen3.6-35B-A3B": {},
+        "gemma-4-12B": {},
+        "gemma-4-26B-A4B": {},
+        "grug-27b": {},
       },
     },
-    "apple": {
+    "apfel": {
       "npm": "@ai-sdk/openai-compatible",
-      "name": "Apple (local)",
+      "name": "Apfel (local)",
       "options": {
-        "baseURL": "http://127.0.0.1:11535/v1",
+        "baseURL": "http://127.0.0.1:{env:APFEL_PORT}/v1",
+        "apiKey": "{env:APFEL_TOKEN}",
       },
-      "models": { "apple-on-device": {} },
-    },
-    "llama.cpp": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "llama.cpp (local)",
-      "options": {
-        "baseURL": "http://127.0.0.1:{env:LLAMA_ARG_PORT}/v1",
-        "apiKey": "{env:LLAMA_API_KEY}",
-      },
-      "models": {
-        "Qwen3.6-27B-Q4_K_M-PreciseCoding": {
-          "name": "Qwen3.6-27B-precise-coding",
-        },
-        "Qwen3.6-27B-uncensored-MTP-Q4_K_M-Instruct": {
-          "name": "Qwen3.6-27B-uncensored",
-        },
-        "Qwen3.6-35B-A3B-uncensored-MTP-Q4_K_M-Instruct": {
-          "name": "Qwen3.6-35B-A3B-uncensored",
-        },
-      },
-    },
-    "mtplx": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "MTPLX (local)",
-      "options": {
-        "baseURL": "http://127.0.0.1:{env:MTPLX_PORT}/v1",
-        "apiKey": "{env:MTPLX_API_KEY}",
-        "timeout": false,
-        "chunkTimeout": 900000,
-      },
-      "models": {
-        "mtplx-qwen36-27b-optimized-speed": {
-          "name": "Qwen3.6-27B",
-          "reasoning": true,
-          "interleaved": {
-            "field": "reasoning_content",
-          },
-          "tool_call": true,
-          "temperature": true,
-          "limit": {
-            "context": 262144,
-            "output": 262144,
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"],
-          },
-          "options": {
-            "temperature": 0.7,
-            "topP": 0.8,
-            "topK": 20,
-            "enable_thinking": true,
-          },
-        },
-      },
-    },
-    "manifest": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "Manifest",
-      "options": {
-        "baseURL": "http://localhost:{env:MANIFEST_PORT}/v1",
-        "apiKey": "{env:MANIFEST_API_KEY}",
-      },
-      "models": {
-        "auto": {
-          "name": "Manifest Auto",
-        },
-      },
-    },
-    "mlxlm,": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "mlx-lm (local)",
-      "options": {
-        "baseURL": "http://127.0.0.1:{env:MLXLM_PORT}/v1",
-      },
-      "models": {
-        "mlx-community/Qwen3.6-27B-4bit": {},
-      },
+      "models": { "apple-foundationmodel": {} },
     },
   },
+  "formatter": true,
+  "lsp": true,
   "compaction": {
     "auto": true,
     "prune": true,
@@ -262,5 +146,8 @@
     "quotaToast": {
       "enableToast": false,
     },
+    "batch_tool": true,
+    "disable_paste_summary": true,
+    "mcp_timeout": 600000,
   },
 }

@@ -21,7 +21,8 @@
       "/Users/mkuckert/ai/models/omlx"
     ],
     "model_dir": "/Users/mkuckert/ai/models/omlx",
-    "model_fallback": false
+    "model_fallback": false,
+    "hide_helper_models": true
   },
   "memory": {
     "prefill_memory_guard": true,
@@ -35,7 +36,8 @@
   "scheduler": {
     "max_concurrent_requests": 1,
     "embedding_batch_size": 32,
-    "chunked_prefill": false
+    "chunked_prefill": false,
+    "prefill_priority": "context"
   },
   "cache": {
     "enabled": true,
@@ -81,8 +83,6 @@
     "retention_days": 7
   },
   "claude_code": {
-    "context_scaling_enabled": false,
-    "target_context_size": 200000,
     "mode": "cloud",
     "opus_model": null,
     "sonnet_model": null,
