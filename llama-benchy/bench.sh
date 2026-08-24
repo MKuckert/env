@@ -79,7 +79,7 @@ stop() {
 }
 
 bench_omlx() {
-  start omlx omlx serve
+  start omlx /Applications/oMLX.app/Contents/MacOS/omlx-cli serve
   bench "http://127.0.0.1:${OMLX_PORT}/v1" omlx $1 "${OMLX_API_KEY}"
   stop omlx
 }
@@ -96,9 +96,12 @@ for arg in "$@"; do
   case "$arg" in
     all)
       #bench_omlx qwen3.6-27B
-      #bench_omlx qwen3.6-27B-5bit
+      bench_omlx qwen3.6-27B-5bit
+      bench_omlx qwen3.8-27B-4bit
+      bench_omlx qwen3.8-27B-5bit
+      bench_omlx qwen3.8-27B-oQ5e
       #bench_omlx grug-27b
-      bench_omlx qwen3.6-35B-A3B
+      #bench_omlx qwen3.6-35B-A3B
       #bench_omlx Muse-Glimmer-30B
       #bench_omlx gemma-4-31B
       ;;
