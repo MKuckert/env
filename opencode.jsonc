@@ -1,3 +1,31 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "agent": {
+    "plan": {
+      "disable": true,
+    },
+    "build": {
+      "disable": true,
+    },
+    "explore": {
+      "disable": true,
+    },
+    "general": {
+      "disable": true,
+    },
+  },
+  "permission": {
+    // fetching a URL (matches the URL)
+    "webfetch": "deny",
+
+    // web/code search (matches the query)
+    "websearch": "deny",
+  },
+  "mcp": {
+    "web": {
+      "type": "remote",
+      "enabled": true,
+      "url": "http://localhost:12100/mcp",
+    },
+  },
 }

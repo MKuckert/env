@@ -134,9 +134,15 @@
         "baseURL": "http://127.0.0.1:{env:APFEL_PORT}/v1",
         "apiKey": "{env:APFEL_TOKEN}",
       },
-      "models": { "apple-foundationmodel": {} },
+      "models": {
+        "apple-foundationmodel": {
+          "limit": { "context": 4000, "output": 1000 },
+        },
+      },
     },
   },
+  "subagent_depth": 2,
+  "shell": "bash",
   "formatter": true,
   "lsp": true,
   "compaction": {
