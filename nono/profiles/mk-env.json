@@ -11,13 +11,14 @@
       "~/.gitconfig-work",
       "~/.gitconfig-agents",
       "~/.gitignore",
-      "~/.bashrc"
+      "~/.bashrc",
+      "~/.bashprofile"
     ],
     "read": ["~/.CFUserTextEncoding"],
-    "bypass_protection": ["~/.bashrc"]
+    "bypass_protection": ["~/.bashrc", "~/.bashprofile"]
   },
   "network": {
-    "allow_domain": ["localhost"],
+    "allow_domain": ["localhost", "github.com"],
     "open_port_range": [[11400, 11500]]
   },
   "environment": {

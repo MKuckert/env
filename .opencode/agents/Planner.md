@@ -25,7 +25,6 @@ permission:
     TODO.md: allow
     PLAN.md: allow
     tasks/*: allow
-  bash: deny
   question: allow
   task: allow
   web_*: deny
