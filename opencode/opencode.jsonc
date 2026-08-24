@@ -122,6 +122,9 @@
         "gemma-4-12B": {},
         "gemma-4-26B-A4B": {},
         "grug-27b": {},
+        "qwen3.8-27B-oQ5e": {},
+        "qwen3.8-27B-5bit": {},
+        "qwen3.8-27B-4bit": {},
       },
     },
     "apfel": {
