@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+backgrounded.sh start env-mcp-websearch docker mcp gateway run --profile web --transport streaming --port 12100

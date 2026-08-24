@@ -23,6 +23,7 @@ This repository contains the configuration files, automation scripts, and enviro
   - The `opencode/` directory is symlinked to `~/.config/opencode/` for global config, while `.opencode/` serves as the project-local config directory.
 - **`omlx/`**: [OMLX](https://github.com/secondstate/omlx) configuration for running OpenMoE LLM models. Contains `settings.json` with server, model, memory, cache, and sampling parameters. Symlink to `~/.omlx/`.
 - **`mtplx/`**: [MTPLX](https://mtplx.ai/) model serving configuration. Contains `serve.sh` for running MTPLX-optimized models (e.g., Qwen3.6-27B) with custom context and caching settings.
+- **`nono/`**: [Nono](nono.sh/docs/) base profile and tool runner.
 - **`llama.cpp/`**: Local LLM inference server setup using [llama.cpp](https://github.com/ggml-org/llama.cpp).
   - `build.sh`: Clones and builds llama.cpp with Metal acceleration, native optimizations, and LTO.
   - `serve.sh`: Starts the llama-server with GPU offloading, flash attention, and Jinja templating support.
@@ -98,6 +99,14 @@ ln -s $(pwd)/opencode ~/.config/opencode
 ```
 
 Ensure your API keys (e.g., for Google Gemini) are securely configured in your local environment, as they are excluded from this repository.
+
+Run a tool in the current repository's nono sandbox with:
+
+```bash
+./nono-here.sh -- command [ARGS...]
+```
+
+The wrapper uses the Git root (or current directory outside Git) and requires `.nono/profile.json`. Runs `.nono/hooks/before` and `after` without nono on the host with full user privileges. Only run trusted repository hooks.
 
 ### macOS Shortcuts
 

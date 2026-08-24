@@ -1,0 +1,13 @@
+{
+  "$schema": "/Users/mkuckert/.config/nono/nono-profile.schema.json",
+  "extends": ["always-further/opencode", "mk-env"],
+  "meta": {
+    "name": "env"
+  },
+  "filesystem": {
+    "allow": [],
+    "deny": [],
+    "read_file": [],
+    "read": ["~/.config/gh"]
+  }
+}

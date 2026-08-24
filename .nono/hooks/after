@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+backgrounded.sh stop --timeout 3 env-mcp-websearch
