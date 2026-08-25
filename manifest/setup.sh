@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-cd ~/private/dev
+cd ~/repos
 
 if [ ! -d manifest ]; then
   git clone "git@github.com:mnfst/manifest.git"

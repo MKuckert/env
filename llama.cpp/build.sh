@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-cd ~/private/dev
+cd ~/repos
 
 if [ ! -d llama.cpp ]; then
   git clone "git@github.com:ggml-org/llama.cpp.git"

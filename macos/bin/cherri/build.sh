@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-BUILDDIR=~/private/dev
+BUILDDIR=~/repos
 TOOLDIR=cherri
 cd $BUILDDIR
 
