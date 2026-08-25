@@ -68,6 +68,30 @@ export GOPATH=~/.go
 # Docker
 export DOCKER_MCP_IN_CONTAINER=1
 
+# Claude Code (ensure to add entries nono/profiles/mk-env.json)
+## make the Glob tool respect .gitignore patterns
+export CLAUDE_CODE_GLOB_NO_IGNORE=false
+## hide the working directory in the startup logo
+export CLAUDE_CODE_HIDE_CWD=1
+## how many subagents can be running in one session before the Agent tool refuses to spawn another (default: 20)
+export CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS=5
+## number of subagent layers allowed below the main conversation (default: 3)
+export CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=3
+## cap the number of agentic turns when no explicit limit is passed
+export CLAUDE_CODE_MAX_TURNS=200
+## strip Anthropic and cloud provider credentials from subprocess environments (Bash tool, hooks, MCP stdio servers)
+export CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=1
+## disable automatic compaction when approaching the context limit. The manual /compact command remains available. Use when you want explicit control over when compaction occurs
+export DISABLE_AUTO_COMPACT=1
+## disable the /feedback command. Also disables /bug and /share, which report through the same path
+export DISABLE_FEEDBACK_COMMAND=1
+## hide the /install-github-app command
+export DISABLE_INSTALL_GITHUB_APP_COMMAND=1
+## hide the /upgrade command
+export DISABLE_UPGRADE_COMMAND=1
+## Maximum age in milliseconds of the last transcript message for a session that ended mid-turn to continue automatically on resume
+export CLAUDE_CODE_RESUME_INTERRUPTED_TURN_MAX_AGE_MS=3600000 # 1 hour
+
 # Disable some analytics and annoying prompts
 export DO_NOT_TRACK=1
 export HOMEBREW_NO_ANALYTICS=1
