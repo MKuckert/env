@@ -23,7 +23,7 @@ Implement GitHub issue #85 so every Librarian invocation persists its research a
 
 - [x] **Task 1: Define and document the research artifact contract**
   - **Description:** Pre-provision tracked `research/results/` directories with placeholder files in both the canonical `agent-harness` repository and this root workspace as a one-time migration; future consuming workspaces must create their own destination during harness setup. Add canonical documentation/template defining required frontmatter, Markdown sections, invoking-workspace path semantics, ASCII slug rules, UTC timestamp plus high-entropy suffix naming, collision refusal, partial-result handling, and source provenance. Keep all `metadata` values strings to remain analogous to documented OpenCode skill frontmatter. Do not add `research/` to `.harness-sync`.
-- [/] **Task 2: Give Librarian least-privilege persistence access**
+- [x] **Task 2: Give Librarian least-privilege persistence access**
   - **Description:** Update `agent-harness/.opencode/agents/Librarian.md` to allow `edit`, `read`, `list` and `glob` only for `research/results/*.md`. Preserve web access and all unrelated denials. Do not grant `bash`, unrestricted MCP filesystem tools, recursive result access, or `external_directory` access.
 - [ ] **Task 3: Add persistence to the Librarian workflow**
   - **Description:** Extend the Librarian instructions to normalize its topic to a bounded ASCII slug, collect provenance, quote scalar metadata safely, minimize secrets, validate required metadata, generate a timestamp/high-entropy filename, reject a glob-detected collision, and write before returning. Require the exact `Research artifact: ...` handoff line. Save incomplete research as `partial` with source errors and limitations. If research is partial and persistence also fails, return both failure classes and no success path. Never claim persistence after a failed write.
@@ -54,6 +54,6 @@ Implement GitHub issue #85 so every Librarian invocation persists its research a
 
 ## Final Status (Code Review)
 
-- **Round 1:** Pending
+- **Round 1 (Task 2):** Approved. Permission block uses correct default-deny + path-scoped allow syntax consistent with other agents. Web access preserved, all unrelated denials intact, no over-privileged tools granted.
 - **Round 2:** N/A
 - **Round 3:** N/A
