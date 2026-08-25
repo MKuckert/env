@@ -88,7 +88,11 @@ mkdir ~/.ssh
 ln -s $(pwd)/ssh/config ~/.ssh/
 ln -s $(pwd)/ssh/allowed_signers ~/.ssh/
 ln -s $(pwd)/omlx/settings.json ~/.omlx/
+ln -s $(pwd)/dotfiles/.startup.d ~/.startup.d
 ```
+
+`~/.startup` executes the executable `*.sh` steps in `~/.startup.d/` in filename
+order. Use numeric prefixes when adding or reordering startup tasks.
 
 ### OpenCode (AI Agent harness)
 

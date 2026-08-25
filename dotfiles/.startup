@@ -1,19 +1,28 @@
 #!/usr/bin/env bash
 
-echo "🔑 Loading ssh keys..."
-ssh-add ~/private/sec/id_ed25519
-ssh-add ~/work/sec/id_ed25519
+set -Eeuo pipefail
 
-echo
-echo "🖥️ Starting colima..."
-colima start containerd
-colima start docker-qemu
+readonly startup_dir="${STARTUP_DIR:-${HOME}/.startup.d}"
 
-echo
-echo "🤖 Starting AI services..."
-~/env/manifest/start.sh
-backgrounded.sh start omlx omlx serve
+if [[ ! -d "${startup_dir}" ]]; then
+  printf 'startup: script directory does not exist: %s\n' "${startup_dir}" >&2
+  exit 1
+fi
 
-echo
-echo "📦 Upgrading outdated brew casks..."
-brew upgrade --cask --greedy --no-ask --verbose
+shopt -s nullglob
+scripts=("${startup_dir}"/*.sh)
+
+if (( ${#scripts[@]} == 0 )); then
+  printf 'startup: no scripts found in: %s\n' "${startup_dir}" >&2
+  exit 1
+fi
+
+for script in "${scripts[@]}"; do
+  if [[ ! -x "${script}" ]]; then
+    printf 'startup: script is not executable: %s\n' "${script}" >&2
+    exit 1
+  fi
+
+  "${script}"
+  echo
+done
