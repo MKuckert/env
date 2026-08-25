@@ -28,9 +28,13 @@
       "PATH",
       "LSCOLORS",
       "LS_COLORS",
+      "LC_ALL",
       "LANG",
       "PWD",
       "USER",
+      "EDITOR",
+      "OPENCODE_ENABLE_EXA",
+      "OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS",
       "CLAUDE_CODE_GLOB_NO_IGNORE",
       "CLAUDE_CODE_HIDE_CWD",
       "CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS",
@@ -45,7 +49,8 @@
       "OMLX_PORT",
       "OMLX_API_KEY",
       "APFEL_PORT",
-      "APFEL_TOKEN"
+      "APFEL_TOKEN",
+      "DO_NOT_TRACK"
     ],
     "set_vars": {
       "GIT_CONFIG_GLOBAL": "~/.gitconfig-agents"

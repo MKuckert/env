@@ -20,23 +20,23 @@ export OPENCODE_ENABLE_EXA=1
 ## Enable background subagent tasks
 export OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=1
 
-## Configures homebrew
-# Make brew less verbose about potential env vars
+# Configures homebrew
+## Make brew less verbose about potential env vars
 export HOMEBREW_NO_ENV_HINTS=1
 
-# Check Homebrew’s API for new formulae or cask data
+## Check Homebrew’s API for new formulae or cask data
 export HOMEBREW_API_AUTO_UPDATE_SECS=86400 # 24h
 
-# Cleanup all cached files older than this many days
+## Cleanup all cached files older than this many days
 export HOMEBREW_CLEANUP_MAX_AGE_DAYS=30
 
-# If set, some brew commands will cleanup all formulae when this number of days has passed
+## If set, some brew commands will cleanup all formulae when this number of days has passed
 export HOMEBREW_CLEANUP_PERIODIC_FULL_DAYS=30
 
-# Space-separated list of casks. Homebrew will refuse to install a cask if it or any of its dependencies is on this list
+## Space-separated list of casks. Homebrew will refuse to install a cask if it or any of its dependencies is on this list
 export HOMEBREW_FORBIDDEN_CASKS=
 
-# Space-separated list of formulae. Homebrew will refuse to install a formula or cask if it or any of its dependencies is on this list
+## Space-separated list of formulae. Homebrew will refuse to install a formula or cask if it or any of its dependencies is on this list
 export HOMEBREW_FORBIDDEN_FORMULAE=node
 
 # Ollama, OMLX, llama.cpp and mtplx
