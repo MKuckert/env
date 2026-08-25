@@ -21,7 +21,7 @@ Implement GitHub issue #85 so every Librarian invocation persists its research a
 
 > Status Markers: [ ] Open, [/] In Progress, [x] Completed (set after accepted review only!)
 
-- [ ] **Task 1: Define and document the research artifact contract**
+- [/] **Task 1: Define and document the research artifact contract**
   - **Description:** Pre-provision tracked `research/results/` directories with placeholder files in both the canonical `agent-harness` repository and this root workspace as a one-time migration; future consuming workspaces must create their own destination during harness setup. Add canonical documentation/template defining required frontmatter, Markdown sections, invoking-workspace path semantics, ASCII slug rules, UTC timestamp plus high-entropy suffix naming, collision refusal, partial-result handling, and source provenance. Keep all `metadata` values strings to remain analogous to documented OpenCode skill frontmatter. Do not add `research/` to `.harness-sync`.
 - [ ] **Task 2: Give Librarian least-privilege persistence access**
   - **Description:** Update `agent-harness/.opencode/agents/Librarian.md` to allow `edit`, `read`, `list` and `glob` only for `research/results/*.md`. Preserve web access and all unrelated denials. Do not grant `bash`, unrestricted MCP filesystem tools, recursive result access, or `external_directory` access.
