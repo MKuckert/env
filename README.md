@@ -104,13 +104,22 @@ ln -s $(pwd)/opencode ~/.config/opencode
 
 Ensure your API keys (e.g., for Google Gemini) are securely configured in your local environment, as they are excluded from this repository.
 
-Run a tool in the current repository's nono sandbox with:
+### Sandboxed execution
+
+Run OpenCode in the current repository's sandbox with:
 
 ```bash
-./nono-here.sh -- command [ARGS...]
+./run_harness.sh [OPENCODE_ARGS...]
 ```
 
-The wrapper uses the Git root (or current directory outside Git) and requires `.nono/profile.json`. Runs `.nono/hooks/before` and `after` without nono on the host with full user privileges. Only run trusted repository hooks.
+For example:
+
+```bash
+./run_harness.sh
+./run_harness.sh --help
+```
+
+`run_harness.sh` launches `opencode` through [`nono`](https://nono.sh) (via `.sandbox/start.sh`), providing a sandboxed OpenCode execution. It uses the Git root as the workspace (or the current directory outside a Git repository) and loads optional defaults from `.sandbox/defaults.sh`.
 
 ### macOS Shortcuts
 
