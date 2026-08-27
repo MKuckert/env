@@ -68,6 +68,12 @@ export HF_XET_HIGH_PERFORMANCE=1
 # Go
 export GOPATH=~/.go
 
+# dotnet
+export DOTNET_ROOT="$(brew --prefix dotnet)/libexec"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+
 # Docker
 export DOCKER_MCP_IN_CONTAINER=1
 

@@ -82,6 +82,9 @@ cask "dotnet-sdk"
 ## python
 brew "uv"
 
+## typescript
+brew "bun"
+
 ## Android
 cask "android-studio"
 
