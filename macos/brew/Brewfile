@@ -54,6 +54,7 @@ cask "zed"
 mas 'Xcode', id: 497799835
 brew "gh"
 brew "jq"
+brew "yq"
 brew "patchutils"
 
 ## Containerization
