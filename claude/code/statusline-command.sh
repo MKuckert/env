@@ -1,0 +1,1 @@
+/Users/mkuckert/.claude/statusline-command.sh
