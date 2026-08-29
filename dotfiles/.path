@@ -1,24 +1,24 @@
 #!/usr/bin/env bash
 
 # Brew installed binaries
-export PATH="$(brew --prefix)/bin:$PATH"
+if [ ! -f  /etc/paths.d/homebrew ]; then
+  export PATH="$(brew --prefix)/bin:$PATH"
+fi
+
 export PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH"
-export PATH="$(brew --prefix go)/libexec/bin:$PATH"
+export PATH="$PATH:$(brew --prefix go)/libexec/bin"
 
 # llama.cpp
-export PATH="$HOME/repos/llama.cpp/build/bin:$PATH"
+export PATH="$PATH:$HOME/repos/llama.cpp/build/bin"
 
 # cherri
-export PATH="$HOME/repos/cherri:$PATH"
+export PATH="$PATH:$HOME/repos/cherri"
 
 # tools from this repository
 ## backgrounded processes
-export PATH="$HOME/env/background-run:$PATH"
+export PATH="$PATH:$HOME/env/background-run"
 ## docker sandboxes
-export PATH="$HOME/env/docker/sandbox:$PATH"
+export PATH="$PATH:$HOME/env/docker/sandbox"
 
 # go
-export PATH="$HOME/.go/bin:$PATH"
-
-# dotnet
-export DOTNET_ROOT="$(brew --prefix dotnet)/libexec"
+export PATH="$PATH:$HOME/.go/bin"

@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-export PATH="${HOME}/bin:$PATH"
 
 # Load other shell dotfiles
 for file in ~/.{path,bash_prompt,exports,aliases,env,extra}; do
