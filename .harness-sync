@@ -1,4 +1,4 @@
 main=/Users/mkuckert/env/agent-harness
 name=env
-base=b62912945c5e00e31a20ca5923884a048f46a0ff
+base=310075fb48e4bf9024b0cb95d767d0c22bcee1f5
 paths=.opencode opencode.jsonc tui.jsonc
