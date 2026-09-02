@@ -2,8 +2,8 @@
 description: "You are an agent used to test the agent harness"
 mode: primary
 disable: true
-model: omlx/qwen3.8-27B-oQ5e
-thinking: high
+model: omlx/qwen3.8-27B-oQ4e
+thinking: xhigh
 permission:
   "*": allow
 color: "#DD8800"

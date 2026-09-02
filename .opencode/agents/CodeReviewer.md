@@ -1,8 +1,8 @@
 ---
 description: "Reviews the work of Builder"
 mode: subagent
-model: omlx/qwen3.8-27B-oQ5e
-thinking: high
+model: omlx/qwen3.8-27B-oQ4e
+thinking: xhigh
 allowedAgents: Explorer, Librarian
 permission:
   read: allow
