@@ -1,8 +1,8 @@
 ---
 description: "Use this agent as your technical assistant for talking about coding, debugging and development tasks."
 mode: primary
-model: github-copilot/claude-sonnet-5
-reasoningEffort: medium
+model: omlx/qwen3.8-27B-oQ4e
+thinking: medium
 permission:
   read: allow
   edit: allow

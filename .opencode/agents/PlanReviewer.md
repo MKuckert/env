@@ -1,8 +1,9 @@
 ---
 description: "Reviews the work of Planner"
 mode: subagent
-model: github-copilot/claude-opus-5
-reasoningEffort: high
+model: omlx/qwen3.8-27B-oQ4e
+thinking: xhigh
+allowedAgents: Explorer, Librarian
 permission:
   read: allow
   edit:
@@ -11,13 +12,16 @@ permission:
     tasks/*: allow
   grep: allow
   glob: allow
+  find: allow
   list: allow
+  ls: allow
   bash: deny
   question: deny
   task:
     "*": deny
     "Explorer": allow
     "Librarian": allow
+  subagent: allow
   web_*: deny
   skill:
     "*": allow

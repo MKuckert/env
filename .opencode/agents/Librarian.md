@@ -1,8 +1,9 @@
 ---
 description: "Retrieves required information from external resources"
 mode: subagent
-model: github-copilot/claude-sonnet-5
-reasoningEffort: low
+model: omlx/qwen3.8-27B-oQ4e
+thinking: low
+maxDepth: 0
 permission:
   read: deny
   edit: deny

@@ -1,8 +1,8 @@
 ---
 description: "Use this agent when you need to create, architect, or overhaul comprehensive documentation systems including API docs, tutorials, guides, and developer-friendly content that keeps pace with code changes. Or you need a writing buddy to make some text corrections."
 mode: primary
-model: github-copilot/claude-sonnet-5
-reasoningEffort: medium
+model: omlx/qwen3.8-27B-oQ4e
+thinking: medium
 permission:
   read: allow
   edit: ask

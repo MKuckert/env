@@ -1,8 +1,8 @@
 ---
 description: "Strategic software architect creating a PLAN.md"
 mode: primary
-model: github-copilot/claude-opus-5
-reasoningEffort: high
+model: omlx/qwen3.8-27B-oQ4e
+thinking: xhigh
 permission:
   read:
     "*": deny

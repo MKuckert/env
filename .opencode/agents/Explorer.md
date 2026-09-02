@@ -1,16 +1,21 @@
 ---
 description: "Provides read access to the local code"
 mode: subagent
-model: github-copilot/claude-sonnet-5
-reasoningEffort: low
+model: omlx/qwen3.8-27B-oQ4e
+thinking: low
+maxDepth: 0
+skills: create-projectmap
 permission:
   read: allow
-  edit:
-    "*": deny
-    "PROJECT_MAP.md": allow
+  # opencode scope was: "*": deny, PROJECT_MAP.md: allow — path scoping is not
+  # enforceable in pi (whitelist-only); edit granted so create-projectmap can write.
+  # See docs/opencode-to-pi-port.md
+  edit: allow
   grep: allow
   glob: allow
+  find: allow
   list: allow
+  ls: allow
   bash: deny
   question: deny
   task: deny

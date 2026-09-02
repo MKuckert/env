@@ -1,0 +1,7 @@
+{
+  "$comment": "Local-only pi extensions for the OpenCode harness port (pi-open-agents + permission system). No global installs.",
+  "extensions": [
+    "/workspace/env/.pi/extensions/node_modules/pi-open-agents/index.ts",
+    "/workspace/env/.pi/extensions/node_modules/@gotgenes/pi-permission-system/src/index.ts"
+  ]
+}
