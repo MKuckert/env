@@ -1,2 +1,2 @@
-#!/usr/bin/env bash
 SANDBOX_COMMAND_DEFAULTS=()
+SANDBOX_COMMAND=opencode
