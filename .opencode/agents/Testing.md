@@ -2,8 +2,8 @@
 description: "You are an agent used to test the agent harness"
 mode: primary
 disable: true
-model: github-copilot/claude-opus-5
-reasoningEffort: high
+model: omlx/qwen3.8-27B-oQ5e
+thinking: high
 permission:
   "*": allow
 color: "#DD8800"

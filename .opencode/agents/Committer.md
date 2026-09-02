@@ -1,8 +1,13 @@
 ---
 description: "Commits changes to git"
 mode: subagent
-model: github-copilot/claude-sonnet-5
-reasoningEffort: low
+model: omlx/qwen3.8-27B-oQ4e
+thinking: low
+maxDepth: 0
+# pi: explicit tool list (pattern-based bash maps can't derive a whitelist).
+# NOTE: opencode's git-only bash restriction below is NOT enforced in pi —
+# see docs/opencode-to-pi-port.md (Gaps).
+tools: read, grep, bash
 permission:
   read: allow
   edit: deny

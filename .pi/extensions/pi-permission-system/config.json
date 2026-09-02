@@ -1,0 +1,10 @@
+// Project baseline: permissive. Per-agent policies come from the
+// permission: frontmatter in .opencode/agents/*.md (harness).
+{
+  "permission": {
+    "*": "allow",
+    "set_agent": "allow",
+    "search_agents": "allow",
+    "subagent": "allow"
+  }
+}
