@@ -20,16 +20,16 @@ The Builder currently burns up to 500 steps when it hits a wall: a denied comman
 
 > Status Markers: [ ] Open, [/] In Progress, [x] Completed (set after accepted review only!)
 
-- [/] **Task 1: Builder hard-stop protocol (prompt)**
+- [x] **Task 1: Builder hard-stop protocol (prompt)**
   - **Description:** In `.opencode/agents/Builder.md` add a `<hard_stop_protocol>` section after `<principles>` defining the three triggers above — with trigger 3 anchored as: *changes not listed in the current task's Description/Review Criteria in `PLAN.md`* — plus two escalation cases: (a) when the step budget is ~80% consumed without task completion, and (b) when CodeReviewer invokes its iteration limit (3-strike breaker). Required exit behavior for all: stop immediately (no retry of a denied command, no workaround), write a `## Blocker` section to `PLAN.md` (error signature / what was tried / the exact permission or change needed), commit the Blocker note via **Committer**, and end the turn by calling `question` to hand control to the user. Add principle 8: "Permission walls are stop signals, not puzzles."
   - **Review Criteria:** Triggers are objective and countable (trigger 3 anchored to PLAN.md task scope); exit behavior names the exact artifact (`## Blocker` in PLAN.md), the commit step (Committer), and the tool (`question`); no ambiguity about retrying denials; reviewer-deadlock and step-budget cases both route into the same exit behavior.
-- [/] **Task 2: Builder mechanical backstops (frontmatter)**
+- [x] **Task 2: Builder mechanical backstops (frontmatter)**
   - **Description:** In `.opencode/agents/Builder.md` frontmatter set `doom_loop: deny` and `steps: 100`. During implementation, verify the installed opencode version's doom-loop semantics (repeat threshold, and that `deny` = force-stop rather than ask) — the opencode source is not vendored, so confirm against installed version/docs; if semantics differ, note it in the commit message.
   - **Review Criteria:** YAML still valid; values match the plan decision; no other agent touched; doom-loop semantics check performed and its result recorded.
-- [/] **Task 3: Planner permission pre-check**
+- [x] **Task 3: Planner permission pre-check**
   - **Description:** In `.opencode/agents/Planner.md`: (a) add a fourth mandatory question to the interrogation phase — **Required Tooling & Permissions:** which commands, tools, and file scopes will the Builder need? (b) add a `## Required Tooling & Permissions` section to the PLAN.md template between "Requirements & Decisions" and "Implementation Steps".
   - **Review Criteria:** Both prompt text and template carry the new question/section; existing mandatory questions untouched.
-- [/] **Task 4: Command + protocol doc alignment**
+- [x] **Task 4: Command + protocol doc alignment**
   - **Description:** (a) `.opencode/commands/implement_next_task.md`: add one line — if a hard-stop trigger fires, follow the Builder's hard-stop protocol (write `## Blocker`, escalate via `question`, stop). (b) Root `AGENTS.md` Builder section: add a "Hard Stop" bullet mirroring the three triggers and the Blocker/escalation behavior.
   - **Review Criteria:** Command file stays a one-paragraph trigger; AGENTS.md bullet matches the Builder prompt wording.
 
@@ -49,4 +49,4 @@ The Builder currently burns up to 500 steps when it hits a wall: a denied comman
 
 ## Final Status (Code Review)
 
-[pending]
+- **Round 1:** APPROVED (commit 9679775). All four tasks verified against plan; consistency, scope, and frontmatter checks passed.
