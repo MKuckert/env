@@ -10,14 +10,7 @@ permission:
   grep: allow
   glob: allow
   list: allow
-  bash:
-    "*": deny
-    "gh issue list": allow
-    "gh issue view *": allow
-    "gh pr list": allow
-    "gh pr diff *": allow
-    "gh pr view *": allow
-    "nono why *": allow
+  bash: deny
   question: deny
   task: deny
   web_*: deny
