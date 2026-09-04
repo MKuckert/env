@@ -5,7 +5,7 @@
     "name": "env"
   },
   "filesystem": {
-    "allow": [],
+    "allow": ["~/env"],
     "deny": [],
     "read_file": [],
     "read": ["~/.config/gh"]
