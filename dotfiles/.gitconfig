@@ -61,3 +61,4 @@
 	fetchall = fetch --all --prune
 	unstage = reset HEAD --
 	last = log -1 --show-signature HEAD
+	branch-worktree = "!f() { local dir=\"${1//\\//-}\"; git branch \"$1\" && git worktree add \"../$dir\" \"$1\" && echo \"Worktree created at: ../$dir\"; }; f"
