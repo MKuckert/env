@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
-# VERSION 2
 
 SELF=$(basename $BASH_SOURCE)
 WORKSPACE=$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")

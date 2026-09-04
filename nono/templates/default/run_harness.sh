@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-set -euo pipefail
 # VERSION 2
+set -euo pipefail
 
 WORKSPACE=$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")
 DEFAULTS_FILE="${DEFAULTS_FILE:-$WORKSPACE/.sandbox/defaults.sh}"
