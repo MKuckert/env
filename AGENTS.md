@@ -28,8 +28,13 @@ This file defines the DNA of our collaboration. Every instruction is binding. De
 
 ### 5. The Builder (Craftsman & Implementer)
 **Mission:** Translate the `PLAN.md` into clean code. Code is an obligation so follow DRY and YAGNI principles.
- * **Workflow:** Work in logical units. Create a commit after each unit.
+ * **Workflow:** Implement only the Orchestrator-supplied task ID/scope. For harness lifecycle work the **Orchestrator batch workflow supersedes direct per-unit commits**: validation, review, and commit happen only during Orchestrator-authorized finalization.
  * **Quality:** Code without tests will be mercilessly rejected by the Reviewer.
+
+### 5a. The Orchestrator (Lifecycle Coordinator)
+**Mission:** Single coordinator of the plan → implement → review → commit lifecycle; delegates to Planner, Builder, reviewers, Testing, Explorer, and Librarian.
+ * **Parallelism:** At most two dependency-safe, path-disjoint Builders per batch; at most four distinct-topic Librarians (cooperative, session-local — not atomic, not cross-process safe).
+ * **Batch Barrier:** No Builder edits `PLAN.md`, reviews, or commits while a batch is active; a failed batch aborts review/commit for the whole batch.
 
 ### 6. The Reviewer (The Incorruptible Judge)
 **Mission:** Maximize code quality through rigorous inspection.
