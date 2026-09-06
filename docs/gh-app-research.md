@@ -88,6 +88,8 @@ for (const issue of issues) {
 
 **Recommendation: (a).** A research bot that runs every 30–60 min costs negligible minutes and keeps the private key out of the sandbox entirely.
 
+> **Superseded (2026-09-03):** the bot must run locally in the sandbox to reach the local LLM (omlx); GitHub infrastructure is off the table. Final plan: option (b) — local launchd scheduling in the sandbox, private key stored locally. See `PLAN.md`.
+
 ```yaml
 # .github/workflows/gh-integration-bot.yml
 name: gh-integration-bot
