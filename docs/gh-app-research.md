@@ -2,12 +2,14 @@
 
 Research for **issue #100** ("gh Integration bot"). The periodic gh-integration-bot (reads open issues, posts research comments) currently runs under the owner's personal access token, so comments are authored by the human account `MKuckert` and identified only by a `🤖 **[gh-integration-bot]**` text marker. This document covers creating a GitHub App so the bot has its own identity and no longer needs the PAT.
 
+> **Status (2026-09-06): implemented.** The bot runs in the sandbox on cron as `overcommit-bot [bot]` (app ID 4843934, installation 159479245); the first real round posted 6 comments. Ops: `gh-bot/README.md`, `gh-bot/docs/cron.md`. Remaining: revoke the old PAT (manual). Where this research doc and reality diverge, reality wins — see the corrections marked below.
+
 ## Summary
 
 - **What to create:** a private, repo-only GitHub App (`gh-integration-bot`), installed on this single repo. It gets its own identity: comments are authored as `gh-integration-bot [bot]`.
 - **Why it fixes identity:** app-authored comments are distinguishable in the UI, via `author.login` (REST/GraphQL), and in audit logs — the skip-check can switch from fragile text-marker matching to an author check (marker kept as fallback).
 - **Auth model:** two-token chain, no PAT — a short-lived **JWT** (RS256-signed with the app's private key, ≤10 min) authenticates *as the app*; it mints an **installation access token** (≤1 h, 5000 req/h) which is used as `GITHUB_TOKEN` for all REST/`gh` calls.
-- **Scheduling:** GitHub Actions `schedule: cron` workflow — private key lives in repo secrets, no egress setup, visible run history. Cron granularity is ≥5 min, which is fine for a periodic research bot.
+- **Scheduling:** GitHub Actions `schedule: cron` workflow — private key lives in repo secrets, no egress setup, visible run history. Cron granularity is ≥5 min, which is fine for a periodic research bot. **(Superseded — final: cron in the sandbox; see note below.)**
 - **Migration risk:** low. Bot logic (read issues → post comment) is unchanged; only the token source and the "is this a bot?" check change. The old PAT is revoked after the first verified `[bot]`-authored round.
 
 ## App Setup Steps
@@ -21,10 +23,12 @@ Research for **issue #100** ("gh Integration bot"). The periodic gh-integration-
 
      | Permission       | Access        |
      |------------------|---------------|
-     | Contents         | Read-only     |
+     | Contents         | Read & write  |
      | Issues           | Read & write  |
      | Issue comments   | Write-only    |
-     | Pull requests    | Read-only     |
+     | Pull requests    | Read & write  |
+
+     *(Table updated post-creation: Contents and Pull requests were widened to read & write so the installation token can also be used for git push.)*
 
    - **Webhook:** leave "Active" unchecked; no webhook secret needed.
    - Reference: <https://docs.github.com/en/apps/github-apps/creating-a-github-app>
@@ -33,7 +37,7 @@ Research for **issue #100** ("gh Integration bot"). The periodic gh-integration-
 
 3. **Install the app on this repo.** App page → **Install App** → choose "Only select repositories" → tick `MKuckert/env`. The **installation ID** appears in the install URL (`/apps/<slug>/installations/<id>`) — it is the `GH_INSTALLATION_ID` used to mint tokens.
 
-4. **Store credentials as repo secrets:** `GH_APP_ID`, `GH_PRIVATE_KEY` (PEM, multi-line — paste verbatim), `GH_INSTALLATION_ID`.
+4. **Store credentials.** Originally specified as repo secrets (`GH_APP_ID`, `GH_PRIVATE_KEY`, `GH_INSTALLATION_ID`) for the Actions approach. **As built (local execution):** `GH_APP_ID` + `GH_INSTALLATION_ID` in the gitignored `.env` at repo root; PEM at `gh-bot/key.pem` (chmod 600).
 
 ## Auth Flow
 
@@ -90,6 +94,9 @@ for (const issue of issues) {
 
 > **Superseded (2026-09-03):** the bot must run locally in the sandbox to reach the local LLM (omlx); GitHub infrastructure is off the table. Final plan: option (b) — local launchd scheduling in the sandbox, private key stored locally. See `PLAN.md`.
 >
+> **Superseded again (2026-09-06):** the sandbox has no launchd — final scheduling is **cron in the sandbox**, with `gh-bot/run.sh` as the self-contained target (operator installs the cron entry). See `gh-bot/docs/cron.md`.
+> **The Actions workflow below is kept for reference only — it was never deployed.**
+>
 > **Verified (2026-09-06):** app created as `overcommit-bot` (ID 4843934, installation 159479245); JWT → installation token → issue read all work. Note: the string Client ID is **not** accepted as `iss` by this endpoint (401 "must be an Integer") despite the 2024-05 changelog — use the numeric App ID.
 
 ```yaml
@@ -120,11 +127,11 @@ jobs:
 
 Rate limits: installation tokens get **5000 requests/hour** — one round touches ~2 API calls per issue, far below the cap.
 
-## Migration Checklist
+## Migration Checklist (final state, 2026-09-06)
 
-- [ ] Create the app + key; install on `MKuckert/env`; store the three secrets.
-- [ ] Add the Actions workflow; test via `workflow_dispatch` first.
-- [ ] Switch the skip-check from marker-prefix matching to `author.login.endsWith("[bot]")` — **keep the text marker** in comment bodies as a human-readable fallback.
-- [ ] Verify the first automated round: comments authored by `gh-integration-bot [bot]` in UI and API.
-- [ ] **Revoke the old personal PAT** (`Settings → Developer settings → Personal access tokens`) and remove any sandbox cron that used it.
-- [ ] Note the app's location + key-regeneration procedure in the README/ops runbook.
+- [x] Create the app + key; install on `MKuckert/env` — done as `overcommit-bot` (ID 4843934, installation 159479245); credentials in local `.env` + `gh-bot/key.pem` (not repo secrets — local execution).
+- [x] Add the scheduler; test via manual trigger first — `gh-bot/run.sh` cron target + `DRY_RUN=1`; dry round verified (6 issues, 0 failed).
+- [x] Switch the skip-check from marker-prefix matching to `author.login.endsWith("[bot]")` — done in `gh-bot/bot.mjs`; the text marker is kept as a human-readable fallback.
+- [x] Verify the first automated round: 6 comments authored by `overcommit-bot [bot]` (UI + API), 2026-09-06.
+- [ ] **Revoke the old personal PAT** (`Settings → Developer settings → Personal access tokens`) and remove any sandbox cron that used it — **still outstanding (manual, owner action)**.
+- [x] Note the app's location + key-regeneration procedure in the ops runbook — `gh-bot/README.md`.
