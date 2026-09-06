@@ -7,7 +7,7 @@
 Replace the PAT-based periodic research bot with a bot that:
 
 1. Runs **locally in the sandbox** on the workstation (macOS), where it can call omlx (`http://localhost:11437`, OpenAI-compatible).
-2. Authenticates to GitHub as a dedicated **GitHub App** (`gh-integration-bot [bot]`), eliminating the personal PAT.
+2. Authenticates to GitHub as a dedicated **GitHub App** (`overcommit-bot [bot]` — app name "Overcommit [bot]", slug `overcommit-bot`), eliminating the personal PAT.
 3. Posts LLM-generated research comments on open issues, hourly.
 
 ## Architecture
@@ -34,11 +34,13 @@ launchd (hourly) → gh-bot/run.sh
 
 **Fail-loud rule:** if any credential is missing, `run.sh` prints an explicit error naming the missing item and exits non-zero. No silent skip, no placeholder output.
 
-## Auth Flow (unchanged from research doc)
+## Auth Flow (verified live 2026-09-06)
 
-1. Mint JWT `{ iss: GH_APP_ID, iat, exp: now+900s }` signed RS256 with `key.pem`.
+1. Mint JWT `{ iss: GH_APP_ID, iat, exp: now+540s }` signed RS256 with `key.pem`. **exp must be ≤ 10 min** — GitHub rejects 900 s ("too far in the future"); use 540 s.
 2. `POST /app/installations/{GH_INSTALLATION_ID}/access_tokens` → installation token; cache until ~5 min before expiry, re-mint on 401.
-3. Use as `Authorization: Bearer <token>` for all REST calls.
+3. Use as `Authorization: Bearer <token>` for all REST calls. Installation tokens cannot call `/user` (403 by design) — identity check goes via comment `author.login`.
+
+**Client ID as `iss`: rejected.** The 2024-05 changelog says the Client ID may replace the App ID, but the live endpoint returns 401 `"'Issuer' claim ('iss') must be an Integer"` for the string client ID. Decision: use the numeric App ID (not deprecated).
 
 ## Bot Round Logic
 
@@ -56,17 +58,17 @@ launchd (hourly) → gh-bot/run.sh
 
 ## Milestones
 
-1. **App setup (manual, owner action):** create the app per research doc §"App Setup Steps" (repo-only install on `MKuckert/env`; permissions: Contents read, Issues read/write, Issue comments write, PRs read; no webhooks). Store `GH_APP_ID`, `GH_INSTALLATION_ID` in `.env`; PEM to `gh-bot/key.pem`.
+1. **App setup (manual, owner action) — DONE 2026-09-06.** App `overcommit-bot` (ID 4843934) created, installed on `MKuckert/env` (installation 159479245). Verified live: JWT mint → installation token → `GET /repos/MKuckert/env/issues` returns open issues. Credentials in place: `.env` (`GH_APP_ID`, `GH_INSTALLATION_ID`), `gh-bot/key.pem` (chmod 600); both gitignored.
 2. **M1 — Auth module:** `auth.mjs` (JWT mint + installation token with caching and 401 re-mint) + unit test with a mock keypair asserting token shape/expiry and cache behavior.
 3. **M2 — LLM module:** `llm.mjs` (omlx client: prompt build, request, error surfacing) + test against a stubbed HTTP server covering success and failure paths.
 4. **M3 — Bot round:** `bot.mjs` (issue iteration, skip-check, comment posting) + `run.sh`; integration test in dry-run mode (`DRY_RUN=1` prints instead of posting).
 5. **M4 — Scheduling + ops:** install launchd plist (hourly), verify a logged round; write `gh-bot/README.md` runbook (key regeneration, log locations, how to disable).
-6. **M5 — Cutover:** run one verified round with comments authored by `gh-integration-bot [bot]` (check UI + API), then **revoke the old PAT** and remove its sandbox cron.
+6. **M5 — Cutover:** run one verified round with comments authored by `overcommit-bot [bot]` (check UI + API), then **revoke the old PAT** and remove its sandbox cron.
 7. Update `PROJECT_MAP.md`/README; archive this plan to `docs/plans/YYYY-MM-DD_gh-integration-bot.md`.
 
 ## Acceptance Criteria
 
-- Comments on open issues are authored by `gh-integration-bot [bot]`, no PAT anywhere in the repo or sandbox env.
+- Comments on open issues are authored by `overcommit-bot [bot]`, no PAT anywhere in the repo or sandbox env.
 - A round works end-to-end from launchd trigger using only local omlx for content generation.
 - Missing credentials, dead omlx, and 401s each produce a visible, logged failure (non-zero exit) — never silent or fake output.
 - Old PAT revoked after first verified round.

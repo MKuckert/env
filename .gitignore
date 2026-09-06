@@ -16,3 +16,5 @@ opencode/opencode-notifier-state.json
 macos/automation/shortcuts/workproj-*.cherri
 manifest/backup/
 .env
+gh-bot/key.pem
+.pi-web/

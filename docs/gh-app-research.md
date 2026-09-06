@@ -58,7 +58,7 @@ const installationId = process.env.GH_INSTALLATION_ID;
 const pem = readFileSync(process.env.GH_PRIVATE_KEY_FILE, "utf8");
 
 // 1. App JWT (RS256, ≤10 min)
-const appJwt = jwt.sign({}, pem, { algorithm: "RS256", issuer: appId, expiresIn: 900 });
+const appJwt = jwt.sign({}, pem, { algorithm: "RS256", issuer: appId, expiresIn: 540 }); // ≤ 10 min — 900 s is rejected
 
 // 2. Installation token (≤1 h)
 const res = await fetch(
@@ -89,6 +89,8 @@ for (const issue of issues) {
 **Recommendation: (a).** A research bot that runs every 30–60 min costs negligible minutes and keeps the private key out of the sandbox entirely.
 
 > **Superseded (2026-09-03):** the bot must run locally in the sandbox to reach the local LLM (omlx); GitHub infrastructure is off the table. Final plan: option (b) — local launchd scheduling in the sandbox, private key stored locally. See `PLAN.md`.
+>
+> **Verified (2026-09-06):** app created as `overcommit-bot` (ID 4843934, installation 159479245); JWT → installation token → issue read all work. Note: the string Client ID is **not** accepted as `iss` by this endpoint (401 "must be an Integer") despite the 2024-05 changelog — use the numeric App ID.
 
 ```yaml
 # .github/workflows/gh-integration-bot.yml
