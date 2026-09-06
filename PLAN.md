@@ -13,16 +13,16 @@ Replace the PAT-based periodic research bot with a bot that:
 ## Architecture
 
 ```
-launchd (hourly) → gh-bot/run.sh
-                    ├─ auth.mjs     JWT (RS256, ≤10 min) → installation token (≤1 h, cached)
-                    ├─ llm.mjs      POST http://localhost:11437/v1/chat/completions (omlx)
+cron (hourly) → gh-bot/run.sh   ← the cron target
+                    ├─ auth.mjs     JWT (RS256, 540 s) → installation token (≤1 h, cached)
+                    ├─ llm.mjs      POST {OMLX_BASE_URL}/chat/completions (omlx)
                     └─ bot.mjs      REST: list open issues → skip-check → LLM research → post comment
 ```
 
 - **Code location:** new `gh-bot/` directory: `bot.mjs`, `auth.mjs`, `llm.mjs`, `run.sh`, `com.mkuckert.gh-integration-bot.plist` (launchd template), `README.md`.
 - **Runtime:** Node 22 (present in sandbox). Only dependency: `jsonwebtoken` for the RS256 JWT.
-- **Scheduling:** user-domain **launchd** `StartCalendarInterval` (hourly). Chosen over cron: macOS-native, catches up after sleep/missed intervals, per-user logs. (Fallback if launchd proves awkward: a single `crontab` line — no code change, only the trigger.)
-- **Logs:** launchd redirects stdout/stderr to `~/.local/state/gh-integration-bot/{out,err}.log` — visible run history, fail-loud.
+- **Scheduling:** **cron** in the sandbox (operator installs the line; `gh-bot/run.sh` is the self-contained target: PATH fix, `.env` load, credential check, flock overlap guard). This container has no cron daemon yet — the operator adds it. `run.sh` is portable: on the macOS workstation the same target works under launchd/cron unchanged.
+- **Logs:** cron appends to `~/.local/state/overcommit-bot/cron.log` — visible run history, fail-loud.
 
 ## Secrets (local, gitignored)
 
@@ -30,7 +30,8 @@ launchd (hourly) → gh-bot/run.sh
 |---|---|---|
 | `GH_APP_ID`, `GH_INSTALLATION_ID` | `.env` at repo root | already gitignored; loaded via direnv (`load_dotenv = true`) |
 | Private key PEM | `gh-bot/key.pem` (gitignored, `chmod 600`) | shown once at generation; never committed |
-| omlx API key | read from `~/.omlx/settings.json` (`auth.api_key`) via `jq` | no new secret |
+| omlx API key | read from the omlx settings file (`OMLX_SETTINGS_FILE`, default `omlx/settings.json` → `auth.api_key`) | no new secret |
+| omlx endpoint | `.env`: `OMLX_BASE_URL=http://192.168.178.61:11437/v1` (as seen from this sandbox; workstation default is `localhost:11437`) | env var, not a secret |
 
 **Fail-loud rule:** if any credential is missing, `run.sh` prints an explicit error naming the missing item and exits non-zero. No silent skip, no placeholder output.
 
@@ -62,7 +63,7 @@ launchd (hourly) → gh-bot/run.sh
 2. **M1 — Auth module:** `auth.mjs` (JWT mint + installation token with caching and 401 re-mint) + unit test with a mock keypair asserting token shape/expiry and cache behavior.
 3. **M2 — LLM module:** `llm.mjs` (omlx client: prompt build, request, error surfacing) + test against a stubbed HTTP server covering success and failure paths.
 4. **M3 — Bot round:** `bot.mjs` (issue iteration, skip-check, comment posting) + `run.sh`; integration test in dry-run mode (`DRY_RUN=1` prints instead of posting).
-5. **M4 — Scheduling + ops:** install launchd plist (hourly), verify a logged round; write `gh-bot/README.md` runbook (key regeneration, log locations, how to disable).
+5. **M4 — Scheduling + ops (DONE 2026-09-06):** `run.sh` hardened as the cron target (PATH, flock overlap guard, fail-loud credential check); exact cron line + ops runbook in `gh-bot/README.md`. Operator installs the cron entry.
 6. **M5 — Cutover:** run one verified round with comments authored by `overcommit-bot [bot]` (check UI + API), then **revoke the old PAT** and remove its sandbox cron.
 7. Update `PROJECT_MAP.md`/README; archive this plan to `docs/plans/YYYY-MM-DD_gh-integration-bot.md`.
 
@@ -75,5 +76,5 @@ launchd (hourly) → gh-bot/run.sh
 
 ## Open Decisions (flagged, defaults chosen)
 
-- **Scheduler:** launchd chosen over cron; trivially swappable, no code impact.
+- **Scheduler:** cron in the sandbox (operator-provided); `run.sh` is the portable target.
 - **Interval:** hourly (matches prior cadence; omlx `max_concurrent_requests: 1` makes spacing sensible).
