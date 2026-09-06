@@ -3,13 +3,13 @@
   "extends": ["always-further/opencode"],
   "meta": {
     "name": "env",
-    "version": "1"
+    "version": "2"
   },
   "workdir": {
     "access": "readwrite"
   },
   "filesystem": {
-    "allow": [],
+    "allow": ["~/env"],
     "deny": ["~/.gitconfig"],
     "read_file": [
       "~/.gitconfig-private",

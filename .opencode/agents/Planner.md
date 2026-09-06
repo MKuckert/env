@@ -1,6 +1,6 @@
 ---
 description: "Strategic software architect creating a PLAN.md"
-mode: primary
+mode: subagent
 model: github-copilot/claude-opus-5
 reasoningEffort: high
 permission:

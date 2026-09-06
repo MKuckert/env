@@ -1,6 +1,6 @@
 ---
 description: "Software developer implementing a PLAN.md"
-mode: primary
+mode: subagent
 model: github-copilot/claude-sonnet-5
 reasoningEffort: medium
 permission:
