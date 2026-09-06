@@ -15,6 +15,7 @@ the point, so it can reach omlx.
 | `bot.mjs` | One round: skip-check → LLM → post. `DRY_RUN=1` prints instead of posting |
 | `run.sh` | **The cron target.** Loads `.env`, checks credentials, flock guard, runs one round |
 | `token.sh` | Prints a fresh installation token (≤ 1 h) to stdout — for git/gh in other sessions |
+| `docs/cron.md`, `docs/token.md` | Usage guides for the cron target and token minting |
 | `verify-auth.mjs` | Live end-to-end auth check (app metadata, token mint, issue read) |
 | `*.test.mjs` | Unit tests — `node --test` in this directory |
 
@@ -26,32 +27,14 @@ the point, so it can reach omlx.
 
 ## Scheduling (cron)
 
-The cron target is `gh-bot/run.sh` — self-contained: sets PATH, cd's to the
-repo root, loads `.env`, refuses missing credentials with a clear message, and
-skips the tick (exit 0) if a previous round is still holding `~/.local/state/overcommit-bot/round.lock`.
-
-Hourly, with a persistent log:
-
-```cron
-0 * * * * /workspace/env-gh-app/gh-bot/run.sh >> /home/node/.local/state/overcommit-bot/cron.log 2>&1
-```
-
-The bot exits non-zero if any issue in the round failed — cron's log captures it.
+Hourly cron entry, overlap guard, exit codes and manual operation:
+**[`docs/cron.md`](docs/cron.md)**.
 
 ## Tokens for other sessions
 
-Other agent sessions in this sandbox can get a temporary installation token
-(valid ≤ 1 h, 5000 req/h) without touching the private key:
-
-```bash
-export GITHUB_TOKEN=$(gh-bot/token.sh)   # expiry printed to stderr
-git push ...                             # repo's credential helper reads $GITHUB_TOKEN
-gh issue list ...                        # gh CLI reads $GITHUB_TOKEN too
-```
-
-The token is printed to stdout only; diagnostics go to stderr. Missing
-credentials fail loudly (exit 1, message names the missing item). The token
-dies with the shell that holds it — never write it to a file.
+`token.sh` mints an ephemeral installation token (≤ 1 h) for git/gh in other
+sessions — output contract, re-minting and security notes:
+**[`docs/token.md`](docs/token.md)**.
 
 ## Operations
 
