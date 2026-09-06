@@ -14,6 +14,7 @@ the point, so it can reach omlx.
 | `llm.mjs` | omlx client (`/v1/chat/completions`), prompt builder |
 | `bot.mjs` | One round: skip-check → LLM → post. `DRY_RUN=1` prints instead of posting |
 | `run.sh` | **The cron target.** Loads `.env`, checks credentials, flock guard, runs one round |
+| `token.sh` | Prints a fresh installation token (≤ 1 h) to stdout — for git/gh in other sessions |
 | `verify-auth.mjs` | Live end-to-end auth check (app metadata, token mint, issue read) |
 | `*.test.mjs` | Unit tests — `node --test` in this directory |
 
@@ -36,6 +37,21 @@ Hourly, with a persistent log:
 ```
 
 The bot exits non-zero if any issue in the round failed — cron's log captures it.
+
+## Tokens for other sessions
+
+Other agent sessions in this sandbox can get a temporary installation token
+(valid ≤ 1 h, 5000 req/h) without touching the private key:
+
+```bash
+export GITHUB_TOKEN=$(gh-bot/token.sh)   # expiry printed to stderr
+git push ...                             # repo's credential helper reads $GITHUB_TOKEN
+gh issue list ...                        # gh CLI reads $GITHUB_TOKEN too
+```
+
+The token is printed to stdout only; diagnostics go to stderr. Missing
+credentials fail loudly (exit 1, message names the missing item). The token
+dies with the shell that holds it — never write it to a file.
 
 ## Operations
 
