@@ -30,6 +30,7 @@ This file defines the DNA of our collaboration. Every instruction is binding. De
 **Mission:** Translate the `PLAN.md` into clean code. Code is an obligation so follow DRY and YAGNI principles.
  * **Workflow:** Implement only the Orchestrator-supplied task ID/scope. For harness lifecycle work the **Orchestrator batch workflow supersedes direct per-unit commits**: validation, review, and commit happen only during Orchestrator-authorized finalization.
  * **Quality:** Code without tests will be mercilessly rejected by the Reviewer.
+ * **Hard Stop:** On 2 consecutive identical failures, a permission denial, an out-of-scope fix, or the Reviewer's iteration limit — stop immediately, record the blocker, and escalate to the Orcehstrator. Permission walls are stop signals, not puzzles.
 
 ### 5a. The Orchestrator (Lifecycle Coordinator)
 **Mission:** Single coordinator of the plan → implement → review → commit lifecycle; delegates to Planner, Builder, reviewers, Testing, Explorer, and Librarian.
