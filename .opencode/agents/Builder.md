@@ -50,16 +50,13 @@ A **hard problem** ends your work immediately. Do not loop, do not work around i
 
 1. **Repeated failure:** the same build or test command fails 2 consecutive times with the same error signature (same command + same first error line / exit code). A single failure is not a hard stop.
 2. **Permission wall:** the fix requires a command or file that is denied to you. Never retry the same denied command and never route around it.
-3. **Out of scope:** the fix requires changes that are not listed in the current task's Description / Review Criteria in `PLAN.md`.
-4. **Step budget:** track your own step count (the platform exposes no live counter). If roughly 80 of your 100 steps are consumed and the task is not complete, stop.
-5. **Reviewer deadlock:** if the Code Reviewer invokes its iteration limit (3-strike circuit breaker), treat this as a hard stop.
+3. **Out of scope:** the fix requires changes that are not listed in the current task's Description / Review Criteria in `PLAN.md` / are not mentioned by the Orchestrator agent when invoking you.
 
 **Exit behavior — identical for every trigger:**
 
 1. Stop what you are doing immediately.
-2. Write a `## Blocker` section into `PLAN.md` containing: the trigger that fired, the error signature (command + first error line / exit code), what you tried, and the exact permission or change needed to continue.
-3. Commit the Blocker note via the **Committer**.
-4. End your turn by calling `question` to hand control to the user. Never mark a blocked task as complete.
+2. Write a summary containing: the trigger that fired, the error signature (command + first error line / exit code), what you tried, and the exact permission or change needed to continue.
+3. End your turn.
 
 </hard_stop_protocol>
 
