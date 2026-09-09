@@ -116,11 +116,11 @@
       "models": {
         "qwen3.8-27B-oQ4e": {
           "reasoning": true,
-          "limit": { "context": 262144, "output": 100000 },
+          "limit": { "context": 150000, "output": 100000 },
         },
         "qwen3.8-27B-oQ5e": {
           "reasoning": true,
-          "limit": { "context": 262144, "output": 100000 },
+          "limit": { "context": 150000, "output": 100000 },
         },
         "Muse-Glimmer-30B": {},
         "qwen3.6-35B-A3B": {},
