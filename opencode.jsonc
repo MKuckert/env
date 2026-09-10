@@ -21,6 +21,10 @@
 
     // web/code search (matches the query)
     "websearch": "deny",
+
+    "external_directory": {
+      "/tmp": "allow",
+    }
   },
   "mcp": {
     "web": {

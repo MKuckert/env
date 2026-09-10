@@ -10,7 +10,7 @@ permission:
   glob: allow
   list: allow
   bash:
-    "*": ask
+    "*": allow
   question: deny
   task: deny
   web_*: deny
