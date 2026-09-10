@@ -196,7 +196,7 @@ defect (including missing exec bits detected after the copy in Task 7).
     `cp` misbehaved, and if it does the message names the template rather than suggesting a
     pointless `chmod` on a file about to be regenerated.
 
-- [ ] **Task 8: Generate `.sandbox/defaults.sh` (only if absent)**
+- [x] **Task 8: Generate `.sandbox/defaults.sh` (only if absent)**
   - **Description:** If `$workdir/.sandbox/defaults.sh` already exists (shipped by a
     harness-specific template, Q8), leave it untouched and log that it was preserved.
     Otherwise write exactly:
@@ -820,4 +820,69 @@ defect (including missing exec bits detected after the copy in Task 7).
   directory at that path — same as Task 2 nit (3), unreachable here since `cp -R` reproduces the
   template's regular file; (4) leak set unchanged at seven; this task introduces no new
   top-level scratch names.
+- **Task 8 — Round 1: APPROVED.** 0 blockers, 1 should-fix, 3 nits. Task 8 marked `[x]`.
+  All four review criteria met, discharged empirically (fixtures under `mktemp -d`, `env -i`,
+  fake `HOME`; repo confirmed unmodified, no new untracked files). All five harnesses emit
+  exactly the three mandated lines, verified with `cat -A`: no shebang (R2-8 holds), no `^M`,
+  no trailing whitespace, `SANDBOX_COMMAND="<harness>"` quoted and matching the selection
+  exactly, `SANDBOX_COMMAND_DEFAULTS=()` verbatim. Sourcing is clean under `set -u` on
+  `/bin/bash` 3.2.57 *and* bash 5.3.15 (array length 0, no unbound-variable error) — the
+  primary-platform criterion is discharged on the real Bash 3.2, not by construction. A
+  template-provided `defaults.sh` carrying a custom `SANDBOX_COMMAND` and a populated defaults
+  array survives with an identical `shasum` and the preservation is logged (Q8 / checklist
+  bullet). Idempotent across runs. The real bundled `templates/default` ships no `defaults.sh`,
+  so the generation branch is the one that fires in production.
+  (c) **Heredoc correct (S10 / R2-4 closed in code).** Unquoted `<<EOF`, `$harness` the sole
+  expansion, no escaping added, `EOF` unindented and column-0 (no `<<-`/tab hazard). No
+  injection surface: `$harness` is either an element of `HARNESSES` copied out of the array
+  (L79–81, never the raw `NONO_HERE_HARNESS` string) or `select`'s result variable, which can
+  only be a list element. A hostile override cannot reach the heredoc — it dies at L86 with
+  exit 8. The value is also emitted inside double quotes, so even a hypothetical value with a
+  `"` or `$` would corrupt the file rather than execute at generation time; unreachable today.
+  (d) **Confirmed: a genuine gap in the plan's task decomposition, not a Builder omission.**
+  Provisioning now falls off the end of the script and exits 0 without ever calling
+  `handover "$@"`. Q4 and Q15's ordering (`… → defaults → exec`) and Task 9's criterion
+  ("provisioning path and fast path are indistinguishable") all require it, yet **no task owns
+  the wiring**: Task 8's description ends at `defaults.sh`, and Task 9 was approved as
+  definition-only precisely because inventing a call site then would have been speculative.
+  The call belongs at the **end of Task 8's block** (after the `if/else`, at top level, so it is
+  reached on both the preserved and the generated branch) but should be **scheduled as its own
+  task** — it is the last statement of provisioning and its acceptance test is Task 9's
+  argv-recording stub run against *both* call sites, which is Task 9's criterion, not Task 8's.
+  Recommendation: add **Task 8b — "Wire the provisioning handover"**: append `handover "$@"` as
+  the final statement, and re-verify `exec` count is still exactly 1 (it will be — `handover` is
+  a call, not a second `exec`). Do not fold it into Task 10 or 11; it is production control flow.
+  Until it lands, provisioning leaves the user at a shell prompt with a correct sandbox and no
+  running harness — a visible, non-silent shortfall, so no Fail-Loud violation, but the feature
+  is incomplete.
+  Fail Loud upheld: no `|| true`, no `2>/dev/null`, no `-f` in this block. The `cat >` redirect
+  is unguarded, so a write failure propagates through `set -e` — verified with `chmod 555
+  .sandbox`: exit 1 with `Permission denied` on stderr, unswallowed. Bash 3.2-safe (`[[ -e ]]`,
+  `cat`, heredoc; no `${arr[@]+…}`, no `printf -v`). `bash -n` and `/bin/bash -n` clean;
+  preamble, `# VERSION 2` and the bare `script_dir="$(resolve_script_dir)"` with its Fail-Loud
+  comment undisturbed; no speculative Task 10/11 code.
+  - **T8-S1 SHOULD — the preservation log is the only stderr line in the script without the
+    `$SELF:` prefix.** It reads `'…/.sandbox/defaults.sh' already exists; preserved untouched.`
+    while `workdir:` (L126) and `template:` (L127) — the two closest precedents, both non-abort
+    provisioning logs, not aborts — both carry it, as does every `die`. The plan's "every abort
+    writes a `$SELF`-prefixed message" rule is about aborts and does not literally reach a log
+    line, but the script's own established convention does, and the point of the prefix is that
+    stderr interleaved with the harness's own output stays attributable to `nono-here.sh`.
+    Consistent with the accuracy/consistency standard applied to Task 1's export comment.
+    Fix: `echo "$SELF: '$workdir/.sandbox/defaults.sh' already exists; preserved untouched." >&2`.
+    Non-blocking — cosmetic on stderr, zero behavioural effect — but land it before Task 11
+    case (12) pins the current text into an assertion.
+  Nits (non-blocking): (1) `[[ -e ]]` is false for a **dangling symlink** `defaults.sh` (BSD
+  `cp -R` copies symlinks as links, so a template *can* ship one), sending it to the `else`
+  branch where `cat >` follows the link and writes the generated content to the link's target —
+  outside `.sandbox` if the link points there. Not a security boundary (a template already ships
+  the `run_harness.sh` we execute) and not silent (if the target's parent is missing, `cat`
+  fails loudly through `set -e`), so it does not rise to the Task 2/Task 6 `|| -L` treatment;
+  Task 4 validates only `run_harness.sh` and `start.sh`, so no upstream guard exists either.
+  Noted, not required. (2) The converse: a **directory** named `defaults.sh` satisfies `-e` and
+  is "preserved" — a genuinely wrong success, but it fails loudly one step later when
+  `run_harness.sh` sources it. Both cases would be closed by a single
+  `[[ -f "$workdir/.sandbox/defaults.sh" ]]` plus an `-e || -L`/`! -f` ⇒ `die 9` guard mirroring
+  Task 2, if this block is ever touched. (3) Leak set unchanged at seven; this task introduces
+  no new top-level scratch names.
 - **Round 3:** N/A
