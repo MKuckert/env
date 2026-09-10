@@ -100,5 +100,41 @@ else
   fi
 fi
 
-# Task 4-8: provisioning continues here with $harness set to a validated
-# entry from HARNESSES.
+# Task 4: template resolution and validation. Probe order: user overrides
+# beat bundled templates, harness-specific beats default. Stop at the first
+# existing directory. Nothing on disk is created, copied or deleted here.
+template=""
+for candidate in \
+  "${HOME:-}/.nono-here/templates/$harness" \
+  "${HOME:-}/.nono-here/templates/default" \
+  "$NONO_HERE_HOME/templates/$harness" \
+  "$NONO_HERE_HOME/templates/default"; do
+  if [[ -d "$candidate" ]]; then
+    template="$candidate"
+    break
+  fi
+done
+
+if [[ -z "$template" ]]; then
+  die 5 "no template directory found; probed in order:
+${HOME:-}/.nono-here/templates/$harness
+${HOME:-}/.nono-here/templates/default
+$NONO_HERE_HOME/templates/$harness
+$NONO_HERE_HOME/templates/default"
+fi
+
+echo "$SELF: workdir: $workdir" >&2
+echo "$SELF: template: $template" >&2
+
+for required in run_harness.sh start.sh; do
+  if [[ ! -f "$template/$required" ]]; then
+    die 7 "template '$template' is missing required file '$required'"
+  fi
+  if [[ ! -x "$template/$required" ]]; then
+    die 7 "template '$template' has '$required' without the executable bit; run: chmod +x \"$template/$required\""
+  fi
+done
+
+# Task 5-8: provisioning continues here with $template validated (both
+# run_harness.sh and start.sh present and executable) and $harness set to a
+# validated entry from HARNESSES.

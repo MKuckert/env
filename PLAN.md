@@ -123,7 +123,7 @@ defect (including missing exec bits detected after the copy in Task 7).
     override exits 4; nothing is written to or deleted from disk before a valid selection
     exists.
 
-- [ ] **Task 4: Template resolution and validation**
+- [x] **Task 4: Template resolution and validation**
   - **Description:** Probe, in order and stopping at the first existing directory:
     `$HOME/.nono-here/templates/$harness`, `$HOME/.nono-here/templates/default`,
     `$NONO_HERE_HOME/templates/$harness`, `$NONO_HERE_HOME/templates/default`. If none exist,
@@ -550,5 +550,48 @@ defect (including missing exec bits detected after the copy in Task 7).
   side effect in the same block; (3) if this block is ever touched, `PS3` could carry the choose-
   a-number hint for the empty-line case — do not restructure `select` to chase it; (4) both
   error messages render the list identically via `${HARNESSES[*]}`, so no drift is possible.
+- **Task 4 — Round 1: APPROVED.** 0 blockers, 1 should-fix, 4 nits.
+  All three review criteria met. Probe order (L107–111) is exactly user-harness → user-default →
+  bundled-harness → bundled-default, first-existing-wins via `break`; verified across all four
+  stages with `NONO_HERE_HARNESS=copilot` so `$harness` interpolation was genuinely exercised.
+  An existing-but-invalid template dir wins the probe and then fails validation (exit 7) rather
+  than falling through to a valid candidate behind it — the correct reading of Q9: precedence is
+  about *location*, not scavenging for the first working template. `die 5` prints all four paths
+  in probe order, one per line, harness interpolated, matching the actually-probed values.
+  **R2-1 closed in place.** Both the presence check (L130) and the `+x` check (L133) live in
+  Task 4, ahead of every Task 5–8 site; the only statements between harness selection and
+  validation are `-d` tests and two stderr echoes. Discharged empirically, not by construction:
+  exit 7 with a pre-existing `.sandbox` leaves it byte-identical (`shasum` 9aa42988… before and
+  after) — a content digest, closing Task 3's S2. All four exit-7 sub-cases (missing/non-`+x`
+  `run_harness.sh` and `start.sh`) name both the template path and the offending file.
+  (a) DRY: the four candidate paths appear twice (probe loop and `die 5` body). Assessed as
+  *not* the N16 case — N16 accepted a behavioural idiom duplicated across files that must stay
+  independently executable, whereas this is data duplicated twice inside one straight-line
+  block, removable with a single Bash 3.2-safe array. See S3.
+  (b) `die 5`'s single multi-line string leaves continuation lines unprefixed. Accepted as the
+  better presentation: the paths stay copy-pasteable.
+  (c) `${HOME:-}` degrading candidates 1–2 to `/.nono-here/templates/…` is harmless — a `-d`
+  test on a non-existent root-level path, and even a contrived match yields only a read.
+  `env -u HOME` exits 0 with no `set -u` crash.
+  (d) The N13/Q17 workdir echo (L126) is correctly placed: every earlier exit precedes it and
+  the fast path `exec`s at L70, so the fast path stays silent; `exec` count still exactly 1.
+  (e) Zero filesystem mutation in L103–136 (only `-d`/`-f`/`-x` tests and stderr echoes), and
+  `$template` is left as the absolute path of a directory with both required files present and
+  executable — exactly Task 5's stated precondition.
+  Bash 3.2-safe; preamble, `# VERSION 2` and the bare `script_dir="$(resolve_script_dir)"` with
+  its Fail-Loud comment undisturbed; no speculative Task 5–8 code; no fallback and no
+  `2>/dev/null` — Fail Loud respected.
+  Should-fix: (S3) build the four candidates once into an array and reuse it for both the probe
+  and the `die 5` message (`printf '%s\n' "${candidates[@]}"`; the array is never empty, so no
+  `${arr[@]+…}` guard is needed). Non-blocking for Task 5, but land it before Task 11 case (7)
+  hardcodes the current message text and pins the duplication in place.
+  Nits (non-blocking): (1) exit 5 fires *before* the workdir echo, so the least-diagnosable
+  abort is the one that omits the workdir — move the echo above the probe if the block is
+  touched; (2) `candidate` and `required` leak as globals, bringing the leak set to six
+  (`src`/`dir`/`target`/`h`/`candidate`/`required`); (3) the template echo precedes validation,
+  so a malformed template is announced then rejected — deliberate and better diagnostics, noted
+  only; (4) `NONO_HERE_HOME` is now `export`ed (L47), changed since Task 1's review where it was
+  assign-only; disclosed by comment and consumed by no child yet, but Task 11's fixtures must
+  account for it being inherited.
 - **Round 2:** N/A
 - **Round 3:** N/A
