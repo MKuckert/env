@@ -161,7 +161,7 @@ defect (including missing exec bits detected after the copy in Task 7).
     removes it; a `rm -r` failure propagates (via `set -e`) instead of being swallowed; no
     code path reaches the `rm` without a validated template in hand.
 
-- [ ] **Task 6: Copy template to `.sandbox`**
+- [x] **Task 6: Copy template to `.sandbox`**
   - **Description:** `mkdir -p "$workdir/.sandbox"` then `cp -R "$template/." "$workdir/.sandbox/"`
     so dotfiles (`.gitignore`) and modes are preserved without `rsync`.
     **Added at Task 5 code review (T5-S1):** guard the non-directory `.sandbox` case before the
@@ -171,8 +171,12 @@ defect (including missing exec bits detected after the copy in Task 7).
     not name the real cause. Mirror Task 2's precedent: test
     `[[ -e "$workdir/.sandbox" || -L "$workdir/.sandbox" ]] && [[ ! -d "$workdir/.sandbox" ]]`
     ⇒ `die 9` naming the path as existing but not a directory (reusing code 9, whose meaning is
-    "path exists but is not the expected file type"). A symlink *to a directory* is deliberately
-    left alone: Task 5 accepts it, and its `rm -r` removes only the link, not the target.
+    "path exists but is not the expected file type"). The `|| -L` is what makes the guard fire at
+    all, and the dangling symlink is the *only* case that reaches it: every other pre-existing
+    `.sandbox` — regular file, socket, symlink to either, symlink to a directory — passes Task 5's
+    `[[ -e … ]]` test and is intercepted there with exit 6 (or, on an interactive `y`, removed by
+    its `rm -r`). Verified by test at Task 6 code review; an earlier draft of this task wrongly
+    claimed the guard also caught regular files and sockets.
   - **Review Criteria:** `.gitignore`, `hooks/`, `profile.template.json`, `start.sh` all
     present afterwards; `start.sh` and the hook templates retain their permission bits; works
     on BSD/macOS `cp`; a dangling-symlink `.sandbox` exits 9 with a message naming the path,
@@ -311,11 +315,13 @@ defect (including missing exec bits detected after the copy in Task 7).
   exit 7 after a fresh copy (template defect).
 - `.sandbox` exists without `run_harness.sh` ⇒ confirmation prompt; declining is a clean,
   non-destructive exit 6.
-- `.sandbox` path exists but is not a directory (dangling symlink, regular file, socket)
-  ⇒ exit 9 in Task 6, before `mkdir -p` could abort as an unexplained exit 1. A dangling
-  symlink is invisible to Task 5's `-e` test, so this guard is the only one that catches it.
-  A symlink *to* a directory is accepted by Task 5, whose `rm -r` unlinks the symlink and
-  leaves the target intact.
+- `.sandbox` is a **dangling symlink** ⇒ exit 9 in Task 6, before `mkdir -p` could abort as an
+  unexplained exit 1. This is the only case that reaches the Task 6 guard: a dangling symlink is
+  invisible to Task 5's `-e` test. Every other non-directory at that path (regular file, socket,
+  symlink to either) passes `-e` and is intercepted by **Task 5 with exit 6**, not exit 9.
+  A symlink *to* a directory is likewise handled by Task 5; on an interactive `y` its `rm -r`
+  unlinks the symlink and `mkdir -p` then creates a new real directory, so the former target's
+  contents survive on disk but are left orphaned.
 - `rm -r` is used without `-f`; a write-protected or busy `.sandbox` fails loudly.
 - stdin not a TTY (CI, pipe) and no `NONO_HERE_HARNESS` ⇒ exit 4 before any write.
 - `NONO_HERE_HARNESS` set to an unknown value ⇒ exit 8, never a silent fallback to the menu.
@@ -654,6 +660,10 @@ defect (including missing exec bits detected after the copy in Task 7).
   the case, and a checklist bullet has been added. Guarding in Task 6 is the better site than
   Task 5 — it is where the failure actually occurs, and it also covers a regular file or
   socket at that path, which a Task 5 patch alone would not.
+  *[Corrected at Task 6 round 1 — the preceding clause is false and is the origin of T6-B1:
+  a regular file or socket at `.sandbox` never reaches Task 6, since Task 5's `-e` is true for
+  both. The Task 6 guard's sole reachable case is the dangling symlink. Left as written history;
+  see the Task 6 round-1 entry. Do not propagate this clause.]*
   Nits (non-blocking): (1) default `IFS` word-splitting trims surrounding whitespace, so
   `" y "` is accepted as `y` — benign, and tightening it would reject an obviously affirmative
   answer; (2) the ANSI colour is emitted unconditionally, so a run with stdin on a TTY but
@@ -662,5 +672,103 @@ defect (including missing exec bits detected after the copy in Task 7).
   (3) `reply` leaks as a global, bringing the leak set to seven
   (`src`/`dir`/`target`/`h`/`candidate`/`required`/`reply`); (4) the third warning line is long
   enough to wrap on an 80-column terminal — cosmetic only.
-- **Round 2:** N/A
+- **Task 6 — Round 1: CHANGES REQUESTED.** 1 blocker, 2 should-fix, 3 nits.
+  The **code is functionally correct and every functional criterion is met.** What is rejected
+  is the prose shipped *with* it: the guard's comment, Task 6's description and the Edge Case
+  checklist all assert coverage that testing disproves. An inaccurate comment asserting
+  unreachable coverage is a defect, and this one originated in my own Task 5 log — so it is
+  corrected here rather than inherited.
+  **Functional verification (accepted):** `bash -n` and `/bin/bash -n` clean; `exec` count still
+  exactly 1; bare-`-f` grep still yields only the L19 `readlink -f` prose comment and the
+  `[[ -f ]]` tests at L62/64/66/130 — no `-f` as a command flag. Success path exits 0 and
+  `.sandbox` holds `.gitignore`, `hooks/{after,before}-template`, `profile.template.json`,
+  `run_harness.sh`, `start.sh`, all six digests byte-identical to the template and all four
+  executables at `rwxr-xr-x` — discharged against the **real bundled** `templates/default`, not
+  only synthetic fixtures, with the repo confirmed unmodified. `mkdir -p` (L176) and `cp -R`
+  (L177) carry no `|| true` and no `2>/dev/null`, so both propagate through `set -e`.
+  `"$template/."` is preserved verbatim — not `cp -a` (GNU-only), not a glob (would miss
+  dotfiles), satisfying Q13 and the dotfile checklist bullet. The T5-S1 regression is genuinely
+  fixed: a dangling-symlink `.sandbox` now exits 9 naming the path instead of silently exiting 0.
+  Bash 3.2-safe (`[[ ]]` only, no `${arr[@]+…}`). Preamble, `# VERSION 2` and the bare
+  `script_dir="$(resolve_script_dir)"` with its Fail-Loud comment undisturbed. No speculative
+  Task 7–8 code beyond the marker comment.
+  (c) **Confirmed intended, no criterion violated.** A real pre-existing `.sandbox` holding
+  unrelated content is removed wholesale by Task 5's `rm -r` on `y`, so `cp -R` never merges
+  onto pre-existing content and that merge path is unreachable. This is exactly Q1/Q11/Q18:
+  `rm -r` then a fresh copy, no backup directory, gated behind an explicit `y` at a TTY after a
+  warning that names the template. Destruction is disclosed and human-confirmed — Fail Loud
+  holds.
+  - **T6-B1 BLOCKER — the guard's comment (L165–171) overstates its own reach.** L172 is
+    reachable **only** for a dangling symlink. A regular file at `.sandbox` exits 6 and a
+    symlink-to-a-regular-file exits 6: `[[ -e ]]` (L142) is true for both, so Task 5 intercepts
+    them and they never reach L172. The comment's closing clause — that a symlink *to a
+    directory* "passes `-d` and is deliberately accepted" — describes behaviour that does not
+    occur: Task 5 intercepts it first (exit 6 non-interactively; on `y` the `rm -r` unlinks the
+    symlink, orphaning the target's contents, after which `mkdir -p` creates a brand-new **real**
+    directory at `.sandbox`). The copy never lands in the symlink's target. Reword L165–171 to
+    state only what is true: this guard exists solely for the dangling-symlink case, which is
+    invisible to Task 5's `-e` test; every other non-directory at that path is already handled by
+    Task 5 with exit 6. Drop the "symlink to a directory is accepted" sentence entirely rather
+    than repairing it — the accurate version ("Task 5 deletes the link and a fresh real directory
+    replaces it") belongs in Task 5's block, not here. Keep the `|| -L` disjunct: it is
+    load-bearing, and it is the *only* reason the guard fires at all.
+  - **T6-S1 SHOULD — Task 6's description (L167–175) carries the same error.** Its final
+    sentence ("A symlink *to a directory* is deliberately left alone: Task 5 accepts it, and its
+    `rm -r` removes only the link, not the target") implies Task 6 sees such a path. It does not.
+    Correct it in the plan body, not merely in this log.
+  - **T6-S2 SHOULD — Edge Case checklist L314–318 is wrong on two counts.** It claims a
+    non-directory `.sandbox` "(dangling symlink, regular file, socket) ⇒ exit 9 in Task 6" —
+    regular files and sockets exit **6** in Task 5. Narrow the bullet to the dangling symlink.
+    The following sentence ("A symlink *to* a directory is accepted by Task 5, whose `rm -r`
+    unlinks the symlink and leaves the target intact") is true as far as it goes but omits the
+    consequence that matters: the target is left *orphaned* and provisioning proceeds into a new
+    real directory. Say so.
+  - Task 6's **Review Criteria** need no change — "a dangling-symlink `.sandbox` exits 9 with a
+    message naming the path, never a bare exit 1 from `mkdir`" is precisely and only what the
+    implementation delivers.
+  Nits (non-blocking): (1) reusing exit code 9 for two distinct paths (`run_harness.sh` in Task 2,
+  `.sandbox` here) is sanctioned by the map's "path exists but is not the expected file type"
+  wording and both messages name their path, so they stay distinguishable — noted only;
+  (2) `cp -R` on a template containing a symlink copies the link, not the target, on BSD `cp`
+  (no `-L`); correct and desirable here, but Task 7's `mv` assumes a regular `run_harness.sh`,
+  which Task 4's `-f` check already guarantees; (3) the leak set is unchanged at seven — this
+  task introduces no new top-level scratch names.
+  **Route back to the Builder for the comment and plan-text corrections only. No functional
+  rework. Task 6 stays `[ ]`.**
+- **Task 6 — Round 2: APPROVED.** All three round-1 findings discharged; Task 6 marked `[x]`.
+  **T6-B1 fixed.** The guard's comment (now L165–170) drops the symlink-to-directory claim
+  entirely, as directed, rather than repairing it. It now states only that a dangling symlink is
+  invisible to Task 5's `-e` test and therefore reaches the guard, and that the alternative is a
+  bare `set -e` exit 1 that names no cause. `|| -L` retained at L171 — still load-bearing and
+  still the only reason the guard fires.
+  **T6-S1 fixed** (by the Operator; no Builder held PLAN.md write access). Task 6's description
+  (L174–179) now names `|| -L` as the trigger, states the dangling symlink is the *only* case
+  reaching the guard, routes every other form to Task 5 (exit 6, or removed by its `rm -r` on an
+  interactive `y` — a branch the script comment elides), and records that an earlier draft wrongly
+  claimed regular files and sockets were caught. Review Criteria correctly left untouched.
+  **T6-S2 fixed.** Edge Case bullet (L318–324) is narrowed to the dangling symlink as the sole
+  exit-9-in-Task-6 case, attributes regular file / socket / symlink-to-either to Task 5 with
+  exit 6, and now states the orphaning consequence for an accepted symlink-to-directory.
+  **Sweep for surviving instances of the false claim:** exit-code map L60 concerns
+  `run_harness.sh` (Task 2's `! -f` guard), where directory / dangling symlink / socket genuinely
+  do yield 9 — **unaffected, confirmed correct**. L506–508 likewise describes Task 2's `! -f`
+  test, so "symlink-to-directory (⇒ 9); socket/FIFO (⇒ 9)" is accurate there and needs no change.
+  L662 (Task 5 round-1 log) *is* a genuine surviving instance and the origin of the defect; as a
+  review-log entry it is left as written history but annotated in place with a correction pointer
+  so it cannot be propagated. **No normative text anywhere still claims exit 9 for a regular file
+  or socket at `.sandbox`.**
+  **Verification scope — disclosed limitation:** no shell tool was available to me or the Explorer
+  this round, so I could **not** execute `git diff 11e4814` and cannot claim to have machine-verified
+  byte-identity of the functional lines. What I did verify by reading the file: the condition
+  (L171), `die 9` (L172), `mkdir -p` (L175) and `cp -R "$template/." "$workdir/.sandbox/"` (L176)
+  are substantively identical to the text quoted as correct in round 1, and their line numbers have
+  shifted by exactly −1, consistent with the comment losing one line and nothing else changing.
+  On that basis the round-1 functional validation — success path exit 0 with all files present,
+  six digests matching the real bundled `templates/default`, executable bits at `rwxr-xr-x`,
+  dangling symlink ⇒ exit 9, `exec` count 1, no bare `-f` flag — is carried forward as still
+  standing. **If any functional line did change, this approval does not cover it.**
+  Nit (non-blocking, carried): the script comment says other forms are intercepted "with exit 6",
+  omitting Task 5's interactive-`y` `rm -r` branch. The load-bearing claim (nothing but a dangling
+  symlink reaches the guard) is true, and PLAN.md L177 carries the precise version — not worth a
+  third round.
 - **Round 3:** N/A

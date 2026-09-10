@@ -161,3 +161,19 @@ fi
 # Task 6-8: provisioning continues here with $template validated (both
 # run_harness.sh and start.sh present and executable) and $harness set to a
 # validated entry from HARNESSES.
+
+# T5-S1: a dangling symlink named .sandbox is invisible to Task 5's `-e`
+# test (which is false for a broken symlink), so it reaches here untouched.
+# Without this guard, `mkdir -p` would fail with a bare `File exists` /
+# `Not a directory` and abort via `set -e` as an unexplained exit 1. Every
+# other kind of pre-existing `.sandbox` (regular file, socket, symlink to
+# either) is intercepted earlier by Task 5's `-e` test with exit 6.
+if [[ -e "$workdir/.sandbox" || -L "$workdir/.sandbox" ]] && [[ ! -d "$workdir/.sandbox" ]]; then
+  die 9 "$workdir/.sandbox exists but is not a directory"
+fi
+
+mkdir -p "$workdir/.sandbox"
+cp -R "$template/." "$workdir/.sandbox/"
+
+# Task 7-8: provisioning continues here with $workdir/.sandbox populated
+# from $template.
