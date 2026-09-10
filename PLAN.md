@@ -204,7 +204,7 @@ defect (including missing exec bits detected after the copy in Task 7).
     `SANDBOX_COMMAND_DEFAULTS=()` appears verbatim; a template-provided `defaults.sh` survives
     byte-for-byte and the preservation is logged.
 
-- [ ] **Task 9: `handover()` — the single exec site**
+- [x] **Task 9: `handover()` — the single exec site**
   - **Description:** Define one function used by both Task 2 and the end of provisioning:
     ```bash
     handover() { cd "$workdir" || die 1 "cannot enter $workdir"; exec ./run_harness.sh "$@"; }
@@ -453,5 +453,31 @@ defect (including missing exec bits detected after the copy in Task 7).
   hangs rather than failing loud — accepted as the plan's idiom, worth a bounded loop if this
   block is touched again; (3) `src`/`dir`/`target` leak as top-level globals — guard against
   reuse of those scratch names in later tasks.
+- **Task 9 — Round 1: APPROVED.** 0 blockers, 0 should-fix, 3 nits.
+  Implemented verbatim as the plan mandates: `handover() { cd "$workdir" || die 1 …; exec
+  ./run_harness.sh "$@"; }`. Exactly one `exec` in the script. Definition-only scope is correct
+  — Task 2 owns the fast-path call site and provisioning is unimplemented; no speculative call
+  site was invented.
+  (a) `$workdir` read from enclosing scope is safe: line 45 assigns it unconditionally at top
+  level, before any code that could reach `handover`, and the `git rev-parse … || echo "$PWD"`
+  form always yields a value, so `set -u` cannot fire. `handover` is a plain function, not a
+  subshell, so `die`'s `exit` terminates the script as intended.
+  (b) `exec ./run_harness.sh` is correct per B5: the `./` prefix means `PATH` is never
+  consulted, and the preceding `cd` guarantees the CWD is `$workdir` on both paths, so the two
+  call sites will be indistinguishable in both argv and CWD once Task 2 lands. `$workdir` is
+  quoted, so spaces and globs are inert. `CDPATH` cannot interfere: it is consulted only for
+  operands not beginning with `/`, `./` or `../`, and both `git rev-parse --show-toplevel` and
+  `$PWD` are absolute — for the same reason the CDPATH stdout-echo side effect cannot fire.
+  (c) `die 1 "cannot enter $workdir"` matches the exit-1 map entry and closes R2-5; the message
+  names the offending path (Fail Loud).
+  Bash 3.2-safe (no `${arr[@]+…}`, no `local -n`, no `mapfile`). Shebang, `set -euo pipefail`
+  and `# VERSION 2` retained.
+  Nits (non-blocking): (1) `cd "$workdir"` would misparse a `$workdir` with a leading dash as
+  options; unreachable today since both sources are absolute, but `cd -- "$workdir"` is free
+  insurance; (2) if `exec` itself fails (missing/non-executable target) the script dies with
+  126/127 and no `$SELF`-prefixed message — acceptable only because Task 2 pre-checks `-x`, so
+  that guard must not be dropped; (3) the "both paths identical" criterion is discharged only
+  by construction here — re-verify with the argv-recording stub against *both* real call sites
+  when Task 2 and Task 7/8 land.
 - **Round 2:** N/A
 - **Round 3:** N/A
