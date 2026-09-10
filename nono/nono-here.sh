@@ -135,6 +135,29 @@ for required in run_harness.sh start.sh; do
   fi
 done
 
-# Task 5-8: provisioning continues here with $template validated (both
+# Task 5: stale .sandbox handling. Reached only when $workdir/run_harness.sh
+# is entirely absent (Task 2) and $template is fully validated (Task 4), so
+# the deletion below can never leave the user with neither a sandbox nor a
+# replacement.
+if [[ -e "$workdir/.sandbox" ]]; then
+  if [[ ! -t 0 ]]; then
+    die 6 "$workdir/.sandbox exists but is incomplete; remove it manually and re-run: rm -r \"$workdir/.sandbox\""
+  fi
+
+  echo -e "\033[33mWarning: '$workdir/.sandbox' exists but 'run_harness.sh' is missing — the sandbox is incomplete.\033[0m" >&2
+  echo -e "\033[33mIt will be re-created from template '$template'.\033[0m" >&2
+  echo -e "\033[33mThis is self-healing: it is the expected result of a previous run interrupted between the copy and completion; re-creating from the template repairs it.\033[0m" >&2
+
+  reply=""
+  read -r -p "delete .sandbox and re-create from $template? [y/N] " reply || reply=""
+  case "$reply" in
+    y | Y) ;;
+    *) die 6 "aborted; '$workdir/.sandbox' left untouched" ;;
+  esac
+
+  rm -r "$workdir/.sandbox"
+fi
+
+# Task 6-8: provisioning continues here with $template validated (both
 # run_harness.sh and start.sh present and executable) and $harness set to a
 # validated entry from HARNESSES.

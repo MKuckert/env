@@ -141,7 +141,7 @@ defect (including missing exec bits detected after the copy in Task 7).
     pre-existing `.sandbox` survives.
 
 
-- [ ] **Task 5: Stale `.sandbox` handling**
+- [x] **Task 5: Stale `.sandbox` handling**
   - **Description:** Reached only when `run_harness.sh` is absent **and** a valid template has
     already been resolved (Task 4) — so the deletion below can never leave the user with
     neither a sandbox nor a replacement. If `$workdir/.sandbox` exists, warn (yellow, stderr,
@@ -164,9 +164,19 @@ defect (including missing exec bits detected after the copy in Task 7).
 - [ ] **Task 6: Copy template to `.sandbox`**
   - **Description:** `mkdir -p "$workdir/.sandbox"` then `cp -R "$template/." "$workdir/.sandbox/"`
     so dotfiles (`.gitignore`) and modes are preserved without `rsync`.
+    **Added at Task 5 code review (T5-S1):** guard the non-directory `.sandbox` case before the
+    `mkdir -p`. Task 5's `[[ -e … ]]` test is false for a *dangling symlink* at
+    `$workdir/.sandbox`, so that path reaches here untouched and `mkdir -p` fails with
+    `File exists` / `Not a directory`, aborting via `set -e` as a bare exit 1 whose message does
+    not name the real cause. Mirror Task 2's precedent: test
+    `[[ -e "$workdir/.sandbox" || -L "$workdir/.sandbox" ]] && [[ ! -d "$workdir/.sandbox" ]]`
+    ⇒ `die 9` naming the path as existing but not a directory (reusing code 9, whose meaning is
+    "path exists but is not the expected file type"). A symlink *to a directory* is deliberately
+    left alone: Task 5 accepts it, and its `rm -r` removes only the link, not the target.
   - **Review Criteria:** `.gitignore`, `hooks/`, `profile.template.json`, `start.sh` all
     present afterwards; `start.sh` and the hook templates retain their permission bits; works
-    on BSD/macOS `cp`.
+    on BSD/macOS `cp`; a dangling-symlink `.sandbox` exits 9 with a message naming the path,
+    never a bare exit 1 from `mkdir`.
 
 - [ ] **Task 7: Move `run_harness.sh` into the workspace**
   - **Description:** `mv "$workdir/.sandbox/run_harness.sh" "$workdir/run_harness.sh"`. Then
@@ -301,6 +311,11 @@ defect (including missing exec bits detected after the copy in Task 7).
   exit 7 after a fresh copy (template defect).
 - `.sandbox` exists without `run_harness.sh` ⇒ confirmation prompt; declining is a clean,
   non-destructive exit 6.
+- `.sandbox` path exists but is not a directory (dangling symlink, regular file, socket)
+  ⇒ exit 9 in Task 6, before `mkdir -p` could abort as an unexplained exit 1. A dangling
+  symlink is invisible to Task 5's `-e` test, so this guard is the only one that catches it.
+  A symlink *to* a directory is accepted by Task 5, whose `rm -r` unlinks the symlink and
+  leaves the target intact.
 - `rm -r` is used without `-f`; a write-protected or busy `.sandbox` fails loudly.
 - stdin not a TTY (CI, pipe) and no `NONO_HERE_HARNESS` ⇒ exit 4 before any write.
 - `NONO_HERE_HARNESS` set to an unknown value ⇒ exit 8, never a silent fallback to the menu.
@@ -593,5 +608,59 @@ defect (including missing exec bits detected after the copy in Task 7).
   only; (4) `NONO_HERE_HOME` is now `export`ed (L47), changed since Task 1's review where it was
   assign-only; disclosed by comment and consumed by no child yet, but Task 11's fixtures must
   account for it being inherited.
+- **Task 5 — Round 1: APPROVED.** 0 blockers, 1 should-fix (deferred to Task 6), 4 nits.
+  All six review criteria met, discharged empirically on a real PTY (`pty.fork()`) under
+  `env -i` with a fake `HOME`/`NONO_HERE_HOME`, with purity asserted by content digest as
+  Task 3's S2 requires.
+  (a) **`-f` criterion confirmed by an exhaustive grep for the bare token**, not just
+  `rm`-adjacent forms. Eight matches repo-wide, five in `nono-here.sh`: L19 is the
+  `readlink -f` prose comment, and L62/64/66/130 are `[[ -f ]]` regular-file tests. No `-f`
+  ever appears as a command flag anywhere in the script. `rm -r` (L158) carries no `-f`, no
+  `|| true` and no `2>/dev/null`, so a write-protected or immutable `.sandbox` propagates
+  through `set -e` — verified with `chflags uchg`: exit 1, `rm`'s own stderr visible, script
+  halted. (The tester's `chmod 500` attempt hanging is a BSD `rm` interactive-prompt artefact,
+  not a script defect.)
+  (b) Ordering is correct and load-bearing: the `[[ ! -t 0 ]]` guard (L143) precedes the
+  warning and the `read` entirely, so a piped `y` exits 6 with the `.sandbox` byte-identical
+  and the `y` never even consumed — the strongest form of criterion "a non-TTY run never
+  deletes anything". Template validation (L129–136) precedes the whole block, so no path
+  reaches the `rm` without `$template` validated for presence *and* `+x` (R2-1 stays closed);
+  the block is itself reachable only via Task 2's fall-through, i.e. `run_harness.sh` absent.
+  (c) `reply=""` is pre-initialised and `read -r -p … || reply=""` is a `||` list, so `set -e`
+  cannot fire on EOF. The clobber is deliberately fail-safe: input terminated by Ctrl-D
+  without a newline returns non-zero with `reply` partially assigned, and the `|| reply=""`
+  discards it, so a half-typed `y` declines rather than deletes. `case` patterns `y | Y` are
+  single literal characters with no glob metacharacter, and `*)` is total — nothing but
+  exactly `y`/`Y` can reach the `rm`. Confirmed on a PTY: `y`/`Y` delete; `n`, empty line,
+  `yes`, garbage and Ctrl-D all exit 6 with the directory intact by digest.
+  (d) Warning is three yellow `\033[33m` stderr lines matching `start.sh`'s convention, naming
+  the template, the incomplete state and the self-healing rationale the checklist mandates;
+  the prompt matches the plan's string character-for-character. Both exit-6 messages name the
+  offending path and the non-TTY one names the manual fix (Fail Loud).
+  Bash 3.2-safe (`[[ ]]`, `case`, `read -r -p`, builtin `echo -e`; no `${arr[@]+…}`, no
+  `read -t`/`-i`). Preamble, `# VERSION 2` and the bare `script_dir="$(resolve_script_dir)"`
+  with its Fail-Loud comment undisturbed; `exec` count still exactly 1; no speculative Task
+  6–8 code beyond the marker comment.
+  Should-fix (deferred — **not** Task 5 rework): (T5-S1) `[[ -e "$workdir/.sandbox" ]]` is
+  false for a *dangling symlink*, so that path skips the whole block. Within Task 5's own
+  scope this is harmless and non-destructive — nothing is deleted and no criterion is
+  violated — which is why it does not block. But Task 2 deliberately spends an `|| -L`
+  disjunct and exit 9 on the identical case for `run_harness.sh`, and here the consequence
+  merely moves downstream: Task 6's `mkdir -p` will fail `File exists`/`Not a directory` and
+  abort as a bare exit 1 whose message does not explain the cause — a Fail-Loud violation in
+  spirit (fails, but not *clearly*). The plan's Edge Case checklist was silent on a
+  non-directory `.sandbox`. Fixed at the plan level rather than left in a log: Task 6's
+  description now mandates an `-e || -L` / `! -d` guard with `die 9`, its review criteria name
+  the case, and a checklist bullet has been added. Guarding in Task 6 is the better site than
+  Task 5 — it is where the failure actually occurs, and it also covers a regular file or
+  socket at that path, which a Task 5 patch alone would not.
+  Nits (non-blocking): (1) default `IFS` word-splitting trims surrounding whitespace, so
+  `" y "` is accepted as `y` — benign, and tightening it would reject an obviously affirmative
+  answer; (2) the ANSI colour is emitted unconditionally, so a run with stdin on a TTY but
+  stderr redirected to a file writes raw escape codes into the log — inherited from
+  `start.sh`'s convention, worth a `[[ -t 2 ]]` gate only if that block is touched again;
+  (3) `reply` leaks as a global, bringing the leak set to seven
+  (`src`/`dir`/`target`/`h`/`candidate`/`required`/`reply`); (4) the third warning line is long
+  enough to wrap on an 80-column terminal — cosmetic only.
 - **Round 2:** N/A
 - **Round 3:** N/A
