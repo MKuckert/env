@@ -54,3 +54,17 @@ handover() {
   cd "$workdir" || die 1 "cannot enter $workdir"
   exec ./run_harness.sh "$@"
 }
+
+if [[ -e "$workdir/run_harness.sh" || -L "$workdir/run_harness.sh" ]] && [[ ! -f "$workdir/run_harness.sh" ]]; then
+  die 9 "$workdir/run_harness.sh exists but is not a regular file"
+elif [[ -f "$workdir/run_harness.sh" ]] && [[ ! -x "$workdir/run_harness.sh" ]]; then
+  die 2 "$workdir/run_harness.sh is not executable; run: chmod +x \"$workdir/run_harness.sh\""
+elif [[ -f "$workdir/run_harness.sh" ]] && [[ -x "$workdir/run_harness.sh" ]]; then
+  if [[ ! -x "$workdir/.sandbox/start.sh" ]]; then
+    die 3 "$workdir/.sandbox/start.sh is missing or not executable; run: chmod +x \"$workdir/.sandbox/start.sh\""
+  fi
+  handover "$@"
+fi
+
+# Task 3-8: provisioning continues here when $workdir/run_harness.sh does
+# not exist at all (fall-through from the branch ladder above).

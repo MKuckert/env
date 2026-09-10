@@ -85,7 +85,7 @@ defect (including missing exec bits detected after the copy in Task 7).
     symlink from another directory; an explicitly exported `NONO_HERE_HOME` wins; workdir is
     the git root inside a repo and `$PWD` outside one; the fast path emits nothing on success.
 
-- [ ] **Task 2: Fast path — hand over to an existing `run_harness.sh`**
+- [x] **Task 2: Fast path — hand over to an existing `run_harness.sh`**
   - **Description:** Test the workspace path in this order, so no case falls through
     unhandled (B4):
     1. `[[ -e $workdir/run_harness.sh || -L $workdir/run_harness.sh ]]` but **not**
@@ -479,5 +479,31 @@ defect (including missing exec bits detected after the copy in Task 7).
   that guard must not be dropped; (3) the "both paths identical" criterion is discharged only
   by construction here — re-verify with the argv-recording stub against *both* real call sites
   when Task 2 and Task 7/8 land.
+- **Task 2 — Round 1: APPROVED.** 0 blockers, 0 should-fix, 3 nits.
+  All four review criteria met. Branch ladder is total and mutually exclusive, and branch 1
+  fires before any `-f` test, so no non-regular file can reach Task 7's future `mv`.
+  `[[ -e P || -L P ]] && [[ ! -f P ]]` verified for: directory (`-e` true, `-f` false ⇒ 9);
+  dangling symlink (`-e` false, `-L` true ⇒ 9 — the `|| -L` disjunct is load-bearing exactly
+  here); symlink-to-directory (⇒ 9); socket/FIFO (⇒ 9). A symlink to a regular executable file
+  correctly falls through to the exec branch, since the contract is "regular file" and
+  `-f`/`-x` follow symlinks.
+  (b-i) The absent explicit `exit 0` is correct: a Bash `if` with a false condition and no
+  `else` returns 0, and the condition context does not trip `set -e`. Keeping it out makes the
+  Tasks 3–8 append a pure addition rather than an edit; adding it now would be speculative.
+  (b-ii) The single `-x` check on `.sandbox/start.sh` conflating "missing" and "not executable"
+  is acceptable — the exit-code map itself defines code 3 as covering both, and the message
+  reproduces that wording rather than asserting an untested state while naming the exact path.
+  (c) The `-x` pre-check gating `handover` is present and load-bearing; it discharges Task 9's
+  nit (2) (`exec` dying 126/127 with no `$SELF` message). Must not be dropped.
+  (d) Fast path performs no writes, deletions or prompts and is silent on success (N13); all
+  output is stderr via `die`. `exec` count still exactly 1.
+  Bash 3.2-safe (only `[[ ]]`, no arrays, no `${arr[@]+…}`). Preamble, `# VERSION 2` and the
+  bare `script_dir="$(resolve_script_dir)"` assignment with its Fail-Loud comment undisturbed.
+  No speculative code beyond the Task 3–8 marker comment. Fail Loud respected throughout.
+  Nits (non-blocking): (1) `-f` is re-tested in branches 2 and 3 although branch 1 already
+  established regular-file-ness — explicit and harmless; (2) the exit-3 message offers a
+  `chmod +x` hint that fixes only one of the two states it covers — split it if the block is
+  ever touched; (3) `-x "$workdir/.sandbox/start.sh"` is also true for an executable directory
+  at that path, which would then fail loudly inside `run_harness.sh`.
 - **Round 2:** N/A
 - **Round 3:** N/A
