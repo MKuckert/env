@@ -1,5 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "plugin": ["opencode-cost-guard", "opencode-plugin-statusbar"],
   "default_agent": "Buddy",
   "agent": {
     "plan": {
