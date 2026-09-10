@@ -4,6 +4,10 @@ set -euo pipefail
 
 SELF="$(basename "$0")"
 
+# Documented extension point: adding a harness is a one-token edit to this
+# array and nothing else.
+HARNESSES=(claude opencode codex copilot pi)
+
 die() {
   local code="$1"
   shift
@@ -66,5 +70,35 @@ elif [[ -f "$workdir/run_harness.sh" ]] && [[ -x "$workdir/run_harness.sh" ]]; t
   handover "$@"
 fi
 
-# Task 3-8: provisioning continues here when $workdir/run_harness.sh does
-# not exist at all (fall-through from the branch ladder above).
+# Task 3: provisioning continues here when $workdir/run_harness.sh does
+# not exist at all (fall-through from the branch ladder above). No
+# filesystem mutation happens until a valid harness is selected.
+
+if [[ -n "${NONO_HERE_HARNESS:-}" ]]; then
+  harness=""
+  for h in "${HARNESSES[@]}"; do
+    if [[ "$h" == "$NONO_HERE_HARNESS" ]]; then
+      harness="$h"
+      break
+    fi
+  done
+  if [[ -z "$harness" ]]; then
+    die 8 "invalid NONO_HERE_HARNESS '$NONO_HERE_HARNESS'; valid values: ${HARNESSES[*]}"
+  fi
+elif [[ ! -t 0 ]]; then
+  die 4 "no TTY for interactive harness selection; set NONO_HERE_HARNESS to one of: ${HARNESSES[*]}"
+else
+  PS3="harness> "
+  select harness in "${HARNESSES[@]}"; do
+    if [[ -n "${harness:-}" ]]; then
+      break
+    fi
+    echo "$SELF: invalid selection '$REPLY'; choose a number from the list" >&2
+  done
+  if [[ -z "${harness:-}" ]]; then
+    die 10 "no harness selected (input closed)"
+  fi
+fi
+
+# Task 4-8: provisioning continues here with $harness set to a validated
+# entry from HARNESSES.

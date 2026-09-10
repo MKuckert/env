@@ -102,7 +102,7 @@ defect (including missing exec bits detected after the copy in Task 7).
     `--resume` and args containing spaces) arrive verbatim; both exec-bit checks abort with
     the documented codes and actionable messages.
 
-- [ ] **Task 3: Harness selection**
+- [x] **Task 3: Harness selection**
   - **Description:** Declare `HARNESSES=(claude opencode codex copilot pi)` as a single
     top-of-file array (the documented extension point). Resolution order:
     1. If `NONO_HERE_HARNESS` is set and non-empty, validate it against `HARNESSES`; on a
@@ -505,5 +505,50 @@ defect (including missing exec bits detected after the copy in Task 7).
   `chmod +x` hint that fixes only one of the two states it covers — split it if the block is
   ever touched; (3) `-x "$workdir/.sandbox/start.sh"` is also true for an executable directory
   at that path, which would then fail loudly inside `run_harness.sh`.
+- **Task 3 — Round 1: APPROVED.** 0 blockers, 2 should-fix (both deferred to later tasks), 4 nits.
+  All six review criteria met, validated on a real PTY (`pty.fork()`) — including exit 10 on
+  Ctrl-D, which the plan's Round 3 note had deferred to manual verification. That note is now
+  discharged empirically.
+  Extension point: `HARNESSES` is declared once (L9) above `die`, and both consumers plus both
+  error messages derive from it — no count, index or hardcoded harness name elsewhere. Adding a
+  harness is genuinely a one-token edit.
+  (a) Invalid override can never reach the menu: `die 8` sits inside the
+  `[[ -n "${NONO_HERE_HARNESS:-}" ]]` branch, so entering that branch is irrevocable and the
+  `elif`/`else` are structurally unreachable. Fail Loud by construction, not by convention.
+  `NONO_HERE_HARNESS=""` correctly falls to exit 4, not 8, matching the plan's "set *and
+  non-empty*" wording and yielding the actionable message.
+  (b) Empty-line input at the `select` prompt redisplays the menu with no warning. Assessed as
+  correct and unavoidable bash semantics, not a gap: `select` re-displays the words and prompt
+  and *skips the loop body entirely* when the line read is empty, so no user code can run. The
+  criterion "invalid menu input re-prompts" and the checklist's "never fall through" both hold;
+  the Description's "warning whenever `$harness` is empty" describes the loop body, not an input
+  that never enters it. Emitting a warning here would require abandoning `select`, which Q5
+  mandates. Non-empty invalid input (`99`, `garbage`) does warn, naming the raw `$REPLY`.
+  (c) `set -u` safe: both reads of `harness` are guarded (`${harness:-}`, L93/L98); `$REPLY`
+  cannot be unbound because the body runs only after a non-empty line was read, and that read is
+  what assigns `REPLY`. The in-loop `${harness:-}` guard is redundant (`select` always assigns
+  the result variable before the body) but correct and cheap — keep it. The post-loop check at
+  L98 is the only thing between EOF and a defaulted harness, and it dies.
+  (d) Filesystem purity accepted **for these fixtures only**: the `find` path-listing diff is
+  weaker than a checksum, but the fixtures held no non-`.git` files, so in-place mutation had no
+  possible target and creation/deletion is exactly what listing equality detects. Evidence is
+  complete here, inadequate from Task 5 onward — see S2.
+  Bash 3.2-safe (`[[ ]]`, plain array expansion, `select`, `PS3`; no `${arr[@]+…}` needed since
+  `HARNESSES` is never empty). `${HARNESSES[*]}` is the correct choice over `[@]` for a
+  human-readable value list and is safe inside `die`'s `$*`. Preamble, `# VERSION 2`, the bare
+  `script_dir="$(resolve_script_dir)"` and its Fail-Loud comment undisturbed; `exec` count still
+  exactly 1; no speculative Task 4–8 code beyond the marker comment.
+  Should-fix (deferred, not Task 3 rework): (S1) the resolved workdir is still not echoed before
+  the menu — Q17/N13 require it "before acting", the L51 comment defers it to "Task 2+" and no
+  task now owns it, so the user picks a harness without seeing which directory is about to be
+  provisioned. Assign to Task 4 alongside the template-path banner. (S2) purity assertions must
+  switch from `find` path-listing to content digests before Task 5 lands, since Task 5's own
+  criterion is "byte-for-byte untouched" and Task 11 cases 9/10 will have fixtures with content.
+  Nits (non-blocking): (1) loop variable `h` leaks as a global, joining `src`/`dir`/`target` from
+  Task 1 — harmless (dead after a straight-line branch) but the leak set is now four names;
+  (2) `PS3` is set globally and never restored — irrelevant before an `exec`, but a second global
+  side effect in the same block; (3) if this block is ever touched, `PS3` could carry the choose-
+  a-number hint for the empty-line case — do not restructure `select` to chase it; (4) both
+  error messages render the list identically via `${HARNESSES[*]}`, so no drift is possible.
 - **Round 2:** N/A
 - **Round 3:** N/A
