@@ -61,15 +61,14 @@ Secondary objective: fix a latent `set -u` argv bug in `templates/default/run_ha
 | 10 | Harness selection aborted by the user (EOF/Ctrl-D at the `select` prompt) |
 
 Codes 2/3 denote a *workspace* defect the user can fix in place; code 7 denotes a *template*
-defect (including missing exec bits detected after the copy in Task 7), so the two causes the
-reviewer flagged as overloaded are now distinct.
+defect (including missing exec bits detected after the copy in Task 7).
 
 
 ## Implementation Steps
 
 > Status Markers: [ ] Open, [/] In Progress, [x] Completed (set after accepted review only!)
 
-- [ ] **Task 1: Script skeleton, self-location and workdir resolution**
+- [x] **Task 1: Script skeleton, self-location and workdir resolution**
   - **Description:** Flesh out `nono/nono-here.sh` keeping `#!/usr/bin/env bash`,
     `set -euo pipefail` and `# VERSION 2`. Add `SELF="$(basename "$0")"` and a
     `die <code> <msg…>` helper writing to stderr. Resolve the script's own directory by
@@ -438,6 +437,21 @@ reviewer flagged as overloaded are now distinct.
 
 ## Final Status (Code Review)
 
-- **Round 1:** N/A
+- **Task 1 — Round 1: APPROVED.** 0 blockers, 0 should-fix, 3 nits.
+  All four review criteria met: symlink-invoked `NONO_HERE_HOME` resolves via the portable
+  `while [[ -L ]]` loop with `cd -P` (handles absolute targets, relative targets and symlinked
+  path components); `${NONO_HERE_HOME:-$script_dir}` lets an explicit export win;
+  `git rev-parse --show-toplevel 2>/dev/null || echo "$PWD"` is `set -e`-safe and yields the
+  git root or `$PWD`; the fast path emits nothing. `#!/usr/bin/env bash`, `set -euo pipefail`,
+  `# VERSION 2`, `SELF` and `die <code> <msg…>` (stderr, `$SELF`-prefixed, exits with `$1`) all
+  present. No `readlink -f`/`realpath`; Bash 3.2-safe. No speculative code for Tasks 2–11 —
+  only the N13 contract comment. Fail Loud respected: the sole `2>/dev/null` is the
+  plan-sanctioned not-a-repo probe with a documented explicit fallback.
+  Nits (non-blocking, no rework required): (1) `NONO_HERE_HOME` is assigned, not exported —
+  correct for Task 4's in-script use, becomes a defect only if a later task expects a child
+  process to see it; (2) the symlink loop has no cycle guard, so a self-referential symlink
+  hangs rather than failing loud — accepted as the plan's idiom, worth a bounded loop if this
+  block is touched again; (3) `src`/`dir`/`target` leak as top-level globals — guard against
+  reuse of those scratch names in later tasks.
 - **Round 2:** N/A
 - **Round 3:** N/A
