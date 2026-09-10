@@ -182,7 +182,7 @@ defect (including missing exec bits detected after the copy in Task 7).
     on BSD/macOS `cp`; a dangling-symlink `.sandbox` exits 9 with a message naming the path,
     never a bare exit 1 from `mkdir`.
 
-- [ ] **Task 7: Move `run_harness.sh` into the workspace**
+- [x] **Task 7: Move `run_harness.sh` into the workspace**
   - **Description:** `mv "$workdir/.sandbox/run_harness.sh" "$workdir/run_harness.sh"`. Then
     re-assert that `$workdir/run_harness.sh` and `$workdir/.sandbox/start.sh` are executable —
     a cheap post-condition on the copy, since the *template's* bits were already validated in
@@ -771,4 +771,53 @@ defect (including missing exec bits detected after the copy in Task 7).
   omitting Task 5's interactive-`y` `rm -r` branch. The load-bearing claim (nothing but a dangling
   symlink reaches the guard) is true, and PLAN.md L177 carries the precise version — not worth a
   third round.
+- **Task 7 — Round 1: APPROVED.** 0 blockers, 0 should-fix, 4 nits. Task 7 marked `[x]`.
+  Both review criteria met, discharged empirically (fixtures under `mktemp -d`, `env -i`, fake
+  `HOME`, real bundled `templates/default`, repo confirmed unmodified). Success path exits 0
+  with a regular, executable `run_harness.sh` at the workspace root digest-identical to the
+  template original and *absent* from `.sandbox` (moved, not copied); `.sandbox` retains an
+  executable `start.sh`, `.gitignore`, `hooks/`, `profile.template.json`.
+  (a) **Post-condition ordering accepted.** The `die 7` `start.sh` sub-case does leave a
+  workspace with `run_harness.sh` present and a non-executable `.sandbox/start.sh` — a state
+  Task 5 will *not* see on a re-run, so the checklist's "Task 5 detects and repairs" story does
+  not cover it. That is not a gap: this state is covered by a *different*, equally documented
+  path. Task 2 branch 3 finds the executable `run_harness.sh`, tests `.sandbox/start.sh` and
+  exits 3 — precisely the map's "workspace defect the user can fix in place", with the message
+  naming the exact `chmod +x`. After that `chmod`, the next run hands over; if `defaults.sh` is
+  also absent (Task 8 never ran), the template's `run_harness.sh` L8–11 aborts naming the
+  missing file. Every step of the recovery chain fails loud and names its fix, so the user is
+  never stranded and never silently degraded. Reordering the `start.sh` check ahead of the `mv`
+  would trade one documented terminal state for another and contradict the plan's explicit
+  "Then re-assert" wording — not worth the churn. Note that this sub-case is unreachable unless
+  `cp -R` misbehaves, since Task 4 already validated both mode bits in place (R2-1).
+  (b) **`mv` safety rests entirely on Task 2, as mandated.** No redundant existence check was
+  added at this site, and none should be: Task 2's ladder is total — exit 9 (non-regular),
+  exit 2 (non-executable), exec/handover (executable) — so L178 is reached only when nothing
+  exists at `$workdir/run_harness.sh`. A duplicate guard here would be dead code asserting an
+  invariant already proven upstream. Bare-`-f` grep still clean: every hit is a `[[ -f ]]` test
+  or the L19 `readlink -f` prose comment; no `-f` appears as a command flag anywhere, so the
+  `mv` cannot clobber and Q19 holds.
+  (c) **Exit 1 for a failing `mv` is correct.** `mv` is not wrapped in `die`, so a permission
+  failure propagates through `set -e` as exit 1 — verified with `chmod 555 "$workdir"`: exit 1
+  with `mv: … Permission denied` on stderr, unswallowed. This is exactly the map's "uncaught
+  `set -e` failure"; a dedicated code would imply a user-facing contract for a condition with no
+  script-side remedy, and `mv`'s own diagnostic already names the path and the cause. No
+  `|| true`, no `2>/dev/null`.
+  Message style matches Task 4's `die 7` (names the template, states the real cause — mode
+  preservation — and deliberately offers no workspace `chmod`). Bash 3.2-safe (`[[ ]]` only).
+  Preamble, `# VERSION 2` and the bare `script_dir="$(resolve_script_dir)"` with its Fail-Loud
+  comment undisturbed; `exec` count still exactly 1; `bash -n` and `/bin/bash -n` clean; no
+  speculative Task 8/10/11 code beyond the marker comment. End-to-end re-invocation takes Task
+  2's fast path, `exec`s the real `run_harness.sh`, forwards `--resume` and `arg with space`
+  byte-exactly with CWD at the workspace root, and emits none of the provisioning stderr —
+  discharging Task 9 nit (3) against both real call sites.
+  Nits (non-blocking): (1) checklist L343–345 now understates the partial-failure story — the
+  copy/`mv`/post-condition window can also leave a state that re-runs into exit 3, not Task 5;
+  worth one clause when the Chronicler archives; (2) the two `die 7` messages differ only in the
+  filename, so a future third file invites copy-paste drift — a small loop over
+  `run_harness.sh:$workdir` / `start.sh:$workdir/.sandbox` would be Bash 3.2-safe if this block
+  is ever touched; (3) `-x "$workdir/.sandbox/start.sh"` is also true for an executable
+  directory at that path — same as Task 2 nit (3), unreachable here since `cp -R` reproduces the
+  template's regular file; (4) leak set unchanged at seven; this task introduces no new
+  top-level scratch names.
 - **Round 3:** N/A

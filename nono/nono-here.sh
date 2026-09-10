@@ -175,5 +175,18 @@ fi
 mkdir -p "$workdir/.sandbox"
 cp -R "$template/." "$workdir/.sandbox/"
 
-# Task 7-8: provisioning continues here with $workdir/.sandbox populated
-# from $template.
+mv "$workdir/.sandbox/run_harness.sh" "$workdir/run_harness.sh"
+
+# Cheap post-condition on the copy: the template's mode bits were already
+# validated in Task 4 (R2-1). If either file lacks its executable bit here,
+# `cp -R` failed to preserve modes — name the template, not a `chmod` on a
+# file that is about to be regenerated.
+if [[ ! -x "$workdir/run_harness.sh" ]]; then
+  die 7 "template '$template' produced a non-executable 'run_harness.sh'; the copy did not preserve permissions"
+fi
+if [[ ! -x "$workdir/.sandbox/start.sh" ]]; then
+  die 7 "template '$template' produced a non-executable 'start.sh'; the copy did not preserve permissions"
+fi
+
+# Task 8: provisioning continues here with $workdir/run_harness.sh in place
+# and $workdir/.sandbox populated from $template (minus run_harness.sh).
