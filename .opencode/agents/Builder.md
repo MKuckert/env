@@ -12,7 +12,7 @@ permission:
   glob: allow
   list: allow
   bash:
-    "*": allow
+    "*": deny
     "nono why *": allow
   question: allow
   task:

@@ -24,8 +24,7 @@
     "websearch": "deny",
 
     "external_directory": {
-      "/tmp": "allow",
-      "~/env": "allow"
+      "/tmp": "allow"
     }
   },
   "mcp": {
