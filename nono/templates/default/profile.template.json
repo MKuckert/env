@@ -10,7 +10,7 @@
   "filesystem": {
     "allow": [],
     "deny": [],
-    "read_file": ["~/.gitconfig", "~/.gitignore"],
+    "read_file": ["~/.gitignore"],
     "read": ["~/.CFUserTextEncoding"]
   },
   "network": {
