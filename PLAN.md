@@ -251,7 +251,7 @@ defect (including missing exec bits detected after the copy in Task 7).
     path are indistinguishable in argument handling and working directory; verified by the
     argv-recording stub receiving identical output for both paths.
 
-- [ ] **Task 10: Fix the `set -u` empty-array handling in `templates/default/run_harness.sh`**
+- [x] **Task 10: Fix the `set -u` empty-array handling in `templates/default/run_harness.sh`**
   - **Description:** Two related defects. (a) The normalisation line
     `SANDBOX_COMMAND_DEFAULTS=("${SANDBOX_COMMAND_DEFAULTS[@]:-}")` expands an *empty* array to
     a single empty-string element, which the flag-heuristic then prepends as a bogus empty
@@ -962,4 +962,75 @@ defect (including missing exec bits detected after the copy in Task 7).
   because L184's post-condition `-x` check immediately precedes it — that guard must not be
   dropped, same standing order as Task 2's; (3) leak set unchanged at seven — this task
   introduces no new top-level scratch names.
+- **Task 10 — Round 1: APPROVED.** 0 blockers, 0 should-fix, 5 nits. Task 10 marked `[x]`.
+  Scope reviewed: `nono/templates/default/run_harness.sh` (28 lines, working tree) only.
+  Task 11 absence not flagged; `nono-here.sh` out of scope. **Disclosed limitation:** no shell
+  tool was available to me this round, so the Builder's execution evidence (both bash 3.2.57 and
+  5.3.15) is accepted as reported and cross-checked against the file by reading; every claim
+  below that is *not* execution-dependent was verified in the source directly.
+  All four review criteria met.
+  (a) **Defect (a) closed at the root.** The normalisation line is *deleted*, not re-assigned —
+  a repo-wide grep for `SANDBOX_COMMAND_DEFAULTS` yields exactly two sites: the generator in
+  `nono-here.sh` L199 and the single use site at `run_harness.sh` L21. There is no assignment
+  anywhere in `run_harness.sh`, so defect (b) cannot be reintroduced through the back door.
+  The `${arr[@]+"${arr[@]}"}` idiom is correct on Bash 3.2 and expands to nothing for *both*
+  empty and unset arrays there (an empty array is treated as unset by the `+` test — which is
+  exactly why the inner `"${arr[@]}"` is never evaluated and `set -u` never fires). The
+  asymmetric quoting is deliberate and correct: the outer expansion must stay unquoted so that
+  it can vanish entirely rather than yielding one empty word, while the *inner* expansion is
+  quoted and, per the `${parameter+word}` semantics, those quotes are honoured during word
+  expansion. **A default containing a space is therefore not split, and globs in a default are
+  not expanded.** Plainly stated as the criterion demands: this idiom is safe for
+  space-bearing defaults. Evidence gap noted as nit (1) — scenario (vi) exercised a
+  space-bearing *argument*, not a space-bearing *default*.
+  (b) **`||` order intact** at L20: `[[ $# -eq 0 || "${1:-}" == -* ]]`, with `$# -eq 0` still
+  first, so `$1` is dereferenced only when at least one argument exists. The `${1:-}` at that
+  site is consequently **redundant but harmless** belt-and-braces; the `${1:-}` at L24 is the
+  one that is genuinely load-bearing — that is B2's exact case (empty/unset defaults, no args,
+  `$#` still 0 after L21), and without it the script is unbound under `set -u` on every shell.
+  Keeping both is the right call: it makes the guard invariant rather than dependent on
+  short-circuit order surviving a future edit.
+  (c) **`"$WORKSPACE/.sandbox/start.sh"` correct.** `WORKSPACE` is assigned unconditionally at
+  L5 via `git rev-parse --show-toplevel 2>/dev/null || echo "$PWD"`, which always yields a
+  value, so `set -u` cannot fire and no `${WORKSPACE:-}` guard is needed. The whole path is
+  inside one pair of double quotes, so a workspace path containing spaces is a single word;
+  it is also absolute in both branches, so no `PATH`/`CDPATH` interaction exists. This removes
+  the script's silent dependency on the caller's CWD — the previously live failure mode the
+  Builder reproduced (exit 1, `.sandbox/start.sh: No such file or directory`) rather than
+  merely reasoned about. Note the `2>/dev/null` at L5 is the pre-existing, plan-sanctioned
+  not-a-repo probe with an explicit disclosed fallback — unchanged by this task and not a
+  Fail-Loud violation.
+  (d) **Task 8 interaction confirmed.** `nono-here.sh` L196–200 generates exactly
+  `SANDBOX_COMMAND="$harness"` / `SANDBOX_COMMAND_DEFAULTS=()`, so **the empty-array case is
+  the default state of every freshly provisioned workspace** — scenario (i) is the common path,
+  not an edge case, and this task is a correctness prerequisite for Task 8b's handover rather
+  than a hardening nicety. The generated file sources cleanly here: L13 `source` under
+  `set -u`, then L14's `${SANDBOX_COMMAND:-}` guard and the L15 emptiness check with exit 2.
+  (e) **The `# VERSION 3` bump is inert and triggers no warning path — and the premise that
+  `start.sh` reads it is false.** `start.sh` compares *only* `profile.json`'s `.meta.version`
+  against `profile.template.json` via `jq` (L28–39); it never opens `run_harness.sh` and
+  contains no `# VERSION` marker itself. A repo-wide grep finds the `# VERSION` token at
+  exactly two sites — `nono-here.sh` L3 (`2`) and `run_harness.sh` L2 (`3`) — and **no reader
+  anywhere**. So no "your config is older than the template" path can fire, and the two numbers
+  being out of step is not a defect. Recorded as nit (2): the marker is provenance-only today.
+  Fail Loud, Never Fake respected — no `|| true`, no `2>/dev/null` and no `-f` flag introduced;
+  the missing-defaults (exit 1) and empty-`SANDBOX_COMMAND` (exit 2) aborts both name the
+  offending file and are untouched. Bash 3.2-safe throughout (`[[ ]]`, `set --`,
+  `${arr[@]+…}`, `${1:-}`; no `mapfile`, no `local -n`, no `${arr[@]:-}`). `#!/usr/bin/env bash`,
+  `set -euo pipefail`, 4-space continuation indent and the file's existing style all preserved.
+  No speculative code: the diff is one deletion, two `${1:-}` guards, one use-site rewrite, one
+  path qualification and the version bump — nothing anticipating Task 11.
+  Nits (non-blocking, no rework): (1) **evidence gap, not a defect** — no scenario exercised a
+  *default* containing a space (e.g. `SANDBOX_COMMAND_DEFAULTS=("--msg" "hello world")`); the
+  idiom is sound by construction, but Task 11 case (13) should pin it, since that is the only
+  property distinguishing this idiom from the naive rewrite. (2) `# VERSION` in both scripts is
+  written by hand and read by nothing; either wire it to something or let the Chronicler record
+  that it is documentation-only, before someone assumes a drift-detection mechanism exists.
+  (3) L21 prepends defaults *before* the L24 `SANDBOX_COMMAND` shift, so a defaults array whose
+  first element happens to equal `$SANDBOX_COMMAND` would have that element silently shifted
+  away and then re-added by L28 — net behaviour identical, so harmless today, but the two blocks
+  are order-coupled in a way no comment records. (4) If a hand-written `defaults.sh` sets
+  `SANDBOX_COMMAND_DEFAULTS` as a plain *string* rather than an array, L21 expands it as a
+  single word rather than failing — benign, and out of scope. (5) L15 uses `[[ "$X" = "" ]]`
+  where the rest of the file uses `==`; cosmetic, pre-existing, untouched by this task.
 - **Round 3:** N/A
