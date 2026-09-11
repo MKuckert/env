@@ -48,17 +48,15 @@ export NONO_HERE_HOME="${NONO_HERE_HOME:-$script_dir}"
 
 workdir=$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")
 
-# Task 2+: workdir is echoed to stderr only when provisioning is about to
-# occur (N13) — the fast path must remain silent.
-
-# The single exec site. Invoked identically from the fast path and from the
-# end of provisioning so both paths are indistinguishable in argument
-# handling and CWD (resolves reviewer blocker B5).
+# The single exec site, shared by the fast path and the end of provisioning
+# so both hand over identically (same CWD, same argument handling).
 handover() {
   cd "$workdir" || die 1 "cannot enter $workdir"
   exec ./run_harness.sh "$@"
 }
 
+# Fast path: an already-provisioned workspace hands straight over, silently.
+# (workdir and template are echoed to stderr only when provisioning happens.)
 if [[ -e "$workdir/run_harness.sh" || -L "$workdir/run_harness.sh" ]] && [[ ! -f "$workdir/run_harness.sh" ]]; then
   die 9 "$workdir/run_harness.sh exists but is not a regular file"
 elif [[ -f "$workdir/run_harness.sh" ]] && [[ ! -x "$workdir/run_harness.sh" ]]; then
@@ -70,9 +68,8 @@ elif [[ -f "$workdir/run_harness.sh" ]] && [[ -x "$workdir/run_harness.sh" ]]; t
   handover "$@"
 fi
 
-# Task 3: provisioning continues here when $workdir/run_harness.sh does
-# not exist at all (fall-through from the branch ladder above). No
-# filesystem mutation happens until a valid harness is selected.
+# Provisioning begins here: run_harness.sh is entirely absent. Nothing on
+# disk changes until a harness and template have been validated.
 
 if [[ -n "${NONO_HERE_HARNESS:-}" ]]; then
   harness=""
@@ -100,9 +97,8 @@ else
   fi
 fi
 
-# Task 4: template resolution and validation. Probe order: user overrides
-# beat bundled templates, harness-specific beats default. Stop at the first
-# existing directory. Nothing on disk is created, copied or deleted here.
+# Template resolution: user overrides beat bundled templates,
+# harness-specific beats default; the first existing directory wins.
 template=""
 for candidate in \
   "${HOME:-}/.nono-here/templates/$harness" \
@@ -135,10 +131,10 @@ for required in run_harness.sh start.sh; do
   fi
 done
 
-# Task 5: stale .sandbox handling. Reached only when $workdir/run_harness.sh
-# is entirely absent (Task 2) and $template is fully validated (Task 4), so
-# the deletion below can never leave the user with neither a sandbox nor a
-# replacement.
+# A .sandbox without run_harness.sh is the remnant of an interrupted
+# previous run. This point is only reached with a fully validated template
+# in hand, so deleting it never leaves the workspace with neither sandbox
+# nor replacement.
 if [[ -e "$workdir/.sandbox" ]]; then
   if [[ ! -t 0 ]]; then
     die 6 "$workdir/.sandbox exists but is incomplete; remove it manually and re-run: rm -r \"$workdir/.sandbox\""
@@ -158,16 +154,10 @@ if [[ -e "$workdir/.sandbox" ]]; then
   rm -r "$workdir/.sandbox"
 fi
 
-# Task 6-8: provisioning continues here with $template validated (both
-# run_harness.sh and start.sh present and executable) and $harness set to a
-# validated entry from HARNESSES.
-
-# T5-S1: a dangling symlink named .sandbox is invisible to Task 5's `-e`
-# test (which is false for a broken symlink), so it reaches here untouched.
-# Without this guard, `mkdir -p` would fail with a bare `File exists` /
-# `Not a directory` and abort via `set -e` as an unexplained exit 1. Every
-# other kind of pre-existing `.sandbox` (regular file, socket, symlink to
-# either) is intercepted earlier by Task 5's `-e` test with exit 6.
+# A dangling symlink named .sandbox is invisible to the `-e` test above
+# (false for a broken link). Without this guard, `mkdir -p` would abort via
+# set -e with a bare, unexplained `File exists`. Every other kind of
+# pre-existing .sandbox was already intercepted with exit 6.
 if [[ -e "$workdir/.sandbox" || -L "$workdir/.sandbox" ]] && [[ ! -d "$workdir/.sandbox" ]]; then
   die 9 "$workdir/.sandbox exists but is not a directory"
 fi
@@ -175,16 +165,13 @@ fi
 mkdir -p "$workdir/.sandbox"
 cp -R "$template/." "$workdir/.sandbox/"
 
-# Task 8: defaults.sh is generated BEFORE the run_harness.sh move below so
-# that a failure here still leaves $workdir/run_harness.sh absent — the next
-# invocation then re-enters provisioning and can offer stale-sandbox repair,
-# instead of taking the fast path against a workspace that is missing its
-# defaults file forever.
+# defaults.sh is generated before run_harness.sh is moved into place: if
+# generation fails, run_harness.sh is still absent, so the next invocation
+# re-enters provisioning instead of taking the fast path against a
+# workspace that is missing its defaults file.
 #
-# T8-S1: a dangling symlink named defaults.sh is invisible to `-e` alone
-# (false for a broken link), and `cat >` would follow it, letting the
-# template content write to an arbitrary path outside .sandbox. Reject any
-# pre-existing non-regular path, mirroring the run_harness.sh ladder above.
+# A dangling symlink named defaults.sh is invisible to `-e`, and `cat >`
+# would follow it, writing outside .sandbox. Reject any non-regular path.
 if [[ -e "$workdir/.sandbox/defaults.sh" || -L "$workdir/.sandbox/defaults.sh" ]] && [[ ! -f "$workdir/.sandbox/defaults.sh" ]]; then
   die 9 "$workdir/.sandbox/defaults.sh exists but is not a regular file"
 fi
@@ -200,10 +187,9 @@ fi
 
 mv "$workdir/.sandbox/run_harness.sh" "$workdir/run_harness.sh"
 
-# Cheap post-condition on the copy: the template's mode bits were already
-# validated in Task 4 (R2-1). If either file lacks its executable bit here,
-# `cp -R` failed to preserve modes — name the template, not a `chmod` on a
-# file that is about to be regenerated.
+# The template's mode bits were validated above; if the copy lost them,
+# name the template rather than suggest a `chmod` on a file that will be
+# regenerated on the next run.
 if [[ ! -x "$workdir/run_harness.sh" ]]; then
   die 7 "template '$template' produced a non-executable 'run_harness.sh'; the copy did not preserve permissions"
 fi
@@ -211,10 +197,7 @@ if [[ ! -x "$workdir/.sandbox/start.sh" ]]; then
   die 7 "template '$template' produced a non-executable 'start.sh'; the copy did not preserve permissions"
 fi
 
-# Task 8b: provisioning continues here with $workdir/run_harness.sh in place,
-# $workdir/.sandbox populated from $template (minus run_harness.sh), and
-# defaults.sh in place (generated or preserved, Task 8 above). provisioning's handover. Both branches above (preserved
-# defaults.sh and freshly generated) fall through to here at top level.
-# Deliberately reuses the single `exec` site defined in `handover()`
-# (Task 9) rather than adding a second exec.
+# Provisioning complete: run_harness.sh in place, .sandbox populated,
+# defaults.sh generated or preserved. Hand over through the same single
+# exec site as the fast path.
 handover "$@"
