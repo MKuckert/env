@@ -47,7 +47,7 @@ This file defines the DNA of our collaboration. Every instruction is binding. De
 **Mission:** Document the progress and manage the sprint's legacy.
  * **Completion:**
    1. Update the `PROJECT_MAP.md`.
-   2. **Archiving:** Move the `PLAN.md` to `docs/plans/YYYY-MM-DD_[Feature-Name].md`.
+   2. **Archiving:** Move the `PLAN.md` to `plans/YYYY-MM-DD_[Feature-Name].md`.
    3. **Post-Mortem:** Add an "Expectation vs. Reality" section to the archive.
 
 ### 8. The Dreamer (Metacognitive Consolidator)

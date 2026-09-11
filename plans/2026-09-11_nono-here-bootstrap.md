@@ -1119,3 +1119,81 @@ defect (including missing exec bits detected after the copy in Task 7).
   `*"version 3."*`, which would also accept a hypothetical 3.0/3.1 binary as "3.2-era coverage";
   harmless on any realistic host, but the WARN text promises 3.2 specifically.
 - **Round 3:** N/A
+
+## Expectation vs. Reality
+
+The plan expected a fairly mechanical build: eleven small, mostly independent Bash
+tasks behind a well-specified exit-code contract. In practice, the plan itself needed
+three review rounds before the Builder could start — five blockers in Round 1, one in
+Round 2 — and most of what those blockers caught were *ordering* bugs visible only on
+paper, never touched by code. The single most consequential one, B1/R2-1, would have
+had the script delete a user's existing `.sandbox` *before* confirming the replacement
+template's executable bits were intact, so a template that lost its `+x` on a zip
+transfer or a noexec mount left the user with neither a sandbox nor a harness. Cheap
+to fix on paper during review; would have been an ugly support case in the wild.
+
+One decision was reversed mid-review. `NONO_HERE_HARNESS` had been dropped from an
+earlier draft; B3 established that without a non-interactive override the entire
+provisioning path — everything past harness selection — was untestable by
+construction, since `select` requires a TTY. The proposed workaround, a test-only
+hook in the script, was rejected on Fail-Loud grounds: it would mean the code path
+actually shipped was never the code path actually tested. Escalated to the Operator
+and reinstated as Q22a. This is the direct reason `test_nono_here.sh` could later
+exercise all 16 case groups against the real script instead of a synthetic stand-in.
+
+The plan's task decomposition had a real seam: Task 8 stopped at generating
+`defaults.sh`; Task 9 was deliberately approved as definition-only (inventing a call
+site earlier would have been speculative). The result was that no task owned wiring
+the two together. Every individual task passed its own review criteria, and
+provisioning still fell off the end of the script and exited 0 without ever calling
+`handover()` — a cold repo would provision correctly and then dump the user at a
+shell prompt. This was caught at Task 8's review, not before, and required an
+unplanned Task 8b. The lesson is procedural, not personal: per-task acceptance
+criteria do not automatically compose into an end-to-end one, and a plan this
+sequential needs at least one task, or one final check, whose criterion is "the
+feature works end-to-end," not just "this step's inputs produce this step's outputs."
+
+A false claim also propagated across artifacts in a way worth naming. Task 5's
+review log asserted that a regular file or socket at `.sandbox` could reach the
+Task 6 dangling-symlink guard; that assertion was wrong (Task 5's own `-e` test
+already intercepts both), but it was written down confidently enough that it spread
+into Task 6's source comment, Task 6's plan description, and the Edge Case
+checklist. Task 6 was rejected at Round 1 with functionally correct code, purely
+because the prose shipped alongside it was inaccurate in three places. The original
+log entry was left in place as written history but annotated in place with a
+correction, rather than silently rewritten — so the mistake stays visible rather
+than erased.
+
+Bash 3.2 (macOS's stock, ancient shell) shaped more of the actual code than anything
+else in the plan: no `readlink -f`/`realpath` anywhere, a hand-rolled bounded
+symlink-following loop in Task 1, and — the single largest correctness thread in the
+plan — the `${arr[@]+"${arr[@]}"}` empty-array saga running through B2 and Task 10.
+An array that is merely declared empty is indistinguishable from unset under Bash
+3.2's `set -u`, and the fix required both deleting a normalisation line and adding
+guards at every dereference site, not just one.
+
+The test suite came close to shipping a silent-degradation bug of its own. An early
+version of `find_bashes` (case 13) collected the paths of every `bash` binary on
+`PATH` without asserting any of them actually reported as Bash-3.2-era. On a
+Linux-only CI host with no 3.2 binary present, this would have printed passing green
+lines while providing zero coverage of the exact regression Task 10 fixed — a direct
+violation of this project's own Fail-Loud policy. It was caught at Task 11's Round 1
+review and fixed by making the absence of 3.2 coverage a loud, explicit stderr `WARN`
+that names the gap, rather than a silent pass.
+
+**Trust boundary, stated plainly:** three of the reviews in this plan — Task 6 Round
+2, Task 10 Round 1, and Task 11 Round 2 — took place with no shell tool available to
+the reviewer. In each case the reviewer said so explicitly and fell back to reading
+the source and grepping for invariants, accepting the Builder's reported execution
+evidence (exit codes, digests, pass counts) rather than re-running it. Those three
+approvals rest partly on trust in the Builder's report, not on independent
+re-execution. This is disclosed in the log at the time and is disclosed again here
+rather than smoothed over.
+
+**Left open, by design, not by oversight:** the hook-filename mismatch and the
+template/deployed version drift (High-Risk Areas 1 and 2 in `PROJECT_MAP.md`) are
+real, currently-active defects in this repo's own provisioned `.sandbox/` — a fresh
+provision from today's template genuinely does not fire its hooks, and this repo's
+own deployed `run_harness.sh` still carries the bug Task 10 fixed in the template.
+Neither was in scope for any task in this plan; both need their own plan rather than
+a patch bolted onto this one's close-out.
