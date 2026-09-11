@@ -282,7 +282,7 @@ defect (including missing exec bits detected after the copy in Task 7).
     defaults and a flag-only invocation, defaults are prepended in order; invoking from a
     subdirectory still finds `start.sh`.
 
-- [ ] **Task 11: Test suite `nono/test_nono_here.sh`**
+- [x] **Task 11: Test suite `nono/test_nono_here.sh`**
   - **Description:** Plain-Bash harness (Q20b). Each case runs in a `mktemp -d` fixture with
     overridden `HOME` and `NONO_HERE_HOME`. Fixture templates contain a `start.sh` that
     records its argv to a file instead of invoking `nono`, and (for fast-path cases) a
@@ -1033,4 +1033,89 @@ defect (including missing exec bits detected after the copy in Task 7).
   `SANDBOX_COMMAND_DEFAULTS` as a plain *string* rather than an array, L21 expands it as a
   single word rather than failing — benign, and out of scope. (5) L15 uses `[[ "$X" = "" ]]`
   where the rest of the file uses `==`; cosmetic, pre-existing, untouched by this task.
+- **Round 3:** N/A
+- **Task 11 — Round 1: APPROVED.** 0 blockers, 5 should-fix, 4 nits.
+  Scope: `nono/test_nono_here.sh` only. All review criteria met at round 1: 28 assertions across
+  16 case groups, every fixture under `mktemp -d` with `HOME` and `NONO_HERE_HOME` overridden,
+  exit codes 2–9 each exercised at exactly one site (2 → case 2, 3 → 3a/3b, 4 → 4, 5 → 7,
+  6 → 9/10, 7 → 8a/8b/8c, 8 → 5, 9 → 16), exit 1 and exit 10 consciously excluded with the
+  reason recorded in the file header. No test-only hook exists in `nono-here.sh` or
+  `templates/default/run_harness.sh` — provisioning is driven exclusively through the shipped
+  `NONO_HERE_HARNESS` override (Q22a), and the argv-recording stubs replace the *template's*
+  `run_harness.sh`/`start.sh` inside the fixture, never production files. Failure detection is
+  wired through `FAIL_COUNT` plus `exit 1` in `main`, and the `EXIT` trap
+  (`trap 'ec=$?; cleanup; exit $ec' EXIT`) preserves that status rather than masking it.
+  The fixture *ledger file* instead of a bash array is the right call and is documented at the
+  point of the decision: `new_fixture` is always called in command substitution, so a subshell
+  array mutation would be invisible to the parent.
+  Should-fix raised: **S1** `[[ -d "$d" ]] && rm -rf "$d"` as the last command of `cleanup` —
+  a `set -e` footgun on a destructive statement. **S2** `find_bashes` silently accepted a host
+  with no Bash-3.2-era binary, so case 13 could print three green lines that prove nothing about
+  Task 10's regression — a silent-degradation violation. **S3** bare `|| true` on
+  `command -v bash`. **S4** ambient `NONO_HERE_HOME`/`NONO_HERE_HARNESS` from the operator's own
+  environment could leak into children. **S5** case 4 passed an *empty* `NONO_HERE_HARNESS`
+  and called it "no override", reaching exit 4 by a different route than the one the plan names.
+  Nits: (1) single-sentinel hashing cannot detect *additions* to `.sandbox`; (2) `2>/dev/null`
+  on case 16's `ls -A`; (3) non-`local` `arg` in `read_argv`; (4) `read_argv` aborted the whole
+  suite on a short record file instead of failing one case.
+- **Task 11 — Round 2: APPROVED.** 0 blockers, 0 should-fix, 3 nits. Task 11 marked `[x]`.
+  All five should-fix and all four nits verified closed in the source, and no regressions
+  introduced. **Disclosed limitation:** no shell tool was available to me this round, so the
+  Builder's execution evidence (28/28 pass, injected-failure → exit 1, no `/tmp` leaks,
+  `git status` clean but for the untracked test file) is accepted as reported; every claim below
+  was verified by reading the file. Production files were checked by grep, not by `git diff`:
+  `nono-here.sh` contains no reference to `RUN_HARNESS_RECORD`, `START_RECORD` or any
+  `NONO_HERE_TEST` hook, and no test-only branch exists in either it or the template
+  `run_harness.sh`.
+  **S1 closed** — `cleanup` uses an `if` and ends `return 0`; the trap's `$ec` is preserved.
+  **S2 closed and genuinely loud** — `find_bashes` prints `bash under test: <path> -> <version>`
+  for every binary, and the `have_32` flag is set only on a `*"version 3."*` match, so the WARN
+  fires on exactly the hosts that lack 3.2 coverage. The banner goes to **stderr**, is prefixed
+  `WARN:`, names the paths searched, names the degraded property ("Task 10's Bash-3.2 empty-array
+  regression coverage is DEGRADED"), enumerates what *was* tested, and closes with "not a passing
+  3.2 check" — it cannot be mistaken for a passing line in the stdout stream. Counting is
+  untouched: the warning neither increments nor suppresses `PASS_COUNT`/`FAIL_COUNT`, so a
+  degraded host still reports its true totals rather than a fabricated 3.2 pass. This is exactly
+  the "falls back visibly" tier of the error-handling policy, not a silent degrade.
+  **S3 closed** — `command -v bash` is bare inside the `for` word list; a failed command
+  substitution there is not a `set -e` trigger, and the following `[[ -n … && -x … ]] || continue`
+  discards an empty result.
+  **S4 closed, and the scrub is exhaustive.** There are exactly four sites that spawn a child:
+  `run_nh` (L188–191), case 4b (L318–325), `case13_sub` (L689–694) and case 14 (L756–763). Every
+  one of them goes through `env` with an explicit `-u` list; no other invocation of `$NONO_HERE`,
+  `run_harness.sh` or a stub exists in the file. `HOME` is set explicitly at all four.
+  **S5 closed and the mechanism is sound, not an empty string renamed.** `run_nh` seeds
+  `env_args` with `-u NONO_HERE_HOME -u NONO_HERE_HARNESS -u RUN_HARNESS_RECORD` *first* and only
+  then appends a `NAME=value` pair when the argument is non-empty, so an empty argument leaves the
+  variable genuinely absent from the child's environment — `env` applies the unsets before the
+  assignments. Case 4a therefore tests the real "no override" state, and new case 4b pins the
+  exported-empty route to the same exit 4 rather than leaving it untested.
+  **Nit 1 closed** — `dir_digest` is correct: `find <dir> -type f | sort` gives a deterministic
+  ordering, each line carries both the content hash and the `$dir`-relative path, and the stream
+  is folded through a second `shasum`, so additions, deletions and mutations are all detected.
+  An empty directory yields the digest of the empty stream on both sides — equal, which is the
+  correct verdict, and it cannot mask a real change because the three call sites (8/9/10) all
+  write a `sentinel.txt` before taking `before`. No `set -e` abort: `find` on an existing
+  directory, `sort` and `shasum` all succeed, and `${f#"$dir"/}` is Bash 3.2-safe.
+  **Nit 2 closed** (`ls -A` unredirected, and the enclosing `-d` check guarantees the directory
+  exists). **Nit 3 closed** (`arg` is `local`). **Nit 4 closed and `set -e`-safe**: `read_argv`
+  has exactly two call sites, L217 and L700, both `if ! read_argv …; then fail …; return; fi`,
+  which is a condition context — the `return 1` fails one case and never the suite. The `-s`
+  guard precedes the `exec 3<`, and every early return closes fd 3.
+  No new leaked globals (`BASHES` and `ARGV_RESULT` are the pre-existing intentional pair), no
+  `|| true` and no `2>/dev/null` remain anywhere in the file, and nothing Bash 3.2-unsafe was
+  introduced — the possibly-empty array expansions use `${BASHES[@]+"${BASHES[@]}"}` /
+  `${invoke_args[@]+"${invoke_args[@]}"}`, and `copy_named_array` exists precisely to avoid the
+  nameref-free empty-array trap.
+  Round-1 properties all still hold: exit codes 2–9 coverage unchanged, no production test-only
+  hooks, `nono-here.sh` and `templates/default/run_harness.sh` untouched, failure detection still
+  routed through `FAIL_COUNT` → `exit 1` → the `EXIT` trap.
+  Nits (non-blocking, no rework): (1) `run_nh` L185–187 still uses `[[ -n … ]] && env_args+=(…)`,
+  the same construct S1 removed from `cleanup`; it is safe here only because the assignment, not
+  the test, is syntactically the last element of the `&&` list — worth converting to `if` for
+  consistency if the function is touched again. (2) `"$b" --version | head -1` under `pipefail`
+  could in principle see `SIGPIPE` if `bash --version` outgrew the pipe buffer; it never will, but
+  the `head` is doing nothing a `-1`-less read could not. (3) `ver` is matched against
+  `*"version 3."*`, which would also accept a hypothetical 3.0/3.1 binary as "3.2-era coverage";
+  harmless on any realistic host, but the WARN text promises 3.2 specifically.
 - **Round 3:** N/A
