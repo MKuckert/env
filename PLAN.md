@@ -218,6 +218,26 @@ defect (including missing exec bits detected after the copy in Task 7).
     `SANDBOX_COMMAND_DEFAULTS=()` appears verbatim; a template-provided `defaults.sh` survives
     byte-for-byte and the preservation is logged.
 
+- [x] **Task 8b: Wire the provisioning handover**
+  - **Depends On:** Tasks 8, 9. **Owned Paths:** `nono/nono-here.sh`. **Parallel Safe:** yes,
+    with Task 10 only (disjoint paths).
+  - **Description:** Added at Task 8 code review. The plan's decomposition left this call
+    unowned: Task 8 ends at `defaults.sh` and Task 9 was deliberately approved
+    definition-only, so the provisioning path currently falls off the end of the script and
+    exits 0 **without ever exec'ing**. That contradicts Q4 ("after provisioning, exec
+    `run_harness.sh` immediately"), Q15's ordering, and Task 9's own criterion that the
+    provisioning and fast paths be indistinguishable. Effect today: a cold repository is fully
+    provisioned and then exits instead of launching the harness; only a *second* invocation
+    works, via the Task 2 fast path.
+    Fix: call `handover "$@"` at **top level, after the Task 8 preserve/generate `if/else`**,
+    so both branches reach it. Do not add a second `exec` — reuse the existing `handover()`
+    from Task 9, which already performs `cd "$workdir"` and `exec ./run_harness.sh "$@"`.
+  - **Review Criteria:** `exec` still appears exactly once in the script; an argv-recording
+    stub receives byte-identical argv and `$PWD` from the provisioning path and the fast path
+    (Task 9's deferred criterion, now finally testable against two real call sites); a cold
+    workspace is provisioned **and** handed over in a single invocation; arguments containing
+    spaces and leading dashes survive; the fast path is unchanged.
+
 - [x] **Task 9: `handover()` — the single exec site**
   - **Description:** Define one function used by both Task 2 and the end of provisioning:
     ```bash
@@ -885,4 +905,61 @@ defect (including missing exec bits detected after the copy in Task 7).
   `[[ -f "$workdir/.sandbox/defaults.sh" ]]` plus an `-e || -L`/`! -f` ⇒ `die 9` guard mirroring
   Task 2, if this block is ever touched. (3) Leak set unchanged at seven; this task introduces
   no new top-level scratch names.
+- **Task 8b — Round 1: APPROVED.** 0 blockers, 0 should-fix, 3 nits. Task 8b marked `[x]`.
+  All five review criteria met, discharged empirically (fixtures under `mktemp -d`, `env -i`,
+  fake `HOME`; repo confirmed unmodified). Scope reviewed: `nono/nono-here.sh` L203–207 only;
+  `templates/default/run_harness.sh` is Task 10 and was excluded.
+  (a) **Placement correct.** `handover "$@"` (L207) sits at column 0, after the Task 8
+  preserve/generate `if/else` closes at L201 — top level, not nested in either branch, so both
+  branches reach it unconditionally. Verified empirically on both: generate branch reaches the
+  stub; preserve branch reaches the stub *and* leaves the shipped `defaults.sh` byte-identical
+  (`shasum` 2717912f… before and after) with the preservation log emitted. Placement after the
+  `if/else` rather than duplicated inside each branch is the correct choice — DRY, and it makes
+  the call structurally unconditional rather than conditional-by-coincidence, which is what the
+  headline regression was.
+  (b) **B5 invariant holds.** `exec` count is exactly 1 (L59, inside `handover()`); L54/205/206
+  are comments. Task 8b adds a *call*, not a second exec, exactly as the task mandated. The
+  single-exec-site invariant tracked since B5 is intact for the third consecutive task.
+  (c) **Control-flow totality confirmed — no implicit exit-0 path survives.** Walked end to end:
+  L43 `script_dir` (bare assignment, `set -e`-aborting) → L49 `workdir` (always yields a value)
+  → L62–71 Task 2 ladder: non-regular ⇒ die 9, non-`+x` ⇒ die 2, valid ⇒ die 3 or `handover`
+  (execs, never returns), absent ⇒ the sole fall-through → L77–101 selection: die 8 / die 4 /
+  die 10, else `$harness` non-empty → L106–124 template probe: die 5, else `$template` set →
+  L129–136 die 7 → L142–159 die 6 or `rm -r` → L171–173 die 9 → L175–189 `mkdir`/`cp`/`mv`
+  unguarded (propagate via `set -e` as exit 1, per the map) plus die 7 ×2 → L193–201 both
+  branches → **L207 `handover "$@"`, the script's last statement, which execs or dies.**
+  `handover()` cannot return: it either `exec`s or `die`s on a failing `cd` (exit 1, mapped).
+  There is no remaining path that falls off the end and exits 0 implicitly. The only non-`die`
+  terminations are `set -e` propagations from `mkdir`/`cp`/`mv`/`cat`, each of which surfaces
+  the failing command's own stderr — loud, not silent.
+  (d) **The bundled-template exit 127 is correct, disclosed behaviour, not a Fail-Loud
+  violation.** It proves the handover *occurred*: control reached the copied `run_harness.sh`,
+  which reached `.sandbox/start.sh`, which failed because the external `nono` binary is absent
+  on the test machine. Requirements L16–17 assign that check to `.sandbox/start.sh`, explicitly
+  **not** to `nono-here.sh`. A loud non-zero exit from the correct owner is precisely the
+  mandated behaviour; silently substituting or skipping the harness would be the violation.
+  Out of Task 8b's scope either way.
+  Argv fidelity discharged: `--resume` and `arg with space` arrive as exact separate arguments
+  (`cat -A`), and `$PWD` is the workspace root even when invoked from `nested/deeper` — the
+  `cd` in `handover()` doing its job. **Task 9's long-deferred criterion is now finally
+  satisfied against two real call sites:** provisioning run and fast-path run with identical
+  argv produced byte-identical records (SHA-1 77792f37…). Fast path unchanged — run 2's stderr
+  was 0 bytes, no `workdir:`/`template:` lines (N13 holds). Cold workspace provisioned **and**
+  handed over in a single invocation: exit 0, stub invoked on the first run, `run_harness.sh`
+  at the workspace root, `.sandbox/` populated, `defaults.sh` generated. Q4 and Q15's
+  `… → defaults → exec` ordering are now both satisfied in code.
+  `bash -n` and `/bin/bash -n` clean; Bash 3.2-safe (a bare function call and `"$@"`; no new
+  constructs). Preamble, `# VERSION 2` and the bare `script_dir="$(resolve_script_dir)"` with
+  its Fail-Loud comment undisturbed. No speculative code — four lines, three of them the
+  comment that records *why* no second `exec` was added. Fail Loud, Never Fake respected: no
+  `|| true`, no `2>/dev/null`, no `-f` flag introduced.
+  Incidentally verified: **T8-S1 is closed** — the preservation log (L194) now carries the
+  `$SELF:` prefix, matching every other stderr line in the script.
+  Nits (non-blocking, no rework): (1) L206 credits `handover()` to "Task 9", which is accurate
+  but will read oddly once the plan is archived and task numbers lose context — the Chronicler
+  may prefer "the single exec site"; (2) Task 9's nit (2) is now load-bearing at a *second*
+  site: if `exec` fails here the script dies 126/127 with no `$SELF` message. Acceptable only
+  because L184's post-condition `-x` check immediately precedes it — that guard must not be
+  dropped, same standing order as Task 2's; (3) leak set unchanged at seven — this task
+  introduces no new top-level scratch names.
 - **Round 3:** N/A

@@ -199,3 +199,9 @@ SANDBOX_COMMAND="$harness"
 SANDBOX_COMMAND_DEFAULTS=()
 EOF
 fi
+
+# Task 8b: provisioning's handover. Both branches above (preserved
+# defaults.sh and freshly generated) fall through to here at top level.
+# Deliberately reuses the single `exec` site defined in `handover()`
+# (Task 9) rather than adding a second exec.
+handover "$@"
