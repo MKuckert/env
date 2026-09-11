@@ -124,31 +124,28 @@ So there are four handover points in total (`nono-here.sh` → `run_harness.sh` 
 - **Responsibilities:** None architecturally — these are a live, git-tracked,
   already-provisioned instance of the template, i.e. this repo dogfoods its own
   feature.
-- **Importance:** Useful as a real-world example, but also the concrete evidence for
-  High-Risk Areas 1 and 2 below: it is currently *stale* relative to the template
-  it was generated from.
+- **Importance:** Useful as a real-world example of the template in use. After
+  PR #110's review fixes it is current with the template (the former drift in
+  High-Risk Areas 1 and 2 below was closed by renaming the template hooks and
+  syncing the deployed scripts).
 - **Interactions:** None with the rest of the codebase; only with `nono-here.sh`'s
   fast path at invocation time.
-- **Code Anchors:** `run_harness.sh` (root, `# VERSION 2`, has the *unfixed* empty-array
-  bug); `.sandbox/start.sh` (`# VERSION 2`); `.sandbox/hooks/before`, `.sandbox/hooks/after`
-  (hand-renamed from the template's `before-template`/`after-template`).
+- **Code Anchors:** `run_harness.sh` (root, `# VERSION 3`, identical to the template);
+  `.sandbox/start.sh` (`# VERSION 3`, body identical to the template); `.sandbox/hooks/before`,
+  `.sandbox/hooks/after` (the template now ships these names directly).
 
 ## High-Risk Areas
 
-1. **Hook filename mismatch — confirmed, currently breaks every fresh provision.**
-   `templates/default/start.sh:48`'s `run_hook` resolves `"$SANDBOX_DIR/hooks/$1"` and
-   is invoked as `run_hook before` / `run_hook after`, but the template ships
-   `hooks/before-template` and `hooks/after-template`; `nono-here.sh`'s `cp -R` does no
-   renaming. A freshly provisioned `.sandbox` therefore never fires either hook. The
-   only working instance — this repo's own `.sandbox/hooks/before` and `after` — was
-   renamed by hand, an undocumented manual step with no script support. Additionally,
-   `run_hook` only executes a hook if it is `-x`; a present-but-non-executable hook is
-   silently skipped with no warning, compounding the problem.
-2. **Template/deployed version drift, with no upgrade mechanism.** The bundled
-   `templates/default/run_harness.sh` is `# VERSION 3` and carries the Task 10 fix
-   for the Bash 3.2 empty-array bug. This repo's own deployed root `run_harness.sh`
-   and `.sandbox/start.sh` are still `# VERSION 2` — they still have the bug the
-   template fixed. `start.sh` diff-checks `profile.json` against
+1. **Hook filename mismatch — fixed in PR #110 review.** `templates/default/start.sh`'s
+   `run_hook` resolves `"$SANDBOX_DIR/hooks/$1"` and is invoked as `run_hook before` /
+   `run_hook after`; the template now ships `hooks/before` and `hooks/after` directly
+   (renamed from `before-template`/`after-template`), so fresh provisions fire both
+   hooks. Remaining caveat: `run_hook` only executes a hook if it is `-x`; a
+   present-but-non-executable hook is silently skipped with no warning.
+2. **Template/deployed version drift — closed for this PR, still no upgrade
+   mechanism.** The bundled `templates/default/run_harness.sh` and this repo's deployed
+   root `run_harness.sh` are both `# VERSION 3`; `.sandbox/start.sh`'s body is
+   identical to the template's. `start.sh` diff-checks `profile.json` against
    `profile.template.json` via `.meta.version`, but there is no equivalent check for
    `run_harness.sh`/`start.sh` themselves: once copied into a workspace, they go
    stale silently, forever, with no signal to the user.

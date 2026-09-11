@@ -43,6 +43,21 @@ cleanup() {
 }
 trap 'ec=$?; cleanup; exit $ec' EXIT
 
+# Preflight: every case below writes a fixture script, chmod +x's it and
+# executes it. On a noexec ${TMPDIR:-/tmp} (some hardened systems) all of
+# those would fail with misleading "not executable" messages that look like
+# product bugs. Probe once and fail loud with the real cause.
+_probe="$(mktemp -d "${TMPDIR:-/tmp}/nono-here-test-exec.XXXXXX")"
+printf '#!/bin/sh\nexit 0\n' >"$_probe/probe.sh"
+chmod +x "$_probe/probe.sh"
+if ! "$_probe/probe.sh" >/dev/null 2>&1; then
+  echo "FATAL: fixture directory ${TMPDIR:-/tmp} is not executable (noexec mount?)." >&2
+  echo "Set TMPDIR to an executable directory and re-run: TMPDIR=<dir> $0" >&2
+  rm -rf "$_probe"
+  exit 1
+fi
+rm -rf "$_probe"
+
 new_fixture() {
   local dir
   dir="$(mktemp -d "${TMPDIR:-/tmp}/nono-here-test.XXXXXX")"
@@ -639,7 +654,9 @@ find_bashes() {
   for b in "${BASHES[@]}"; do
     ver="$("$b" --version | head -1)"
     echo "case13: bash under test: $b -> $ver"
-    if [[ "$ver" == *"version 3."* ]]; then
+    # Match 3.2 explicitly: a host with only Bash 3.0/3.1 does not verify
+    # the targeted macOS 3.2 behavior and must still trigger the warning.
+    if [[ "$ver" == *"version 3.2."* ]]; then
       have_32=1
     fi
   done

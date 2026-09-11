@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
+# VERSION 3
 set -euo pipefail
-# VERSION 2
 
 WORKSPACE=$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")
 DEFAULTS_FILE="${DEFAULTS_FILE:-$WORKSPACE/.sandbox/defaults.sh}"
@@ -17,14 +17,12 @@ if [[ "$SANDBOX_COMMAND" = "" ]]; then
   exit 2
 fi
 
-SANDBOX_COMMAND_DEFAULTS=("${SANDBOX_COMMAND_DEFAULTS[@]:-}")
-
-if [[ $# -eq 0 || "$1" == -* ]]; then
-    set -- "${SANDBOX_COMMAND_DEFAULTS[@]}" "$@"
+if [[ $# -eq 0 || "${1:-}" == -* ]]; then
+    set -- ${SANDBOX_COMMAND_DEFAULTS[@]+"${SANDBOX_COMMAND_DEFAULTS[@]}"} "$@"
 fi
 
-if [[ "$1" == "$SANDBOX_COMMAND" ]]; then
+if [[ "${1:-}" == "$SANDBOX_COMMAND" ]]; then
     shift
 fi
 
-.sandbox/start.sh "$SANDBOX_COMMAND" "$@"
+"$WORKSPACE/.sandbox/start.sh" "$SANDBOX_COMMAND" "$@"
