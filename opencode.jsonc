@@ -25,6 +25,7 @@
 
     "external_directory": {
       "/tmp": "allow",
+      "~/env": "allow"
     }
   },
   "mcp": {
