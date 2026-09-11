@@ -2,9 +2,13 @@
 
 This repository contains the configuration files, automation scripts, and environment setups for my personal development machine.
 
+It also embeds several Git submodules: `agent-harness/`, `background-run/`, `docker/sandbox/`, and `models/`.
+
 ## Structure
 
-- **`dotfiles/`**: Standard configuration files for bash (`.bash_profile`, `.bashrc`, `.bash_prompt`), environment variables (`.exports`, `.path`, `.aliases`), git (`.gitconfig`, `.gitconfig-work`, `.gitconfig-private`, `.gitignore`), vim (`.vimrc`), tig (`.tigrc`), editorconfig (`.editorconfig`), and environment template (`.env.example`). Symlink those files to the user directory.
+- **`agent-harness/`** (submodule): Canonical definitions for the AI agent harness — agents, commands, skills (`.opencode/`), runtime config (`opencode.jsonc`, `tui.jsonc`), build/sync scripts in `bin/`, and MCP gateway profiles in `profiles/`. The workspace-local copies `.opencode/`, `opencode.jsonc`, and `tui.jsonc` at the repository root are synchronized from this submodule via `bin/harness-sync.sh` (state tracked in `.harness-sync`).
+- **`.sandbox/`**: [Nono](https://nono.sh) sandbox profile for running AI agents in the current repository. Contains `start.sh` (entry point), `profile.template.json`, optional defaults (`defaults.sh`), and `hooks/` for pre/post-execution steps.
+- **`dotfiles/`**: Standard configuration files for bash (`.bash_profile`, `.bashrc`, `.bash_prompt`), environment variables (`.exports`, `.path`, `.aliases`), git (`.gitconfig`, `.gitconfig-work`, `.gitconfig-private`, `.gitconfig-agents`, `.gitignore`), vim (`.vimrc`), tig (`.tigrc`), editorconfig (`.editorconfig`), and environment template (`.env.example`). Symlink those files to the user directory.
 - **`ssh/`**: SSH configuration files (`config`, `allowed_signers`). Symlink to `~/.ssh/`.
 - **`macos/`**: macOS-specific setup and automation.
   - `init.sh`: Initial macOS system configuration script.
@@ -13,26 +17,36 @@ This repository contains the configuration files, automation scripts, and enviro
   - `brew/`: Contains the `Brewfile` to install all necessary packages, casks, and Mac App Store apps (via `mas`). Use it with `brew bundle`.
   - `terminal/`: Contains macOS Terminal profile configurations (e.g., `mk.terminal`).
   - `automation/`
-    - `shortcuts/`: macOS Shortcuts written in Cherri. Contains the source `.cherri` files. Use the `cherri` compiler to create the corresponding `.shortcut`s.
+    - `shortcuts/`: macOS Shortcuts written in Cherri. Contains the source `.cherri` files (plus shared `lib/`). Use the `cherri` compiler to create the corresponding `.shortcut`s.
 - **`opencode/`**: Configuration for [OpenCode](https://opencode.ai/).
   - Includes custom providers setup (Google Gemini & local Ollama models).
   - Configures custom agents and permissions (`agents/`).
   - Configuration files (`opencode.jsonc`, `dcp.jsonc`, `tui.json`).
-    - Custom commands (`command/` - e.g., `tokenscope.md`).
-  - MCP tools are routed through containerized agents via `docker-mcp-gateway-run.sh` (fsrw, fsro, git, web).
-  - The `opencode/` directory is symlinked to `~/.config/opencode/` for global config, while `.opencode/` serves as the project-local config directory.
+  - Custom commands (`command/` - e.g., `tokenscope.md`).
+  - The `opencode/` directory is symlinked to `~/.config/opencode/` for global config, while `.opencode/` serves as the project-local config directory (synced from `agent-harness/`).
 - **`omlx/`**: [OMLX](https://github.com/secondstate/omlx) configuration for running OpenMoE LLM models. Contains `settings.json` with server, model, memory, cache, and sampling parameters. Symlink to `~/.omlx/`.
 - **`mtplx/`**: [MTPLX](https://mtplx.ai/) model serving configuration. Contains `serve.sh` for running MTPLX-optimized models (e.g., Qwen3.6-27B) with custom context and caching settings.
-- **`nono/`**: [Nono](nono.sh/docs/) base profile and tool runner.
+- **`mlx-lm/`**: [MLX-LM](https://github.com/ml-explore/mlx-lm) model serving. Contains `serve.sh` for running an MLX-LM server with a local 4-bit model.
 - **`llama.cpp/`**: Local LLM inference server setup using [llama.cpp](https://github.com/ggml-org/llama.cpp).
   - `build.sh`: Clones and builds llama.cpp with Metal acceleration, native optimizations, and LTO.
   - `serve.sh`: Starts the llama-server with GPU offloading, flash attention, and Jinja templating support.
+- **`models/`** (submodule): Model presets and Modelfiles for `llama.cpp` and `ollama`.
+- **`llama-benchy/`**: Local LLM benchmark results (raw CSV/JSON), organized by date.
 - **`manifest/`**: [Manifest](https://github.com/mnfst/manifest) tool setup and starter/stopper.
   - `setup.sh`: Clones the manifest repository to `~/repos/manifest`.
   - `start.sh`: Starts the Manifest docker environment using `nerdctl compose`.
   - `stop.sh`: Stops the Manifest docker environment.
+  - `backup.sh`: Dumps the Manifest Postgres database to `manifest/backup/`.
 - **`colima/`**: Configurations for Colima profiles (Docker, Containerd).
 - **`direnv/`**: Configuration for `direnv` (`direnv.toml`).
+- **`docker/sandbox/`** (submodule): Sandbox definitions used by the containerized MCP gateway.
+- **`background-run/`** (submodule): [backgrounded](https://github.com/MKuckert/backgrounded) — a lightweight bash background service runner (start/stop/list/status via PID files).
+- **`claude/`**: Configuration for the Claude Code CLI (e.g., `code/statusline-command.sh`).
+- **`claude-copilot-proxy/`**: Proxy setup for using GitHub Copilot models with Claude-compatible clients (`start.sh`).
+- **`lazydocker/`**: Configuration for [lazydocker](https://github.com/jesseduffield/lazydocker) (`config.yml`).
+- **`research/`**: Durable research artifacts written by the Librarian agent (`research/results/`).
+- **`plans/`**: Plan documents, named `YYYY-MM-DD_[Feature-Name].md`. The active plan is tracked as `PLAN.md` at the repository root; finished plans are archived here.
+- **`AGENTS.md`**: The agent harness protocol — role definitions (Orchestrator, Planner, Builder, reviewers, …) and workflow rules for AI-assisted development in this repository.
 
 ## Setup Instructions
 
@@ -104,6 +118,8 @@ ln -s $(pwd)/opencode ~/.config/opencode
 
 Ensure your API keys (e.g., for Google Gemini) are securely configured in your local environment, as they are excluded from this repository.
 
+The agent harness itself lives in the `agent-harness/` submodule. Its agents, commands, skills, and runtime config are synchronized into this repository (`.opencode/`, `opencode.jsonc`, `tui.jsonc`) using `agent-harness/bin/harness-sync.sh`. The MCP `web` tool is configured as a remote endpoint (see `opencode.jsonc`).
+
 ### Sandboxed execution
 
 Run OpenCode in the current repository's sandbox with:
@@ -119,17 +135,19 @@ For example:
 ./run_harness.sh --help
 ```
 
-`run_harness.sh` launches `opencode` through [`nono`](https://nono.sh) (via `.sandbox/start.sh`), providing a sandboxed OpenCode execution. It uses the Git root as the workspace (or the current directory outside a Git repository) and loads its sandbox command and default arguments from `.sandbox/defaults.sh`. That file is generated by `nono-here.sh` during provisioning (a template-provided one is preserved untouched); without it, `run_harness.sh` exits with an error.
+`run_harness.sh` launches `opencode` through [`nono`](https://nono.sh) (via `.sandbox/start.sh`), providing a sandboxed OpenCode execution. It uses the Git root as the workspace (or the current directory outside a Git repository) and loads its sandbox command and default arguments from `.sandbox/defaults.sh`. That file is generated by `nono-here.sh` during provisioning (a template-provided one is preserved untouched); without it, `run_harness.sh` exits with an error. The sandbox profile is rendered from `.sandbox/profile.template.json`, and `nono` must be installed separately.
 
 ### macOS Shortcuts
 
-The `macos/automation/shortcuts/` directory contains `.cherri` source code files that can be compiled and then imported into the macOS Shortcuts app. These are useful for context switching and automating your workflow.
+The `macos/automation/shortcuts/` directory contains `.cherri` source code files that can be compiled and then imported into the macOS Shortcuts app. These are useful for context switching and automating your workflow. Shared helpers live in `macos/automation/shortcuts/lib/`.
 
 Available Shortcuts:
 
 - `mail-start` / `mail-stop`: Opens/hides communication applications (Microsoft Teams and Outlook).
 - `meeting-start` / `meeting-stop`: Prepares the system for a meeting (hides unrelated apps, focuses Microsoft Teams).
 - `private-start` / `private-stop`: Prepares the system for private time (hides work apps, opens Steam).
+- `env-open` / `env-close`: Opens/closes the development environment (terminal, editor, services).
+- `text-transform`: Text transformation helper.
 
 These shortcuts are written in [Cherri](https://github.com/electrikmilk/cherri) (`*.cherri`). You need to compile them using the Cherri CLI to generate `.shortcut` files, which can than be imported.
 
@@ -189,6 +207,16 @@ To start the MTPLX server:
 mtplx/serve.sh
 ```
 
+### MLX-LM (Model Serving)
+
+MLX-LM provides model serving on Apple silicon using the MLX framework.
+
+To start the server:
+
+```bash
+mlx-lm/serve.sh
+```
+
 ### llama.cpp (Local LLM Inference)
 
 llama.cpp provides local LLM inference with GPU acceleration (Metal on macOS).
@@ -227,6 +255,12 @@ To stop the Manifest environment:
 bash manifest/stop.sh
 ```
 
+To dump the Manifest Postgres database (into `manifest/backup/`):
+
+```bash
+bash manifest/backup.sh
+```
+
 Ensure to create and edit `~/repos/manifest/docker/.env` before running.
 
 ### macOS Build Tools
@@ -263,7 +297,7 @@ colima -p containerd nerdctl install
 
 #### lazydocker
 
-For monitoring the docker environment, one can use [lazydocker](https://github.com/jesseduffield/lazydocker), which is running via docker in docker. Execute the `lazydocker` alias.
+For monitoring the docker environment, one can use [lazydocker](https://github.com/jesseduffield/lazydocker), which is running via docker in docker. Execute the `lazydocker` alias. The local configuration lives in `lazydocker/config.yml`.
 
 If you're on an ARM device (which you probably are with Apple silicon), you need to build the image yourself. See the [full instructions here](https://github.com/jesseduffield/lazydocker#docker):
 
@@ -276,10 +310,10 @@ docker build -t lazyteam/lazydocker \
 
 ## Things others would have to adjust
 
-- Full path containing my username `mkuckert`, e.g. in `mtplx/serve.sh`, `llama.cpp/serve.sh`, `omlx/settings.json`
-- The `dotfiles/.gitconfig*` files
+- Full path containing my username `mkuckert`, e.g. in `mtplx/serve.sh`, `llama.cpp/serve.sh`, `mlx-lm/serve.sh`, `omlx/settings.json`, `.sandbox/profile.template.json`
+- The `dotfiles/.gitconfig*` files (in particular `.gitconfig-work`)
 - The `ssh/*` config files
-- The `opencode.jsonc` MCP gateway paths (`/Users/mkuckert/repos/agent-harness/bin/docker-mcp-gateway-run.sh`)
+- The environment paths in `macos/automation/shortcuts/env-*.cherri`
 
 ## Source
 
