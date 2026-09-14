@@ -19,6 +19,8 @@ export PATH="$PATH:$HOME/repos/cherri"
 export PATH="$PATH:$HOME/env/background-run"
 ## docker sandboxes
 export PATH="$PATH:$HOME/env/docker/sandbox"
+## nono
+export PATH="$PATH:$HOME/env/nono"
 
 # go
 export PATH="$PATH:$HOME/.go/bin"

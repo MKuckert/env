@@ -1,0 +1,9 @@
+{
+  // Folder-specific settings
+  //
+  // For a full list of overridable settings, and general information on folder-specific settings,//zed.dev/docs/configuring-zed#settings-files
+  "format_on_save": "modifications",
+  "file_types": {
+    "Shell Script": ["**/dotfiles/.*"],
+  },
+}

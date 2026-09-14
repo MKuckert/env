@@ -1,9 +1,9 @@
 {
   "$schema": "/Users/mkuckert/.config/nono/nono-profile.schema.json",
-  "extends": ["always-further/opencode"],
+  "extends": ["nolabs-ai/opencode"],
   "meta": {
     "name": "env",
-    "version": "3"
+    "version": "4"
   },
   "workdir": {
     "access": "readwrite"
