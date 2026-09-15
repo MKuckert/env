@@ -10,3 +10,6 @@
 [submodule "agent-harness"]
 	path = agent-harness
 	url = git@github.com:MKuckert/agent-harness.git
+[submodule "nono"]
+	path = nono
+	url = git@github.com:MKuckert/nono-here.git
