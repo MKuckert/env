@@ -33,6 +33,7 @@ brew "direnv"
 brew "safe-rm"
 brew "mactop"
 brew "watchexec"
+brew "terminal-notifier"
 
 # Necessary office tools
 cask "microsoft-excel"
