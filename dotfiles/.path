@@ -1,18 +1,15 @@
 #!/usr/bin/env bash
 
 # Brew installed binaries
-if [ ! -f  /etc/paths.d/homebrew ]; then
-  export PATH="$(brew --prefix)/bin:$PATH"
-fi
-
+export PATH="$(brew --prefix)/bin:$PATH"
 export PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH"
 export PATH="$PATH:$(brew --prefix go)/libexec/bin"
 
 # llama.cpp
-export PATH="$PATH:$HOME/repos/llama.cpp/build/bin"
+#export PATH="$PATH:$HOME/repos/llama.cpp/build/bin"
 
 # cherri
-export PATH="$PATH:$HOME/repos/cherri"
+#export PATH="$PATH:$HOME/repos/cherri"
 
 # tools from this repository
 ## backgrounded processes
