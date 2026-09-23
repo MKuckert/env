@@ -60,6 +60,8 @@ export MTPLX_PORT=$((OLLAMA_PORT + 5))
 
 export MANIFEST_PORT=$((OLLAMA_PORT + 6))
 
+export SPLASH_PORT=$((OLLAMA_PORT + 7))
+
 # Huggingface
 export HF_HOME=~/ai/huggingface
 export HF_HUB_CACHE=$HF_HOME/cache

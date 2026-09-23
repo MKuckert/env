@@ -18,8 +18,10 @@ bench() {
 		return 1
 	fi
 
-	local FORMAT=csv
-	local RESULTS_FILE="$RESULTS_DIR/$(gdate +%Y-%m-%d-%H-%M)-$name-$model.$FORMAT"
+	local FORMAT=json
+
+	local fmodel=$(echo "$model" | tr '/' '-')
+	local RESULTS_FILE="$RESULTS_DIR/$(gdate +%Y-%m-%d-%H-%M)-$name-$fmodel.$FORMAT"
 
   # url, model, api-key
 	local args=(--base-url "$url" --model "$model")
@@ -38,7 +40,8 @@ bench() {
 	args+=(--tg 32 1024)
 
 	# List of context depths (Default: [0]).
-	args+=(--depth 2048)
+	#args+=(--depth 2048)
+	args+=(--depth 0)
 
 	# Enable prefix caching performance measurement. When enabled (and depth > 0),
 	# it performs a two-step benchmark: first loading the context (reported as ctx_pp),
@@ -84,6 +87,12 @@ bench_omlx() {
   stop omlx
 }
 
+bench_splash() {
+  start splash splash serve --model $1 --host 0.0.0.0 --max-context 150K --no-webui
+  bench "http://127.0.0.1:${SPLASH_PORT}/v1" splash $1 "${SPLASH_API_KEY}"
+  stop splash
+}
+
 usage() {
   echo "Usage: $(basename "$0") <test...>" >&2
   echo "  test: all" >&2
@@ -95,15 +104,9 @@ usage() {
 for arg in "$@"; do
   case "$arg" in
     all)
-      #bench_omlx qwen3.6-27B
-      bench_omlx qwen3.6-27B-5bit
-      bench_omlx qwen3.8-27B-4bit
-      bench_omlx qwen3.8-27B-5bit
-      bench_omlx qwen3.8-27B-oQ5e
-      #bench_omlx grug-27b
-      #bench_omlx qwen3.6-35B-A3B
-      #bench_omlx Muse-Glimmer-30B
-      #bench_omlx gemma-4-31B
+      bench_splash incoai/Qwen3.8-27B-Splash
+      bench_splash SiliconSpecies/Swift-Qwen3.8-27B-Splash
+      bench_omlx qwen3.8-27B-oQ4e
       ;;
     help|-h|--help)
       usage

@@ -27,6 +27,7 @@ It also embeds several Git submodules: `agent-harness/`, `background-run/`, `doc
 - **`omlx/`**: [OMLX](https://github.com/secondstate/omlx) configuration for running OpenMoE LLM models. Contains `settings.json` with server, model, memory, cache, and sampling parameters. Symlink to `~/.omlx/`.
 - **`mtplx/`**: [MTPLX](https://mtplx.ai/) model serving configuration. Contains `serve.sh` for running MTPLX-optimized models (e.g., Qwen3.6-27B) with custom context and caching settings.
 - **`mlx-lm/`**: [MLX-LM](https://github.com/ml-explore/mlx-lm) model serving. Contains `serve.sh` for running an MLX-LM server with a local 4-bit model.
+- **`splash/`**: [splash](https://github.com/incoai/splash) model serving. Contains `serve.sh` for running a splash server with a local 4-bit model.
 - **`llama.cpp/`**: Local LLM inference server setup using [llama.cpp](https://github.com/ggml-org/llama.cpp).
   - `build.sh`: Clones and builds llama.cpp with Metal acceleration, native optimizations, and LTO.
   - `serve.sh`: Starts the llama-server with GPU offloading, flash attention, and Jinja templating support.
