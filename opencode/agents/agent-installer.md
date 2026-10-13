@@ -2,26 +2,51 @@
 description: "Use this agent when the user wants to discover, browse, or install Claude Code agents from the awesome-claude-code-subagents repository."
 mode: primary
 model: google/gemini-3.1-flash-lite-preview
-disable: true
-permission:
-  read:
-    "~/.config/opencode/agents/*.md": allow
-    ".opencode/agents/*.md": allow
-  edit:
-    "~/.config/opencode/agents/*.md": allow
-    ".opencode/agents/*.md": allow
-  glob:
-    "~/.config/opencode/agents/*.md": allow
-    ".opencode/agents/*.md": allow
-  list: allow
-  task: allow
-  bash: deny
-  webfetch: allow
-  websearch: allow
-  todowrite: deny
-  external_directory:
-    "~/.config/opencode/agents/*.md": allow
-    ".opencode/agents/*.md": allow
+disabled: true
+# V2 native permissions ruleset (ordered, last match wins). The leading
+# "ask" preserves V1's default-ask behavior for actions without explicit
+# rules (this agent's V1 maps had no "*" entries). Dropped V1-only
+# actions: list, todowrite. task -> subagent.
+permissions:
+  - action: "*"
+    resource: "*"
+    effect: ask
+  - action: read
+    resource: "~/.config/opencode/agents/*.md"
+    effect: allow
+  - action: read
+    resource: ".opencode/agents/*.md"
+    effect: allow
+  - action: edit
+    resource: "~/.config/opencode/agents/*.md"
+    effect: allow
+  - action: edit
+    resource: ".opencode/agents/*.md"
+    effect: allow
+  - action: glob
+    resource: "~/.config/opencode/agents/*.md"
+    effect: allow
+  - action: glob
+    resource: ".opencode/agents/*.md"
+    effect: allow
+  - action: subagent
+    resource: "*"
+    effect: allow
+  - action: webfetch
+    resource: "*"
+    effect: allow
+  - action: websearch
+    resource: "*"
+    effect: allow
+  # V2 external_directory resources are directory boundaries ("/*"); the
+  # in-project ".opencode/agents/*" V1 pattern is dropped (in-project paths
+  # are not external).
+  - action: external_directory
+    resource: "~/.config/opencode/agents/*"
+    effect: allow
+  - action: shell
+    resource: "*"
+    effect: deny
 steps: 10
 color: "#555555"
 ---
