@@ -1,125 +1,130 @@
 {
+  // OpenCode V2 native config (migrated from V1, see issue #113).
+  // $schema URL is shared by V1/V2; the value shapes below are native V2.
   "$schema": "https://opencode.ai/config.json",
+
+  // Shared top-level model; the provider/model syntax is unchanged in V2.
   "model": "github-copilot/gpt-5.6-terra",
-  "small_model": "apfel/apple-foundationmodel",
-  "plugin": ["spotme"],
-  "server": {
-    "hostname": "0.0.0.0",
-    "port": 4444,
-  },
-  // See https://opencode.ai/docs/permissions/
-  "permission": {
-    // Permissive by default
-    "*": "ask",
+
+  // V1-only fields dropped:
+  //   small_model      -> the built-in title agent's model (agents.title.model below)
+  //   plugin ["spotme"]-> spotme is a V1-API npm plugin that does not run in V2
+  //                       and has no port in this migration
+  //   server {..}      -> no V2 equivalent; the server API is an intentional
+  //                       breaking change (V2 service + explicit server options)
+  //   lsp: true        -> V2 preserves the field but does not run LSP servers
+
+  // V1 "permission" map -> ordered "permissions" rules (last match wins).
+  // V2's built-in base policy is allow-all, so the leading catch-all restores
+  // V1's ask-by-default before the specific grants below.
+  "permissions": [
+    { "action": "*", "resource": "*", "effect": "ask" },
 
     // reading a file (matches the file path)
-    "read": {
-      "*": "allow",
-      "*.env": "deny",
-      "*.env.*": "deny",
-      "*.env.example": "allow",
-    },
+    { "action": "read", "resource": "*", "effect": "allow" },
+    { "action": "read", "resource": "*.env", "effect": "deny" },
+    { "action": "read", "resource": "*.env.*", "effect": "deny" },
+    { "action": "read", "resource": "*.env.example", "effect": "allow" },
 
-    // all file modifications (covers edit, write, patch, multiedit)
-    "edit": "allow",
+    // all file modifications (covers the edit, write, and patch tools)
+    { "action": "edit", "resource": "*", "effect": "allow" },
 
     // file globbing (matches the glob pattern)
-    "glob": "allow",
+    { "action": "glob", "resource": "*", "effect": "allow" },
 
     // content search (matches the regex pattern)
-    "grep": "allow",
+    { "action": "grep", "resource": "*", "effect": "allow" },
 
-    // listing files in a directory (matches the directory path)
-    "list": "allow",
+    // running shell commands (V1: bash; matches parsed commands)
+    { "action": "shell", "resource": "*", "effect": "ask" },
+    { "action": "shell", "resource": "find *", "effect": "allow" },
+    { "action": "shell", "resource": "ls *", "effect": "allow" },
+    { "action": "shell", "resource": "grep *", "effect": "allow" },
+    { "action": "shell", "resource": "cat *", "effect": "allow" },
+    { "action": "shell", "resource": "head *", "effect": "allow" },
+    { "action": "shell", "resource": "tail *", "effect": "allow" },
+    { "action": "shell", "resource": "echo *", "effect": "allow" },
+    { "action": "shell", "resource": "sed *", "effect": "allow" },
+    { "action": "shell", "resource": "rm *", "effect": "deny" },
 
-    // running shell commands (matches parsed commands like git status --porcelain)
-    "bash": {
-      "*": "ask",
-      "find *": "allow",
-      "ls *": "allow",
-      "grep *": "allow",
-      "cat *": "allow",
-      "head *": "allow",
-      "tail *": "allow",
-      "echo *": "allow",
-      "sed *": "allow",
-      "rm *": "deny",
-    },
-
-    // launching subagents (matches the subagent type)
-    "task": "allow",
+    // launching subagents (V1: task; matches the agent ID)
+    { "action": "subagent", "resource": "*", "effect": "allow" },
 
     // loading a skill (matches the skill name)
-    "skill": "allow",
-
-    // running LSP queries (currently non-granular)
-    "lsp": "allow",
-
-    // reading/updating the todo list
-    "todoread": "deny",
-    "todowrite": "deny",
+    { "action": "skill", "resource": "*", "effect": "allow" },
 
     // fetching a URL (matches the URL)
-    "webfetch": "allow",
+    { "action": "webfetch", "resource": "*", "effect": "allow" },
 
-    // web/code search (matches the query)
-    "websearch": "allow",
-    "codesearch": "allow",
+    // web/code search (matches the query); V1's separate "codesearch" action
+    // has no V2 equivalent and is covered by websearch
+    { "action": "websearch", "resource": "*", "effect": "allow" },
 
-    // triggered when a tool touches paths outside the project working directory
-    "external_directory": {
-      "*": "ask",
-    },
+    // Dropped V1 actions with no V2 equivalent: list, lsp, todoread/todowrite,
+    // doom_loop. V1's external_directory ask is already the V2 base policy.
+  ],
 
-    // triggered when the same tool call repeats 3 times with identical input
-    "doom_loop": "allow",
+  // V1 "agent" map -> "agents". The mode/hidden values already match the
+  // V2 built-in defaults; kept for explicitness.
+  "agents": {
+    "build": { "mode": "primary" },
+    "plan": { "mode": "primary" },
+    "general": { "mode": "subagent" },
+    "explore": { "mode": "subagent" },
+
+    // System agents (hidden by default in V2)
+    "compaction": { "mode": "primary", "hidden": true },
+    "title": { "mode": "primary", "hidden": true, "model": "apfel/apple-foundationmodel" },
+    "summary": { "mode": "primary", "hidden": true, "model": "apfel/apple-foundationmodel" },
   },
-  "agent": {
-    "build": {
-      "mode": "primary",
-    },
-    "plan": {
-      "mode": "primary",
-    },
-    "general": {
-      "mode": "subagent",
-    },
-    "explore": {
-      "mode": "subagent",
-    },
 
-    // System agents
-    "compaction": {
-      "mode": "primary",
-      "hidden": true,
-    },
-    "title": {
-      "mode": "primary",
-      "hidden": true,
-      "model": "apfel/apple-foundationmodel",
-    },
-    "summary": {
-      "mode": "primary",
-      "hidden": true,
-      "model": "apfel/apple-foundationmodel",
+  // V1 disabled_providers -> provider policy (native V2 form)
+  "experimental": {
+    "policies": [
+      { "action": "provider.use", "resource": "opencode", "effect": "deny" },
+    ],
+    // V1 top-level subagent_depth -> experimental.subagent_depth
+    "subagent_depth": 5,
+    // Dropped V1-only experimental fields: quotaToast (no V2 equivalent),
+    // batch_tool (explicitly unsupported in V2), disable_paste_summary
+    // (V2 CLI setting: prompt.paste "full" in cli.json), mcp_timeout
+    // (-> mcp.timeout below).
+  },
+
+  "shell": "bash",
+  "formatter": true,
+  // V1 compaction.prune has no V2 equivalent (token-budget retention); dropped.
+  "compaction": {
+    "auto": true,
+  },
+  // V1 "snapshot" -> "snapshots"; disables the snapshot feature to roll back agent changes
+  "snapshots": false,
+
+  // V1 experimental.mcp_timeout (600000) -> default MCP timeouts
+  "mcp": {
+    "timeout": {
+      "catalog": 600000,
+      "execution": 600000,
     },
   },
-  "disabled_providers": ["opencode"],
-  "provider": {
+
+  // V1 "provider" map -> "providers"; npm -> package (AI SDK packages take the
+  // aisdk: prefix), api/options -> settings.
+  "providers": {
     "omlx": {
-      "npm": "@ai-sdk/openai-compatible",
       "name": "oMLX (local)",
-      "options": {
+      "package": "aisdk:@ai-sdk/openai-compatible",
+      "settings": {
         "baseURL": "http://127.0.0.1:{env:OMLX_PORT}/v1",
         "apiKey": "{env:OMLX_API_KEY}",
       },
       "models": {
+        // V1 model field "reasoning: true" has no V2 equivalent (accepted but
+        // unsupported); removed.
         "qwen3.8-27B-oQ4e": {
-          "reasoning": true,
           "limit": { "context": 150000, "output": 100000 },
         },
         "qwen3.8-27B-oQ5e": {
-          "reasoning": true,
           "limit": { "context": 150000, "output": 100000 },
         },
         "Muse-Glimmer-30B": {},
@@ -128,9 +133,9 @@
       },
     },
     "apfel": {
-      "npm": "@ai-sdk/openai-compatible",
       "name": "Apfel (local)",
-      "options": {
+      "package": "aisdk:@ai-sdk/openai-compatible",
+      "settings": {
         "baseURL": "http://127.0.0.1:{env:APFEL_PORT}/v1",
         "apiKey": "{env:APFEL_TOKEN}",
       },
@@ -140,23 +145,5 @@
         },
       },
     },
-  },
-  "subagent_depth": 5,
-  "shell": "bash",
-  "formatter": true,
-  "lsp": true,
-  "compaction": {
-    "auto": true,
-    "prune": true,
-  },
-  // Disables the snapshot feature to roll back agent changes as I'm not using it anyway
-  "snapshot": false,
-  "experimental": {
-    "quotaToast": {
-      "enableToast": false,
-    },
-    "batch_tool": true,
-    "disable_paste_summary": true,
-    "mcp_timeout": 600000,
   },
 }
