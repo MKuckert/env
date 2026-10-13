@@ -15,10 +15,15 @@
   //   lsp: true        -> V2 preserves the field but does not run LSP servers
 
   // V1 "permission" map -> ordered "permissions" rules (last match wins).
-  // V2's built-in base policy is allow-all, so the leading catch-all restores
-  // V1's ask-by-default before the specific grants below.
+  // The leading catch-all is V1's own explicit "*": "ask" entry; the specific
+  // grants below follow it. V2's built-in base policy (allow-all, external
+  // directory ask) matches V1's defaults for everything else.
   "permissions": [
     { "action": "*", "resource": "*", "effect": "ask" },
+
+    // V1's base policy denied the question tool for custom agents; V2's base
+    // allows it, so deny explicitly to preserve that.
+    { "action": "question", "resource": "*", "effect": "deny" },
 
     // reading a file (matches the file path)
     { "action": "read", "resource": "*", "effect": "allow" },

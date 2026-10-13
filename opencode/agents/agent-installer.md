@@ -3,14 +3,12 @@ description: "Use this agent when the user wants to discover, browse, or install
 mode: primary
 model: google/gemini-3.1-flash-lite-preview
 disabled: true
-# V2 native permissions ruleset (ordered, last match wins). The leading
-# "ask" preserves V1's default-ask behavior for actions without explicit
-# rules (this agent's V1 maps had no "*" entries). Dropped V1-only
-# actions: list, todowrite. task -> subagent.
+# V2 native permissions ruleset (ordered, last match wins). 1:1 conversion of
+# the V1 frontmatter map; V2's base policy reproduces V1's defaults (allow-all,
+# external_directory ask), so no blanket leading rule is needed. Dropped
+# V1-only actions: list, todowrite (no V2 equivalents). task -> subagent.
+# "question" is denied explicitly to match V1's base policy (V2's base allows).
 permissions:
-  - action: "*"
-    resource: "*"
-    effect: ask
   - action: read
     resource: "~/.config/opencode/agents/*.md"
     effect: allow
@@ -45,6 +43,9 @@ permissions:
     resource: "~/.config/opencode/agents/*"
     effect: allow
   - action: shell
+    resource: "*"
+    effect: deny
+  - action: question
     resource: "*"
     effect: deny
 steps: 10
