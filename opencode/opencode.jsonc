@@ -16,14 +16,20 @@
 
   // V1 "permission" map -> ordered "permissions" rules (last match wins).
   // The leading catch-all is V1's own explicit "*": "ask" entry; the specific
-  // grants below follow it. V2's built-in base policy (allow-all, external
-  // directory ask) matches V1's defaults for everything else.
+  // grants below follow it. It also covers external_directory (V1: ask), and
+  // the managed-directory grants below restore V1's output-dir whitelist.
   "permissions": [
     { "action": "*", "resource": "*", "effect": "ask" },
 
-    // V1's base policy denied the question tool for custom agents; V2's base
-    // allows it, so deny explicitly to preserve that.
-    { "action": "question", "resource": "*", "effect": "deny" },
+    // V1's base policy whitelisted its own output/temp/config directories
+    // (tool-output, tmp, skill/reference dirs) and force-allowed them even
+    // over user config. The leading ask-all above would otherwise prompt on
+    // every re-read of truncated tool output. V2 manages the same set (default
+    // XDG data/config and tmpdir paths).
+    { "action": "external_directory", "resource": "~/.local/share/opencode/tool-output/*", "effect": "allow" },
+    { "action": "external_directory", "resource": "~/.local/share/opencode/shell/*", "effect": "allow" },
+    { "action": "external_directory", "resource": "~/.config/opencode/*", "effect": "allow" },
+    { "action": "external_directory", "resource": "/tmp/opencode/*", "effect": "allow" },
 
     // reading a file (matches the file path)
     { "action": "read", "resource": "*", "effect": "allow" },
