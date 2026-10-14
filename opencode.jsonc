@@ -1,37 +1,51 @@
 {
+  // OpenCode V2 native config (migrated from V1, see issue #113).
+  // $schema URL is shared by V1/V2; the value shape below is native V2.
   "$schema": "https://opencode.ai/config.json",
-  "plugin": ["opencode-cost-guard", "opencode-plugin-statusbar"],
+
+  // V1 "plugin" entries removed: opencode-cost-guard and opencode-plugin-statusbar
+  // were V1-API plugins and do not run in V2. They are ported as local V2 plugins
+  // under .opencode/plugins/ (auto-discovered; no config entry needed).
+
   "default_agent": "Buddy",
-  "agent": {
+
+  // V1 "agent" map -> "agents"; disable -> disabled
+  "agents": {
     "plan": {
-      "disable": true,
+      "disabled": true,
     },
     "build": {
-      "disable": true,
+      "disabled": true,
     },
     "explore": {
-      "disable": true,
+      "disabled": true,
     },
     "general": {
-      "disable": true,
+      "disabled": true,
     },
   },
-  "permission": {
+
+  // V1 "permission" map -> ordered "permissions" ruleset (last match wins).
+  // V2's base policy is allow-all, so only the restrictions are listed here.
+  "permissions": [
     // fetching a URL (matches the URL)
-    "webfetch": "deny",
+    { "action": "webfetch", "resource": "*", "effect": "deny" },
 
     // web/code search (matches the query)
-    "websearch": "deny",
+    { "action": "websearch", "resource": "*", "effect": "deny" },
 
-    "external_directory": {
-      "/tmp": "allow"
-    }
-  },
+    // allow external-directory access to /tmp (V1: "/tmp": "allow")
+    { "action": "external_directory", "resource": "/tmp/*", "effect": "allow" },
+  ],
+
+  // V1 flat "mcp" map -> grouped "mcp.servers"; enabled: true is the default
+  // (V2 uses the inverse "disabled" flag).
   "mcp": {
-    "web": {
-      "type": "remote",
-      "enabled": true,
-      "url": "http://localhost:12100/mcp",
+    "servers": {
+      "web": {
+        "type": "remote",
+        "url": "http://localhost:12100/mcp",
+      },
     },
   },
 }
