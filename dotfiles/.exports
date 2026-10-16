@@ -102,8 +102,6 @@ export DISABLE_INSTALL_GITHUB_APP_COMMAND=1
 export DISABLE_UPGRADE_COMMAND=1
 ## turn automatically resume if the previous session ended mid-turn off
 export CLAUDE_CODE_RESUME_INTERRUPTED_TURN=0
-## Use Opus 4.8 for now
-export ANTHROPIC_DEFAULT_OPUS_MODEL=claude-opus-4-8
 
 # Disable some analytics and annoying prompts
 export DO_NOT_TRACK=1
