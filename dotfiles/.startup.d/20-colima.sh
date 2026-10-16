@@ -2,6 +2,5 @@
 
 set -Eeuo pipefail
 
-echo "🖥️ Starting colima..."
+echo "🖥️ Starting colima containerd..."
 colima start containerd
-colima start docker-qemu

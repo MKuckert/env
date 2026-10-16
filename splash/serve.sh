@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
 
-# offical model
-#MODEL=incoai/Qwen3.8-27B-Splash
-# "better" Swift optimized model
-MODEL=SiliconSpecies/Swift-Qwen3.8-27B-Splash
-
+MODEL=ukisai/Swift-1.5-Qwen3.8-27b
 CONTEXT=150K
 
 # hf download $MODEL
