@@ -90,8 +90,6 @@ export CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS=5
 export CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=3
 ## cap the number of agentic turns when no explicit limit is passed
 export CLAUDE_CODE_MAX_TURNS=200
-## strip Anthropic and cloud provider credentials from subprocess environments (Bash tool, hooks, MCP stdio servers)
-export CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=1
 ## disable automatic compaction when approaching the context limit. The manual /compact command remains available. Use when you want explicit control over when compaction occurs
 export DISABLE_AUTO_COMPACT=1
 ## disable the /feedback command. Also disables /bug and /share, which report through the same path
