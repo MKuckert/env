@@ -10,6 +10,8 @@
   path = ~/.gitconfig-private
 [includeIf "gitdir:~/private/"]
   path = ~/.gitconfig-private
+[includeIf "gitdir:~/kanzo/"]
+  path = ~/.gitconfig-private
 [core]
 	autocrlf = input
 	# Use custom `.gitignore` and `.gitattributes`.

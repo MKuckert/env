@@ -21,3 +21,6 @@ export PATH="$PATH:$HOME/env/nono"
 
 # go
 export PATH="$PATH:$HOME/.go/bin"
+
+# rust
+export PATH="$PATH:$HOME/.cargo/bin"
