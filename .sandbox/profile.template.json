@@ -1,6 +1,6 @@
 {
   "$schema": "/Users/mkuckert/.config/nono/nono-profile.schema.json",
-  "extends": ["nolabs-ai/opencode"],
+  "extends": ["nolabs-ai/opencode-v1"],
   "meta": {
     "name": "env",
     "version": "4"
