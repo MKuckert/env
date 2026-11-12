@@ -57,6 +57,13 @@ brew "gh"
 brew "jq"
 brew "yq"
 brew "patchutils"
+brew "glab"
+brew "ffmpeg"
+brew "imagemagick"
+brew "poppler"
+brew "fd"
+brew "resvg"
+brew "yazi"
 
 ## Containerization
 brew "docker"
