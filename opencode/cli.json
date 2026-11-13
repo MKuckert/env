@@ -1,0 +1,24 @@
+{
+  // OpenCode V2 terminal-client settings (migrated from V1 tui.json, see #113).
+  // Replaces the layered V1 tui.json files; client settings are global-only in V2.
+  "$schema": "https://opencode.ai/v2/cli.json",
+
+  // V1 tui.json attention: {enabled, notifications, sound, sound_pack}.
+  // V2 has no "enabled" flag; the two booleans below cover it.
+  "attention": {
+    "notifications": true,
+    "sound": true,
+    "sound_pack": "opencode.default",
+  },
+
+  // V1 experimental.disable_paste_summary -> global paste mode: show large
+  // pastes in full instead of compact placeholders.
+  "prompt": {
+    "paste": "full",
+  },
+
+  // V1 tui.json plugin "oc-tps@latest" -> built-in TPS footer readout
+  "session": {
+    "tps": true,
+  },
+}

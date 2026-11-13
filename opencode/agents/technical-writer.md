@@ -1,17 +1,31 @@
 ---
-name: technical-writer
 description: "Use this agent when you need to create, improve, or maintain technical documentation including API references, user guides, SDK documentation, and getting-started guides."
-permission:
-  "*": deny
-  read: allow
-  edit: ask
-  glob: allow
-  list: allow
-  task: allow
-  bash: deny
-  webfetch: allow
-  websearch: allow
-  todowrite: deny
+# V1 "name" field dropped: V2 derives the agent ID from the file path.
+# V2 native permissions ruleset (ordered, last match wins). The leading
+# "*" deny preserves the V1 deny-by-default intent. Dropped V1-only
+# actions: list, todowrite; bash deny is covered by the leading deny.
+permissions:
+  - action: "*"
+    resource: "*"
+    effect: deny
+  - action: read
+    resource: "*"
+    effect: allow
+  - action: edit
+    resource: "*"
+    effect: ask
+  - action: glob
+    resource: "*"
+    effect: allow
+  - action: subagent
+    resource: "*"
+    effect: allow
+  - action: webfetch
+    resource: "*"
+    effect: allow
+  - action: websearch
+    resource: "*"
+    effect: allow
 model: github-copilot/claude-sonnet-4.6
 steps: 10
 color: "#555555"
