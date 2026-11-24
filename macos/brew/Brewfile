@@ -120,6 +120,7 @@ cask "vlc"
 brew "incoai/tap/splash"
 brew "agent-browser"
 brew "MKuckert/homebrew-tap/mcp-commands"
+cask "stablyai/orca/orca"
 
 # Browser
 cask "firefox"
